@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- This sitemap was dynamically generated on May 2, 2025 at 6:42 pm by All in One SEO v4.8.1.1 - the original SEO plugin for WordPress. -->
+<!-- This sitemap was dynamically generated on May 2, 2025 at 6:55 pm by All in One SEO v4.8.1.1 - the original SEO plugin for WordPress. -->
 
 <?xml-stylesheet type="text/xsl" href="https://www.outdoorsavannah.com/default-sitemap.xsl?sitemap=page"?>
 <urlset
@@ -17,6 +17,18 @@
 		</image:image>
 		<image:image>
 			<image:loc><![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/04/outdoorsavannah-logo-registered-links-300x184.webp]]></image:loc>
+		</image:image>
+	</url>
+	<url>
+		<loc><![CDATA[https://www.outdoorsavannah.com/product/rolling-ball-toy/]]></loc>
+		<lastmod><![CDATA[2025-05-02T18:55:28+00:00]]></lastmod>
+		<changefreq><![CDATA[weekly]]></changefreq>
+		<priority><![CDATA[0.7]]></priority>
+		<image:image>
+			<image:loc><![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/05/rolling-ball-toy2.webp]]></image:loc>
+		</image:image>
+		<image:image>
+			<image:loc><![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/05/rolling-ball-toy1.webp]]></image:loc>
 		</image:image>
 	</url>
 	<url>
@@ -56,18 +68,6 @@
 		</image:image>
 		<image:image>
 			<image:loc><![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/04/string-toy_1.1.2-819x1024.webp]]></image:loc>
-		</image:image>
-	</url>
-	<url>
-		<loc><![CDATA[https://www.outdoorsavannah.com/rolling-ball-toy/]]></loc>
-		<lastmod><![CDATA[2025-05-02T18:33:31+00:00]]></lastmod>
-		<changefreq><![CDATA[weekly]]></changefreq>
-		<priority><![CDATA[0.7]]></priority>
-		<image:image>
-			<image:loc><![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/05/rolling-ball-toy2.webp]]></image:loc>
-		</image:image>
-		<image:image>
-			<image:loc><![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/05/rolling-ball-toy1.webp]]></image:loc>
 		</image:image>
 	</url>
 	<url>
