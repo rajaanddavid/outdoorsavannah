@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- This sitemap was dynamically generated on April 16, 2025 at 5:56 am by All in One SEO v4.8.1.1 - the original SEO plugin for WordPress. -->
+<!-- This sitemap was dynamically generated on May 2, 2025 at 6:42 pm by All in One SEO v4.8.1.1 - the original SEO plugin for WordPress. -->
 
 <?xml-stylesheet type="text/xsl" href="https://www.outdoorsavannah.com/default-sitemap.xsl?sitemap=page"?>
 <urlset
@@ -9,7 +9,7 @@
 >
 	<url>
 		<loc><![CDATA[https://www.outdoorsavannah.com/]]></loc>
-		<lastmod><![CDATA[2025-04-16T04:45:02+00:00]]></lastmod>
+		<lastmod><![CDATA[2025-04-20T13:44:40+00:00]]></lastmod>
 		<changefreq><![CDATA[always]]></changefreq>
 		<priority><![CDATA[1]]></priority>
 		<image:image>
@@ -17,6 +17,66 @@
 		</image:image>
 		<image:image>
 			<image:loc><![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/04/outdoorsavannah-logo-registered-links-300x184.webp]]></image:loc>
+		</image:image>
+	</url>
+	<url>
+		<loc><![CDATA[https://www.outdoorsavannah.com/product/]]></loc>
+		<lastmod><![CDATA[2025-05-02T18:34:14+00:00]]></lastmod>
+		<changefreq><![CDATA[weekly]]></changefreq>
+		<priority><![CDATA[0.7]]></priority>
+		<image:image>
+			<image:loc><![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/04/tail-wrap_1.1.1-819x1024.webp]]></image:loc>
+		</image:image>
+		<image:image>
+			<image:loc><![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/04/8-11-24-backpack_1.1.1-5-819x1024.webp]]></image:loc>
+		</image:image>
+		<image:image>
+			<image:loc><![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/05/rolling-ball-toy2.webp]]></image:loc>
+		</image:image>
+		<image:image>
+			<image:loc><![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/04/photo-output.jpeg-819x1024.webp]]></image:loc>
+		</image:image>
+		<image:image>
+			<image:loc><![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/04/premade-cat-wall_1.2.2.webp]]></image:loc>
+		</image:image>
+		<image:image>
+			<image:loc><![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/04/gocatpole_2.1.1-819x1024.webp]]></image:loc>
+		</image:image>
+		<image:image>
+			<image:loc><![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/04/shelf-brackets_1.1.1-819x1024.webp]]></image:loc>
+		</image:image>
+		<image:image>
+			<image:loc><![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/04/sleepypod_1.1.1-819x1024.webp]]></image:loc>
+		</image:image>
+		<image:image>
+			<image:loc><![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/04/water-bowl_1.1.1-819x1024.webp]]></image:loc>
+		</image:image>
+		<image:image>
+			<image:loc><![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/04/gecko-toy-product_1.1.2-819x1024.webp]]></image:loc>
+		</image:image>
+		<image:image>
+			<image:loc><![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/04/string-toy_1.1.2-819x1024.webp]]></image:loc>
+		</image:image>
+	</url>
+	<url>
+		<loc><![CDATA[https://www.outdoorsavannah.com/rolling-ball-toy/]]></loc>
+		<lastmod><![CDATA[2025-05-02T18:33:31+00:00]]></lastmod>
+		<changefreq><![CDATA[weekly]]></changefreq>
+		<priority><![CDATA[0.7]]></priority>
+		<image:image>
+			<image:loc><![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/05/rolling-ball-toy2.webp]]></image:loc>
+		</image:image>
+		<image:image>
+			<image:loc><![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/05/rolling-ball-toy1.webp]]></image:loc>
+		</image:image>
+	</url>
+	<url>
+		<loc><![CDATA[https://www.outdoorsavannah.com/product/harness/]]></loc>
+		<lastmod><![CDATA[2025-04-19T15:46:51+00:00]]></lastmod>
+		<changefreq><![CDATA[weekly]]></changefreq>
+		<priority><![CDATA[0.7]]></priority>
+		<image:image>
+			<image:loc><![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/04/tail-wrap_1.1.1-819x1024.webp]]></image:loc>
 		</image:image>
 	</url>
 	<url>
@@ -62,42 +122,6 @@
 		</image:image>
 		<image:image>
 			<image:loc><![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/04/anchors.webp]]></image:loc>
-		</image:image>
-	</url>
-	<url>
-		<loc><![CDATA[https://www.outdoorsavannah.com/product/]]></loc>
-		<lastmod><![CDATA[2025-04-16T04:42:40+00:00]]></lastmod>
-		<changefreq><![CDATA[weekly]]></changefreq>
-		<priority><![CDATA[0.7]]></priority>
-		<image:image>
-			<image:loc><![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/04/tail-wrap_1.1.1-819x1024.webp]]></image:loc>
-		</image:image>
-		<image:image>
-			<image:loc><![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/04/8-11-24-backpack_1.1.1-5-819x1024.webp]]></image:loc>
-		</image:image>
-		<image:image>
-			<image:loc><![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/04/photo-output.jpeg-819x1024.webp]]></image:loc>
-		</image:image>
-		<image:image>
-			<image:loc><![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/04/premade-cat-wall_1.2.2.webp]]></image:loc>
-		</image:image>
-		<image:image>
-			<image:loc><![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/04/gocatpole_2.1.1-819x1024.webp]]></image:loc>
-		</image:image>
-		<image:image>
-			<image:loc><![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/04/shelf-brackets_1.1.1-819x1024.webp]]></image:loc>
-		</image:image>
-		<image:image>
-			<image:loc><![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/04/sleepypod_1.1.1-819x1024.webp]]></image:loc>
-		</image:image>
-		<image:image>
-			<image:loc><![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/04/water-bowl_1.1.1-819x1024.webp]]></image:loc>
-		</image:image>
-		<image:image>
-			<image:loc><![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/04/gecko-toy-product_1.1.2-819x1024.webp]]></image:loc>
-		</image:image>
-		<image:image>
-			<image:loc><![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/04/string-toy_1.1.2-819x1024.webp]]></image:loc>
 		</image:image>
 	</url>
 	<url>
@@ -161,15 +185,6 @@
 		<priority><![CDATA[0.7]]></priority>
 		<image:image>
 			<image:loc><![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/04/photo-output.jpeg-819x1024.webp]]></image:loc>
-		</image:image>
-	</url>
-	<url>
-		<loc><![CDATA[https://www.outdoorsavannah.com/product/harness/]]></loc>
-		<lastmod><![CDATA[2025-04-15T23:29:47+00:00]]></lastmod>
-		<changefreq><![CDATA[weekly]]></changefreq>
-		<priority><![CDATA[0.7]]></priority>
-		<image:image>
-			<image:loc><![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/04/tail-wrap_1.1.1-819x1024.webp]]></image:loc>
 		</image:image>
 	</url>
 	<url>
