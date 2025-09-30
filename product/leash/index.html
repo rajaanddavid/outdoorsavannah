@@ -221,10 +221,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <!-- <div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="https://links.outdoorsavannah.com/amazon-leash" target="_blank" rel=" noreferrer noopener nofollow">Buy on Amazon</a></div> -->
 <script>
 	// Function to check if the user is on Instagram or Facebook browser
-	function isInstagramOrFacebook() {
-	  const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-	  return /Instagram|FBAN|FBAV/i.test(userAgent);  // Instagram and Facebook's in-app browsers
-	}
+  function isAppBrowser() {
+    const ua = navigator.userAgent;
+    return /Instagram|FBAV|FBAN|FB_IAB|FB4A|Threads/i.test(ua);
+}
 
 	  // Function to check if the user is on a mobile device (excluding in-app browsers)
   function isMobile() {
@@ -239,7 +239,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 	  const instagramFacebookLink = "https://product.outdoorsavannah.com/amazon-leash"; // Link for Instagram/Facebook users
 
 	  // Update link based on whether the user is in Instagram or Facebook browser
-	  if (isInstagramOrFacebook()) {
+	  if (isAppBrowser()) {
 		buttonLink.href = instagramFacebookLink;
 	  } else {
 		buttonLink.href = fallbackLink;
