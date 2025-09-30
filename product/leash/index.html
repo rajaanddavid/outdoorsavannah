@@ -218,9 +218,42 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 <div class="wp-block-column is-layout-flow wp-block-column-is-layout-flow">
 <div class="wp-block-buttons is-layout-flex wp-block-buttons-is-layout-flex">
-<div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="https://links.outdoorsavannah.com/amazon-leash" target="_blank" rel=" noreferrer noopener nofollow">Buy on Amazon</a></div>
-</div>
+<!-- <div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="https://links.outdoorsavannah.com/amazon-leash" target="_blank" rel=" noreferrer noopener nofollow">Buy on Amazon</a></div> -->
+<script>
+	// Function to check if the user is on Instagram or Facebook browser
+	function isInstagramOrFacebook() {
+	  const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+	  return /Instagram|FBAN|FBAV/i.test(userAgent);  // Instagram and Facebook's in-app browsers
+	}
 
+	  // Function to check if the user is on a mobile device (excluding in-app browsers)
+  function isMobile() {
+	const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+	return /iPhone|iPad|iPod|Android/i.test(userAgent);  // Check for mobile devices
+  }
+
+	// Modify the link based on the browser
+	function updateButtonLink() {
+	  const buttonLink = document.querySelector('.wp-block-button__link');
+	  const fallbackLink = "https://links.outdoorsavannah.com/amazon-leash"; // Normal link (e.g., Amazon link)
+	  const instagramFacebookLink = "https://product.outdoorsavannah.com/amazon-leash"; // Link for Instagram/Facebook users
+
+	  // Update link based on whether the user is in Instagram or Facebook browser
+	  if (isInstagramOrFacebook()) {
+		buttonLink.href = instagramFacebookLink;
+	  } else {
+		buttonLink.href = fallbackLink;
+	  }
+	}
+
+	// Run the function when the page loads
+	document.addEventListener('DOMContentLoaded', updateButtonLink);
+</script>
+
+<div class="wp-block-button">
+	<a class="wp-block-button__link wp-element-button" href="https://links.outdoorsavannah.com/amazon-leash" target="_blank" rel="noreferrer noopener nofollow">Buy on Amazon</a>
+</div>
+</div>
 
 
 <p>I like this leash because it&#8217;s long (16 ft) and has an easy to use brake and locking mechanism.</p>
