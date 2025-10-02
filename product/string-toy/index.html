@@ -93,7 +93,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 	// Modify the link based on the browser
 	function updateButtonLink() {
-		const buttons = document.querySelectorAll('.wp-block-button__link');
+		const buttons = document.querySelectorAll('.buy-button');
 		const entryTitle = document.querySelector('.entry-title');
 
 		if (!buttons.length || !entryTitle) return;
@@ -117,6 +117,15 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 				button.href = instagramFacebookLink;
 			} else {
 				button.href = fallbackLink;
+			}
+		});
+
+		// ===== Extra links update =====
+		const extraLinks = document.querySelectorAll('a[title="extralink"]');
+		extraLinks.forEach(link => {
+			if (link.href) {
+				// Replace "links." subdomain with "product."
+				link.href = link.href.replace(/^https?:\/\/links\./, 'https://product.');
 			}
 		});
 	}
