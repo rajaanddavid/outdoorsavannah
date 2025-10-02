@@ -93,30 +93,32 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 	// Modify the link based on the browser
 	function updateButtonLink() {
-		const buttonLink = document.querySelector('.wp-block-button__link');
+		const buttons = document.querySelectorAll('.wp-block-button__link');
 		const entryTitle = document.querySelector('.entry-title');
 
-		if (!buttonLink || !entryTitle) return;
-
-		// Get last word of button text (e.g. "Amazon")
-		const buttonText = buttonLink.textContent.trim();
-		const buttonWords = buttonText.split(/\s+/);
-		const buttonWord = buttonWords[buttonWords.length - 1].toLowerCase();
+		if (!buttons.length || !entryTitle) return;
 
 		// Get entry title text (e.g. "Leash")
-		const entryWord = entryTitle.textContent.trim().toLowerCase();
+		const entryWord = entryTitle.textContent.trim().toLowerCase().replace(/\s+/g, '');
 
-		// Construct URLs
-		const slug = `${buttonWord}-${entryWord}`;
-		const fallbackLink = `https://links.outdoorsavannah.com/${slug}`;
-		const instagramFacebookLink = `https://product.outdoorsavannah.com/${slug}`;
+		buttons.forEach(button => {
+			// Get last word of button text (e.g. "Amazon", "Aliexpress")
+			const buttonText = button.textContent.trim();
+			const buttonWords = buttonText.split(/\s+/);
+			const buttonWord = buttonWords[buttonWords.length - 1].toLowerCase();
 
-		// Update link based on whether the user is in Instagram or Facebook browser
-		if (isAppBrowser()) {
-		buttonLink.href = instagramFacebookLink;
-		} else {
-		buttonLink.href = fallbackLink;
-		}
+			// Construct URLs
+			const slug = `${buttonWord}-${entryWord}`;
+			const fallbackLink = `https://links.outdoorsavannah.com/${slug}`;
+			const instagramFacebookLink = `https://product.outdoorsavannah.com/${slug}`;
+
+			// Update link based on whether the user is in Instagram or Facebook browser
+			if (isAppBrowser()) {
+				button.href = instagramFacebookLink;
+			} else {
+				button.href = fallbackLink;
+			}
+		});
 	}
 
 	// Run the function when the page loads
