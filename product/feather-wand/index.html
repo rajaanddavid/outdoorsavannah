@@ -120,14 +120,16 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 			}
 		});
 
-		// ===== Extra links update =====
-		const extraLinks = document.querySelectorAll('a[title="extralink"]');
-		extraLinks.forEach(link => {
-			if (link.href) {
-				// Replace "links." subdomain with "product."
-				link.href = link.href.replace(/^https?:\/\/links\./, 'https://product.');
-			}
-		});
+		// ===== Extra links update (only for app browsers) =====
+		if (isAppBrowser()) {
+			const extraLinks = document.querySelectorAll('a[title^="extralink"]'); // matches extralink, extralink1, extralink2, etc.
+			extraLinks.forEach(link => {
+				if (link.href) {
+					// Replace "links." subdomain with "product."
+					link.href = link.href.replace(/^https?:\/\/links\./, 'https://product.');
+				}
+			});
+		}
 	}
 
 	// Run the function when the page loads
@@ -282,7 +284,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
 
-<p>The feathers are <a href="https://links.outdoorsavannah.com/amazon-dabirdrefills" target="_blank" rel="noopener nofollow" title="extralink">replaceable!</a></p>
+<p>The feathers are <a href="https://links.outdoorsavannah.com/amazon-dabirdrefills" target="_blank" rel="noopener nofollow" title="extralink1">replaceable!</a></p>
 
 
 
