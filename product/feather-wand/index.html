@@ -93,7 +93,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 	// Modify the link based on the browser
 	function updateButtonLink() {
-		const buttons = document.querySelectorAll('.buy-button');
+		const buttons = document.querySelectorAll('.buy-button a.wp-block-button__link');
 		const entryTitle = document.querySelector('.entry-title');
 
 		if (!buttons.length || !entryTitle) return;
