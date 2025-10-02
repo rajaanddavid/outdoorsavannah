@@ -83,6 +83,46 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 <link rel="me" href="https://www.threads.com/@outdoorsavannah">
 <link rel="me" href="https://www.threads.com/@rajaanddavid">
+
+<script>
+	// Function to check if the user is on Instagram or Facebook browser
+	function isAppBrowser() {
+		const ua = navigator.userAgent;
+		return /Instagram|FBAV|FBAN\/FBIOS|FB_IAB|FB4A|Threads|Barcelona/i.test(ua);
+	}
+
+	// Modify the link based on the browser
+	function updateButtonLink() {
+		const buttonLink = document.querySelector('.wp-block-button__link');
+		const entryTitle = document.querySelector('.entry-title');
+
+		if (!buttonLink || !entryTitle) return;
+
+		// Get last word of button text (e.g. "Amazon")
+		const buttonText = buttonLink.textContent.trim();
+		const buttonWords = buttonText.split(/\s+/);
+		const buttonWord = buttonWords[buttonWords.length - 1].toLowerCase();
+
+		// Get entry title text (e.g. "Leash")
+		const entryWord = entryTitle.textContent.trim().toLowerCase();
+
+		// Construct URLs
+		const slug = `${buttonWord}-${entryWord}`;
+		const fallbackLink = `https://links.outdoorsavannah.com/${slug}`;
+		const instagramFacebookLink = `https://product.outdoorsavannah.com/${slug}`;
+
+		// Update link based on whether the user is in Instagram or Facebook browser
+		if (isAppBrowser()) {
+		buttonLink.href = instagramFacebookLink;
+		} else {
+		buttonLink.href = fallbackLink;
+		}
+	}
+
+	// Run the function when the page loads
+	document.addEventListener('DOMContentLoaded', updateButtonLink);
+</script>
+
 <link rel="icon" href="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-150x150.webp" sizes="32x32">
 <link rel="icon" href="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.webp" sizes="192x192">
 <link rel="apple-touch-icon" href="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.webp">
@@ -218,41 +258,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 <div class="wp-block-column is-layout-flow wp-block-column-is-layout-flow">
 <div class="wp-block-buttons is-layout-flex wp-block-buttons-is-layout-flex">
-<!-- <div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="https://links.outdoorsavannah.com/amazon-leash" target="_blank" rel=" noreferrer noopener nofollow">Buy on Amazon</a></div> -->
-<script>
-	// Function to check if the user is on Instagram or Facebook browser
-  function isAppBrowser() {
-    const ua = navigator.userAgent;
-    return /Instagram|FBAV|FBAN\/FBIOS|FB_IAB|FB4A|Threads|Barcelona/i.test(ua);
-}
-
-	  // Function to check if the user is on a mobile device (excluding in-app browsers)
-  function isMobile() {
-	const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-	return /iPhone|iPad|iPod|Android/i.test(userAgent);  // Check for mobile devices
-  }
-
-	// Modify the link based on the browser
-	function updateButtonLink() {
-	  const buttonLink = document.querySelector('.wp-block-button__link');
-	  const fallbackLink = "https://links.outdoorsavannah.com/amazon-leash"; // Normal link (e.g., Amazon link)
-	  const instagramFacebookLink = "https://product.outdoorsavannah.com/amazon-leash"; // Link for Instagram/Facebook users
-
-	  // Update link based on whether the user is in Instagram or Facebook browser
-	  if (isAppBrowser()) {
-		buttonLink.href = instagramFacebookLink;
-	  } else {
-		buttonLink.href = fallbackLink;
-	  }
-	}
-
-	// Run the function when the page loads
-	document.addEventListener('DOMContentLoaded', updateButtonLink);
-</script>
-
-<div class="wp-block-button">
-	<a class="wp-block-button__link wp-element-button" href="https://links.outdoorsavannah.com/amazon-leash" target="_blank" rel="noreferrer noopener nofollow">Buy on Amazon</a>
-</div>
+<div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="https://links.outdoorsavannah.com/amazon-leash" target="_blank" rel=" noreferrer noopener nofollow">Buy on Amazon</a></div>
 </div>
 
 
