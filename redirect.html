@@ -32,14 +32,15 @@
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, 'text/html');
 
-            // --- Replace current <head> with original page head ---
-            document.head.innerHTML = '';
+            // --- Append product head (don't wipe existing <head>) ---
             Array.from(doc.head.children).forEach(node => {
                 document.head.appendChild(node.cloneNode(true));
             });
+            console.log("Head elements from product page appended.");
 
             // --- Replace body content ---
             document.body.innerHTML = doc.body.innerHTML;
+            console.log("Body content replaced with product page.");
 
             // --- Helpers for redirect script ---
             function getProductName() {
@@ -111,14 +112,18 @@
                 document.head.appendChild(script);
 
                 script.onload = function() {
+                    console.log("Auditzy script loaded successfully.")
                     sessionStorage.setItem('redirected', 'true');
                     setTimeout(() => {
                         if (isAndroid()) window.open(targetLink, '_blank');
                         else window.location.href = targetLink;
                     }, 1500);
                 };
+                // no delay on failure
                 script.onerror = function() {
-                    setTimeout(() => { window.location.href = targetLink; }, 1500);
+                    console.warn("Auditzy script failed to load.");
+                    if (isAndroid()) window.open(targetLink, '_blank');
+                    else window.location.href = targetLink;
                 };
             }
 
