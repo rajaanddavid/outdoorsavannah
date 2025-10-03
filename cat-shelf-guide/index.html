@@ -93,6 +93,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 	}
 
 	function updateButtonLink() {
+		// --- Buy Buttons ---
 		const buttons = document.querySelectorAll('.buy-button a.wp-block-button__link');
 		const entryTitle = document.querySelector('.entry-title');
 		if (buttons.length && entryTitle) {
@@ -108,17 +109,14 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 			});
 		}
 
-		// --- Extra Links ---
-		const extraLinks = document.querySelectorAll('a[title^="extralink"]');
-		extraLinks.forEach(link => {
-			let href = link.getAttribute('href');
-			if (!href) return;
-
-			href = href.trim(); // remove whitespace
-			// Replace "links." with "product."
-			const newHref = href.replace(/^https?:\/\/links\./i, 'https://product.');
-			link.setAttribute('href', newHref);
-		});
+		// --- Global Replace (only in app browsers) ---
+		if (isAppBrowser()) {
+			document.querySelectorAll('a[href*="links.outdoorsavannah.com"]').forEach(link => {
+				const href = link.getAttribute('href').trim();
+				const newHref = href.replace('links.outdoorsavannah.com', 'product.outdoorsavannah.com');
+				link.setAttribute('href', newHref);
+			});
+		}
 	}
 
 	document.addEventListener('DOMContentLoaded', updateButtonLink);
