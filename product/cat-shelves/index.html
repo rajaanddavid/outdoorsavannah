@@ -85,6 +85,40 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 <link rel="me" href="https://www.threads.com/@outdoorsavannah">
 <link rel="me" href="https://www.threads.com/@rajaanddavid">
+
+<script>function isAppBrowser() {
+		const ua = navigator.userAgent;
+		return /Instagram|FBAV|FBAN\/FBIOS|FB_IAB|FB4A|Threads|Barcelona/i.test(ua);
+	}
+
+	function updateButtonLink() {
+		// --- Buy Buttons ---
+		const buttons = document.querySelectorAll('.buy-button a.wp-block-button__link');
+		const entryTitle = document.querySelector('.entry-title');
+		if (buttons.length && entryTitle) {
+			const entryWord = entryTitle.textContent.trim().toLowerCase().replace(/\s+/g, '');
+			buttons.forEach(button => {
+				const buttonText = button.textContent.trim();
+				const buttonWords = buttonText.split(/\s+/);
+				const buttonWord = buttonWords[buttonWords.length - 1].toLowerCase();
+				const slug = `${buttonWord}-${entryWord}`;
+				button.href = isAppBrowser()
+					? `https://product.outdoorsavannah.com/${slug}`
+					: `https://links.outdoorsavannah.com/${slug}`;
+			});
+		}
+
+		// --- Global Replace (only in app browsers) ---
+		if (isAppBrowser()) {
+			document.querySelectorAll('a[href*="links.outdoorsavannah.com"]').forEach(link => {
+				const href = link.getAttribute('href').trim();
+				const newHref = href.replace('links.outdoorsavannah.com', 'product.outdoorsavannah.com');
+				link.setAttribute('href', newHref);
+			});
+		}
+	}
+
+	document.addEventListener('DOMContentLoaded', updateButtonLink);</script>
 <link rel="icon" href="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-150x150.webp" sizes="32x32">
 <link rel="icon" href="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.webp" sizes="192x192">
 <link rel="apple-touch-icon" href="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.webp">

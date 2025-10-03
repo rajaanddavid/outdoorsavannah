@@ -84,56 +84,39 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <link rel="me" href="https://www.threads.com/@outdoorsavannah">
 <link rel="me" href="https://www.threads.com/@rajaanddavid">
 
-<script>
-	// Function to check if the user is on Instagram or Facebook browser
-	function isAppBrowser() {
+<script>function isAppBrowser() {
 		const ua = navigator.userAgent;
 		return /Instagram|FBAV|FBAN\/FBIOS|FB_IAB|FB4A|Threads|Barcelona/i.test(ua);
 	}
 
-	// Modify the link based on the browser
 	function updateButtonLink() {
+		// --- Buy Buttons ---
 		const buttons = document.querySelectorAll('.buy-button a.wp-block-button__link');
 		const entryTitle = document.querySelector('.entry-title');
+		if (buttons.length && entryTitle) {
+			const entryWord = entryTitle.textContent.trim().toLowerCase().replace(/\s+/g, '');
+			buttons.forEach(button => {
+				const buttonText = button.textContent.trim();
+				const buttonWords = buttonText.split(/\s+/);
+				const buttonWord = buttonWords[buttonWords.length - 1].toLowerCase();
+				const slug = `${buttonWord}-${entryWord}`;
+				button.href = isAppBrowser()
+					? `https://product.outdoorsavannah.com/${slug}`
+					: `https://links.outdoorsavannah.com/${slug}`;
+			});
+		}
 
-		if (!buttons.length || !entryTitle) return;
-
-		// Get entry title text (e.g. "Leash")
-		const entryWord = entryTitle.textContent.trim().toLowerCase().replace(/\s+/g, '');
-
-		buttons.forEach(button => {
-			// Get last word of button text (e.g. "Amazon", "Aliexpress")
-			const buttonText = button.textContent.trim();
-			const buttonWords = buttonText.split(/\s+/);
-			const buttonWord = buttonWords[buttonWords.length - 1].toLowerCase();
-
-			// Construct URLs
-			const slug = `${buttonWord}-${entryWord}`;
-			const fallbackLink = `https://links.outdoorsavannah.com/${slug}`;
-			const instagramFacebookLink = `https://product.outdoorsavannah.com/${slug}`;
-
-			// Update link based on whether the user is in Instagram or Facebook browser
-			if (isAppBrowser()) {
-				button.href = instagramFacebookLink;
-			} else {
-				button.href = fallbackLink;
-			}
-		});
-
-		// ===== Extra links update =====
-		const extraLinks = document.querySelectorAll('a[title="extralink"]');
-		extraLinks.forEach(link => {
-			if (link.href) {
-				// Replace "links." subdomain with "product."
-				link.href = link.href.replace(/^https?:\/\/links\./, 'https://product.');
-			}
-		});
+		// --- Global Replace (only in app browsers) ---
+		if (isAppBrowser()) {
+			document.querySelectorAll('a[href*="links.outdoorsavannah.com"]').forEach(link => {
+				const href = link.getAttribute('href').trim();
+				const newHref = href.replace('links.outdoorsavannah.com', 'product.outdoorsavannah.com');
+				link.setAttribute('href', newHref);
+			});
+		}
 	}
 
-	// Run the function when the page loads
-	document.addEventListener('DOMContentLoaded', updateButtonLink);
-</script>
-
+	document.addEventListener('DOMContentLoaded', updateButtonLink);</script>
 <link rel="icon" href="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-150x150.webp" sizes="32x32">
 <link rel="icon" href="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.webp" sizes="192x192">
 <link rel="apple-touch-icon" href="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.webp">
