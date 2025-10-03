@@ -84,8 +84,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <link rel="me" href="https://www.threads.com/@outdoorsavannah">
 <link rel="me" href="https://www.threads.com/@rajaanddavid">
 
-<script>
-	document.addEventListener('DOMContentLoaded', () => {
+<script>document.addEventListener('DOMContentLoaded', () => {
+		// Skip homepage
+		if (location.pathname === "/") return;
+
 		const ua = navigator.userAgent;
 		const isAppBrowser = /Instagram|FBAV|FBAN\/FBIOS|FB_IAB|FB4A|Threads|Barcelona/i.test(ua);
 
@@ -107,9 +109,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 		document.querySelectorAll('a[href*="links.outdoorsavannah.com"]').forEach(link => {
 			link.href = link.href.replace('links.outdoorsavannah.com', 'product.outdoorsavannah.com');
 		});
-	});
-</script>
-
+	});</script>
 <link rel="icon" href="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-150x150.webp" sizes="32x32">
 <link rel="icon" href="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.webp" sizes="192x192">
 <link rel="apple-touch-icon" href="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.webp">
