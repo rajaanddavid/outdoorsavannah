@@ -121,15 +121,16 @@
             });
 
             // --- Determine redirect target ---
-            const pageHash = ((window.location.hash || '').substring(1).split('?')[0] || '').toLowerCase();
+            // Determine redirect target
+            let pageHash = window.location.hash.substring(1).toLowerCase();
+            if (!pageHash && location.href.includes('#')) {
+                // Some app browsers might not populate window.location.hash initially
+                pageHash = location.href.split('#')[1].toLowerCase();
+            }
+
             const productLinks = amazonLinks[productName];
-
-            // Only consider keys that do NOT end with _deeplink_ios/_deeplink_android
             const validKeys = Object.keys(productLinks).filter(k => !k.endsWith('_deeplink_ios') && !k.endsWith('_deeplink_android'));
-
-            // Use pageHash if it exists in validKeys, otherwise fallback to first valid key
-            const targetKey = pageHash && validKeys.includes(pageHash) ? pageHash : validKeys[0];
-
+            const targetKey = validKeys.includes(pageHash) ? pageHash : validKeys[0];
             const targetLink = targetKey ? productLinks[targetKey] : null;
 
             if (!targetLink) return;
