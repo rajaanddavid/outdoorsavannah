@@ -26,7 +26,6 @@
         const isAndroid = /Android/i.test(ua);
         const isIOS = /iPhone|iPad|iPod/i.test(ua);
         const isAppBrowser = /Instagram|FBAV|FBAN\/FBIOS|FB_IAB|FB4A|Threads|Barcelona/i.test(ua);
-        const isFacebookBrowser = /FBAN\/FBIOS|FBAV|FB_IAB|FB4A/i.test(ua);
 
         // --- Parse query string and hash ---
         const params = new URLSearchParams(window.location.search);
@@ -59,12 +58,10 @@
                 return;
             }
 
-            // --- Determine target link ---
+            // --- Determine target key ---
             const validKeys = Object.keys(links).filter(k => !k.endsWith('_deeplink_ios') && !k.endsWith('_deeplink_android'));
             let targetKey;
-
             if (isAppBrowser) {
-                // Use "variant" query param for app browsers
                 const variantParam = params.get('variant') || hash;
                 targetKey = variantParam && validKeys.includes(variantParam.toLowerCase())
                     ? variantParam.toLowerCase()
@@ -77,35 +74,23 @@
             if (!targetLink) {
                 document.body.innerHTML = '<p>Error: Target link not found.</p>';
                 return;
-        }
-
-            let redirectLink = targetLink;
-
-            // Only convert hash to query param for app browsers
-            if (isAppBrowser && hash) {
-                const hashParam = encodeURIComponent(hash);
-
-                // Check if the redirectLink already has query params
-                if (redirectLink.includes('?')) {
-                    redirectLink += '&variant=' + hashParam;
-                } else {
-                    redirectLink += '?variant=' + hashParam;
-                }
-
-                // Append all original query params from current URL (except product)
-                const currentParams = new URLSearchParams(window.location.search);
-                currentParams.forEach((value, key) => {
-                    if (key !== 'product') {
-                        redirectLink += `&${encodeURIComponent(key)}=${encodeURIComponent(value)}`;
-                    }
-                });
             }
 
+            // --- Preserve all original query params (except product) ---
+            const redirectUrl = new URL(targetLink);
+            params.forEach((value, key) => {
+                if (key !== 'product' && key !== 'variant') {
+                    redirectUrl.searchParams.set(key, value);
+                }
+            });
+
+            const finalRedirect = redirectUrl.toString();
+
             if (!isMobile || !isAppBrowser) {
-                // Desktop or non-app mobile: immediate redirect
-                window.location.href = redirectLink;
+                // Desktop / external mobile: redirect immediately
+                window.location.href = finalRedirect;
             } else {
-                // Mobile / App Browser
+                // Mobile / App Browser: load Auditzy first
                 const auditzyScript = document.createElement('script');
                 auditzyScript.src = "https://rum.auditzy.com/rOGtCPfa-www.outdoorsavannah.com-iar.js";
                 auditzyScript.async = true;
@@ -115,18 +100,19 @@
                     console.log("Auditzy script loaded.");
                     sessionStorage.setItem('redirected', 'true');
                     setTimeout(() => {
-                        if (isAndroid) window.open(redirectLink, '_blank'); // Android opens in new tab
-                        else window.location.href = redirectLink;          // iOS / other: direct
+                        if (isAndroid) window.open(finalRedirect, '_blank');
+                        else window.location.href = finalRedirect;
                     }, 1500);
                 };
 
                 auditzyScript.onerror = function() {
                     console.warn("Auditzy script failed to load, redirecting anyway.");
-                    if (isAndroid) window.open(redirectLink, '_blank');
-                    else window.location.href = redirectLink;
+                    if (isAndroid) window.open(finalRedirect, '_blank');
+                    else window.location.href = finalRedirect;
                 };
             }
-        } catch (e) {
+
+        } catch(e) {
             document.body.innerHTML = '<p>Failed to load product links.</p>';
             console.error(e);
         }
