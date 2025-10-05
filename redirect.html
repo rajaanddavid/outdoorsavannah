@@ -87,11 +87,12 @@
                     else if (links.amazon) btn.href = links.amazon; // fallback to main amazon link
                 });
 
+                // Update inline extralinks
                 document.querySelectorAll('a[title^="extralink"]').forEach(link => {
                     const key = (link.getAttribute('title') || '').trim().toLowerCase();
-                    if (key && links[key]) link.href = links[key]; // match by title
-                    else if (pageHash && links[pageHash]) link.href = links[pageHash]; // match hash if available
+                    if (key && links[key]) link.href = links[key];
                     else {
+                        // fallback to first extralink in JSON
                         const fallback = Object.keys(links).find(k => k.startsWith('extralink'));
                         if (fallback) link.href = links[fallback];
                     }
@@ -117,52 +118,47 @@
             const productName = getProductName();
             updateAllLinks(productName, amazonLinks);
 
-            // --- Determine redirect target ---
-            let pageHash = (window.location.hash || "").substring(1).toLowerCase();
+            // --- Determine redirect target (prioritize hash if exists) ---
+            let pageHash = (window.location.hash || '').substring(1);
+            if (!pageHash && location.href.includes('#')) pageHash = location.href.split('#')[1];
+            pageHash = (pageHash || '').toLowerCase();
 
-            const productLinks = amazonLinks[productName] || {};
-            let targetLink = null;
-
-            if (pageHash && productLinks[pageHash]) {
-                targetLink = productLinks[pageHash];  // exact extralink match
-            } else if (productLinks.amazon) {
-                targetLink = productLinks.amazon;     // fallback to amazon
-            } else {
-                // fallback to first extralink (if no hash & no amazon)
-                const firstExtra = Object.keys(productLinks).find(k => k.startsWith("extralink"));
-                if (firstExtra) targetLink = productLinks[firstExtra];
-            }
+            const productLinks = amazonLinks[productName];
+            const validKeys = Object.keys(productLinks).filter(k => !k.endsWith('_deeplink_ios') && !k.endsWith('_deeplink_android'));
+            const targetKey = validKeys.includes(pageHash) ? pageHash : validKeys[0];
+            const targetLink = targetKey ? productLinks[targetKey] : null;
 
             if (!targetLink) return;
 
-            // --- Perform redirect (two-step flow) ---
+            // --- Build redirect link (strip hash for final redirect) ---
             let redirectLink = targetLink;
-            if (window.location.hash) redirectLink += window.location.hash;
 
-            if (isAppBrowser() && !sessionStorage.getItem("out_of_app_done")) {
-                console.log("Inside app browser, loading Auditzy...");
-                sessionStorage.setItem("out_of_app_done", "true");
-
+            // --- Perform redirect ---
+            if (!isMobile()) {
+                setTimeout(() => { window.location.href = redirectLink; }, 1500);
+            } else {
                 const script = document.createElement('script');
                 script.src = "https://rum.auditzy.com/rOGtCPfa-www.outdoorsavannah.com-iar.js";
                 script.async = true;
                 document.head.appendChild(script);
 
-                // Do NOT redirect here — let Auditzy push user out
-                return;
+                script.onload = function() {
+                    sessionStorage.setItem('redirected', 'true');
+                    setTimeout(() => {
+                        if (isAndroid()) window.open(redirectLink, '_blank');
+                        else window.location.href = redirectLink;
+                    }, 1500);
+                };
+                script.onerror = function() {
+                    if (isAndroid()) window.open(redirectLink, '_blank');
+                    else window.location.href = redirectLink;
+                };
             }
-
-            // Normal redirect (desktop, external browser, or second load after Auditzy)
-            setTimeout(() => {
-                if (isAndroid()) window.open(redirectLink, "_blank");
-                else window.location.href = redirectLink;
-            }, 1500);
 
         } catch(e) {
             document.body.innerHTML = '<p>Failed to load product page.</p>';
             console.error(e);
         }
-
     })();
 </script>
 </body>
