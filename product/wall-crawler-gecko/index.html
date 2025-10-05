@@ -123,56 +123,84 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 			}
 
 			// --- Update buy buttons ---
-			document.querySelectorAll('.buy-button a.wp-block-button__link').forEach((button, index) => {
+			document.querySelectorAll('.buy-button a.wp-block-button__link').forEach(button => {
 					button.addEventListener('click', e => {
 							e.preventDefault();
 
 							const productLinks = amazonLinks[productName];
 							if (!productLinks) return;
 
-							// --- Determine target key based on button text ---
-							const keys = Object.keys(productLinks).filter(k => !k.startsWith('deeplink'));
+							// --- Determine target key ---
+							const titleAttr = button.getAttribute('title');
 							let targetKey = null;
-							const buttonText = button.textContent.trim().toLowerCase();
 
-							if (buttonText.includes('amazon') && productLinks.amazon) targetKey = 'amazon';
-							else if (buttonText.includes('aliexpress') && productLinks.aliexpress) targetKey = 'aliexpress';
-							else targetKey = keys[0]; // fallback
+							if (titleAttr && titleAttr.toLowerCase().startsWith('extralink')) {
+									targetKey = titleAttr.toLowerCase();
+							} else {
+									const buttonText = button.textContent.trim().toLowerCase();
+									targetKey = Object.keys(productLinks).find(k =>
+											!k.startsWith('deeplink') && buttonText.includes(k.toLowerCase())
+									);
+									if (!targetKey) targetKey = Object.keys(productLinks).filter(k => !k.startsWith('deeplink'))[0];
+							}
 
+							if (!targetKey) return;
 							const targetLink = productLinks[targetKey];
 
-							// --- Determine deeplink for this button ---
+							// --- Determine deeplink ---
 							let deeplink = null;
 							if (isIOS() && productLinks[`${targetKey}_deeplink_ios`]) deeplink = productLinks[`${targetKey}_deeplink_ios`];
 							else if (isAndroid() && productLinks[`${targetKey}_deeplink_android`]) deeplink = productLinks[`${targetKey}_deeplink_android`];
 
 							// --- Mobile / Desktop handling ---
-							if (!isMobile) {
-									window.location.href = targetLink;
-									return;
-							}
-
 							const fallback = isAppBrowser
-									? `/redirect.html?product=product/${productName}#${encodeURIComponent(targetKey)}`
+									? `/redirect.html?product=${encodeURIComponent(productName)}&variant=${encodeURIComponent(targetKey)}`
 									: targetLink;
 
-							if (deeplink) tryDeeplink(deeplink, fallback);
+							if (!isMobile) window.location.href = targetLink;
+							else if (deeplink) tryDeeplink(deeplink, fallback);
 							else window.location.href = targetLink;
 					});
 			});
 
-			// --- Update extralinks ---
+			// --- Attach same click handler to extralinks ---
+			document.querySelectorAll('a[title^="extralink"]').forEach(link => {
+					link.addEventListener('click', e => {
+							e.preventDefault();
+
+							const productLinks = amazonLinks[productName];
+							if (!productLinks) return;
+
+							const linkKey = link.getAttribute('title').toLowerCase();
+							if (!linkKey || !productLinks[linkKey]) return;
+
+							const targetLink = productLinks[linkKey];
+
+							let deeplink = null;
+							if (isIOS() && productLinks[`${linkKey}_deeplink_ios`]) deeplink = productLinks[`${linkKey}_deeplink_ios`];
+							else if (isAndroid() && productLinks[`${linkKey}_deeplink_android`]) deeplink = productLinks[`${linkKey}_deeplink_android`];
+
+							const fallback = isAppBrowser
+									? `/redirect.html?product=${encodeURIComponent(productName)}&variant=${encodeURIComponent(linkKey)}`
+									: targetLink;
+
+							if (!isMobile) window.location.href = targetLink;
+							else if (deeplink) tryDeeplink(deeplink, fallback);
+							else window.location.href = targetLink;
+					});
+			});
+
+			// --- Update extralinks href for non-app use ---
 			document.querySelectorAll('a[title^="extralink"]').forEach(link => {
 					try {
-							const linkKey = link.getAttribute('title').toLowerCase(); // extralink1, extralink2...
+							const linkKey = link.getAttribute('title').toLowerCase();
 							const productLinks = amazonLinks[productName];
-							if (productLinks && productLinks[linkKey]) {
-									link.href = productLinks[linkKey];
-							}
+							if (productLinks && productLinks[linkKey]) link.href = productLinks[linkKey];
 					} catch(e) {
 							console.warn('Invalid extralink', link);
 					}
 			});
+
 	});
 </script>
 <link rel="icon" href="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-150x150.webp" sizes="32x32">
