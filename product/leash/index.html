@@ -84,32 +84,82 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <link rel="me" href="https://www.threads.com/@outdoorsavannah">
 <link rel="me" href="https://www.threads.com/@rajaanddavid">
 
-<script>document.addEventListener('DOMContentLoaded', () => {
-		// Skip homepage
-		if (location.pathname === "/") return;
+<script>
+	document.addEventListener('DOMContentLoaded', async () => {
+			// Skip homepage
+			if (location.pathname === "/") return;
 
-		const ua = navigator.userAgent;
-		const isAppBrowser = /Instagram|FBAV|FBAN\/FBIOS|FB_IAB|FB4A|Threads|Barcelona/i.test(ua);
+			const ua = navigator.userAgent;
+			const isMobile = /iPhone|iPad|iPod|Android/i.test(ua);
+			const isAndroid = /Android/i.test(ua);
+			const isIOS = /iPhone|iPad|iPod/i.test(ua);
+			const isAppBrowser = /Instagram|FBAV|FBAN\/FBIOS|FB_IAB|FB4A|Threads|Barcelona/i.test(ua);
 
-		if (!isAppBrowser) return; // bail early if not in-app browser
+			const pageHash = (location.hash || '').substring(1).toLowerCase();
 
-		// --- Buy Buttons ---
-		const entryTitle = document.querySelector('.entry-title');
-		if (entryTitle) {
-			const entryWord = entryTitle.textContent.trim().toLowerCase().replace(/\s+/g, '');
+			// --- Load Amazon Links ---
+			const res = await fetch('/amazonLinks.json');
+			const amazonLinks = await res.json();
+
+			// --- Get product slug ---
+			const pathParts = location.pathname.split('/').filter(Boolean);
+			const productName = pathParts[pathParts.length - 1];
+			const links = amazonLinks[productName];
+			if (!links) return;
+
+			// --- Function to try deeplink ---
+			function tryDeeplink(deeplink, fallback) {
+					const now = Date.now();
+					const iframe = document.createElement('iframe');
+					iframe.style.display = 'none';
+					iframe.src = deeplink;
+					document.body.appendChild(iframe);
+
+					setTimeout(() => {
+							const elapsed = Date.now() - now;
+							if (elapsed < 2000) {
+									window.location.href = fallback;
+							}
+							document.body.removeChild(iframe);
+					}, 1500);
+			}
+
 			document.querySelectorAll('.buy-button a.wp-block-button__link').forEach(button => {
-				const words = button.textContent.trim().split(/\s+/);
-				const lastWord = words[words.length - 1].toLowerCase();
-				const slug = `${lastWord}-${entryWord}`;
-				button.href = `https://product.outdoorsavannah.com/${slug}`;
-			});
-		}
+					button.addEventListener('click', e => {
+							e.preventDefault();
 
-		// --- Global Replace for links ---
-		document.querySelectorAll('a[href*="links.outdoorsavannah.com"]').forEach(link => {
-			link.href = link.href.replace('links.outdoorsavannah.com', 'product.outdoorsavannah.com');
-		});
-	});</script>
+							const productLinks = amazonLinks[productName];
+							if (!productLinks) return;
+
+							// Determine targetKey from last word of button text
+							const words = button.textContent.trim().split(/\s+/);
+							const lastWord = words[words.length - 1].toLowerCase();
+							const targetKey = productLinks[lastWord] ? lastWord : "amazon"; // default to amazon
+							const targetLink = productLinks[targetKey];
+
+							let deeplink = null;
+							if (isIOS && productLinks.deeplink_ios) deeplink = productLinks.deeplink_ios;
+							else if (isAndroid && productLinks.deeplink_android) deeplink = productLinks.deeplink_android;
+
+							if (!isMobile) {
+									window.location.href = targetLink;
+									return;
+							}
+
+							if (deeplink) {
+									const fallback = isAppBrowser
+											? `/redirect.html?product=product/${productName}#${encodeURIComponent(targetKey)}`
+											: targetLink;
+									tryDeeplink(deeplink, fallback);
+							} else {
+									window.location.href = targetLink;
+							}
+					});
+			});
+	});
+</script>
+
+
 <link rel="icon" href="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-150x150.webp" sizes="32x32">
 <link rel="icon" href="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.webp" sizes="192x192">
 <link rel="apple-touch-icon" href="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.webp">

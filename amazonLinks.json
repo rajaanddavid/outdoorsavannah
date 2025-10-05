@@ -1,6 +1,8 @@
 {
   "leash": {
-    "amazon": "https://amzn.to/3N3Z2Az"
+    "amazon": "https://amzn.to/3N3Z2Az",
+    "deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/dp/B07DDK9M6M?tag=outdoorsavann-20",
+    "deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/dp/B07DDK9M6M?tag=outdoorsavann-20"
   },
   "feather-wand": {
     "amazon": "https://amzn.to/3NmoOjA",
