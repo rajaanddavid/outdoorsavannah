@@ -1,12 +1,16 @@
 {
   "leash": {
     "amazon": "https://amzn.to/3N3Z2Az",
-    "deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/dp/B07DDK9M6M?tag=outdoorsavann-20",
-    "deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/dp/B07DDK9M6M?tag=outdoorsavann-20"
+    "amazon_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/dp/B07DDK9M6M?tag=outdoorsavann-20",
+    "amazon_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/dp/B07DDK9M6M?tag=outdoorsavann-20"
   },
   "feather-wand": {
     "amazon": "https://amzn.to/3NmoOjA",
-    "extralink1": "https://amzn.to/4lh9vc9"
+    "extralink1": "https://amzn.to/4lh9vc9",
+    "amazon_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/Go-Cat-Bird-Single-Teaser/dp/B0006N9J3A?tag=outdoorsavann-20",
+    "amazon_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/Go-Cat-Bird-Single-Teaser/dp/B0006N9J3A?tag=outdoorsavann-20",
+    "extralink1_deeplink_ios": "com.amazon.mobile.shopping.web://www.amazon.com/GoCat-DaBird-Feather-Refill-Assorted/dp/B000K9JRH8?tag=outdoorsavann-20",
+    "extralink1_deeplink_android": "com.amazon.mobile.shopping.web://www.amazon.com/GoCat-DaBird-Feather-Refill-Assorted/dp/B000K9JRH8?tag=outdoorsavann-20"
   },
   "string-toy": {
     "aliexpress": "https://s.click.aliexpress.com/e/_olkXEyK",
@@ -52,7 +56,11 @@
   },
   "wall-crawler-gecko": {
     "amazon": "https://amzn.to/4nSTOrY",
-    "aliexpress": "https://s.click.aliexpress.com/e/_omjWMxN"
+    "amazon_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/dp/B0CSFPL6JN?tag=outdoorsavann-20",
+    "amazon_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/dp/B0CSFPL6JN?tag=outdoorsavann-20",
+    "aliexpress": "https://s.click.aliexpress.com/e/_omjWMxN",
+    "aliexpress_deeplink_ios": "aliexpress://product/detail?productId=3256807894204108&aff_fsk=_omjWMxN",
+    "aliexpress_deeplink_android": "intent://www.aliexpress.com/item/3256807894204108.html?aff_fsk=_omjWMxN#Intent;package=com.alibaba.aliexpresshd;scheme=https;end"
   },
   "shelf-brackets": {
     "amazon": "https://amzn.to/4bedTn0"

@@ -91,11 +91,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 			const ua = navigator.userAgent;
 			const isMobile = /iPhone|iPad|iPod|Android/i.test(ua);
-			const isAndroid = /Android/i.test(ua);
-			const isIOS = /iPhone|iPad|iPod/i.test(ua);
+			const isAndroid = () => /Android/i.test(ua);
+			const isIOS = () => /iPhone|iPad|iPod/i.test(ua);
 			const isAppBrowser = /Instagram|FBAV|FBAN\/FBIOS|FB_IAB|FB4A|Threads|Barcelona/i.test(ua);
-
-			const pageHash = (location.hash || '').substring(1).toLowerCase();
 
 			// --- Load Amazon Links ---
 			const res = await fetch('/amazonLinks.json');
@@ -124,40 +122,54 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 					}, 1500);
 			}
 
-			document.querySelectorAll('.buy-button a.wp-block-button__link').forEach(button => {
+			// --- Update buy buttons ---
+			document.querySelectorAll('.buy-button a.wp-block-button__link').forEach((button, index) => {
 					button.addEventListener('click', e => {
 							e.preventDefault();
 
 							const productLinks = amazonLinks[productName];
 							if (!productLinks) return;
 
-							// Determine targetKey from last word of button text
-							const words = button.textContent.trim().split(/\s+/);
-							const lastWord = words[words.length - 1].toLowerCase();
-							const targetKey = productLinks[lastWord] ? lastWord : "amazon"; // default to amazon
+							// --- Determine target key based on button order ---
+							const keys = Object.keys(productLinks).filter(k => !k.startsWith('deeplink'));
+							const targetKey = keys[index] || keys[0]; // first button → first key, second button → second key
 							const targetLink = productLinks[targetKey];
 
+							// --- Determine deeplink for this button ---
 							let deeplink = null;
-							if (isIOS && productLinks.deeplink_ios) deeplink = productLinks.deeplink_ios;
-							else if (isAndroid && productLinks.deeplink_android) deeplink = productLinks.deeplink_android;
+							if (isIOS() && productLinks[`${targetKey}_deeplink_ios`]) deeplink = productLinks[`${targetKey}_deeplink_ios`];
+							else if (isAndroid() && productLinks[`${targetKey}_deeplink_android`]) deeplink = productLinks[`${targetKey}_deeplink_android`];
 
+							// --- Mobile / Desktop handling ---
 							if (!isMobile) {
 									window.location.href = targetLink;
 									return;
 							}
 
-							if (deeplink) {
-									const fallback = isAppBrowser
-											? `/redirect.html?product=product/${productName}#${encodeURIComponent(targetKey)}`
-											: targetLink;
-									tryDeeplink(deeplink, fallback);
-							} else {
-									window.location.href = targetLink;
-							}
+							const fallback = isAppBrowser
+									? `/redirect.html?product=product/${productName}#${encodeURIComponent(targetKey)}`
+									: targetLink;
+
+							if (deeplink) tryDeeplink(deeplink, fallback);
+							else window.location.href = targetLink;
 					});
+			});
+
+			// --- Update extralinks ---
+			document.querySelectorAll('a[title^="extralink"]').forEach(link => {
+					try {
+							const linkKey = link.getAttribute('title').toLowerCase(); // extralink1, extralink2...
+							const productLinks = amazonLinks[productName];
+							if (productLinks && productLinks[linkKey]) {
+									link.href = productLinks[linkKey];
+							}
+					} catch(e) {
+							console.warn('Invalid extralink', link);
+					}
 			});
 	});
 </script>
+
 
 
 <link rel="icon" href="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-150x150.webp" sizes="32x32">
