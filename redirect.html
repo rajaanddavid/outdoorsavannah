@@ -83,14 +83,12 @@
                 if (!links) return;
 
                 buttons.forEach(btn => {
-                    const linkKey = (btn.getAttribute('title') || '').toLowerCase();
-                    // Only assign if the JSON has this extralink
+                    let linkKey = (btn.getAttribute('title') || '').trim().toLowerCase();
                     if (linkKey && links[linkKey]) {
                         btn.href = links[linkKey];
                     } else {
-                        // fallback to first extralink
-                        const fallback = Object.keys(links).find(k => k.startsWith('extralink'));
-                        if (fallback) btn.href = links[fallback];
+                        console.warn(`Button missing valid linkKey or link not found:`, btn);
+                        btn.href = '#'; // or keep current href, but DO NOT fallback to first
                     }
                 });
             }
