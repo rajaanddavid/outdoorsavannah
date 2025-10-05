@@ -87,12 +87,11 @@
                     else if (links.amazon) btn.href = links.amazon; // fallback to main amazon link
                 });
 
-                // Update inline extralinks
                 document.querySelectorAll('a[title^="extralink"]').forEach(link => {
                     const key = (link.getAttribute('title') || '').trim().toLowerCase();
-                    if (key && links[key]) link.href = links[key];
+                    if (key && links[key]) link.href = links[key]; // match by title
+                    else if (pageHash && links[pageHash]) link.href = links[pageHash]; // match hash if available
                     else {
-                        // fallback to first extralink in JSON
                         const fallback = Object.keys(links).find(k => k.startsWith('extralink'));
                         if (fallback) link.href = links[fallback];
                     }
@@ -118,19 +117,21 @@
             const productName = getProductName();
             updateAllLinks(productName, amazonLinks);
 
-
             // --- Determine redirect target ---
-            // Determine redirect target
-            let pageHash = window.location.hash.substring(1).toLowerCase();
-            if (!pageHash && location.href.includes('#')) {
-                // Some app browsers might not populate window.location.hash initially
-                pageHash = location.href.split('#')[1].toLowerCase();
-            }
+            let pageHash = (window.location.hash || "").substring(1).toLowerCase();
 
-            const productLinks = amazonLinks[productName];
-            const validKeys = Object.keys(productLinks).filter(k => !k.endsWith('_deeplink_ios') && !k.endsWith('_deeplink_android'));
-            const targetKey = validKeys.includes(pageHash) ? pageHash : validKeys[0];
-            const targetLink = targetKey ? productLinks[targetKey] : null;
+            const productLinks = amazonLinks[productName] || {};
+            let targetLink = null;
+
+            if (pageHash && productLinks[pageHash]) {
+                targetLink = productLinks[pageHash];  // exact extralink match
+            } else if (productLinks.amazon) {
+                targetLink = productLinks.amazon;     // fallback to amazon
+            } else {
+                // fallback to first extralink (if no hash & no amazon)
+                const firstExtra = Object.keys(productLinks).find(k => k.startsWith("extralink"));
+                if (firstExtra) targetLink = productLinks[firstExtra];
+            }
 
             if (!targetLink) return;
 
