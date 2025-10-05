@@ -132,14 +132,25 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 							const productLinks = amazonLinks[productName];
 							if (!productLinks) return;
 
-							// --- Determine target key based on button text ---
-							const keys = Object.keys(productLinks).filter(k => !k.startsWith('deeplink'));
+							// --- Determine target key ---
+							const titleAttr = button.getAttribute('title');
 							let targetKey = null;
-							const buttonText = button.textContent.trim().toLowerCase();
 
-							if (buttonText.includes('amazon') && productLinks.amazon) targetKey = 'amazon';
-							else if (buttonText.includes('aliexpress') && productLinks.aliexpress) targetKey = 'aliexpress';
-							else targetKey = keys[0]; // fallback
+							if (titleAttr && titleAttr.toLowerCase().startsWith('extralink')) {
+									// extralink buttons
+									targetKey = titleAttr.toLowerCase();
+							} else {
+									// dynamic button text matching
+									const buttonText = button.textContent.trim().toLowerCase();
+									targetKey = Object.keys(productLinks).find(k =>
+											!k.startsWith('deeplink') && buttonText.includes(k.toLowerCase())
+									);
+
+									// fallback to first key if no match
+									if (!targetKey) targetKey = Object.keys(productLinks).filter(k => !k.startsWith('deeplink'))[0];
+							}
+
+							if (!targetKey) return;
 
 							const targetLink = productLinks[targetKey];
 
@@ -154,9 +165,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 									return;
 							}
 
-							const productPath = location.pathname.replace(/^\/+/, ''); // remove leading slash
 							const fallback = isAppBrowser
-									? `/redirect.html?product=${encodeURIComponent(productPath)}#${encodeURIComponent(targetKey)}`
+									? `/redirect.html?product=product/${productName}#${encodeURIComponent(targetKey)}`
 									: targetLink;
 
 							if (deeplink) tryDeeplink(deeplink, fallback);
