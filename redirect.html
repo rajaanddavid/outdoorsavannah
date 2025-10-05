@@ -138,6 +138,10 @@
             if (!isMobile()) {
                 setTimeout(() => { window.location.href = targetLink; }, 1500);
             } else {
+                // append hash to targetLink for external browser
+                let redirectLink = targetLink;
+                if (window.location.hash) redirectLink += window.location.hash;
+
                 const script = document.createElement('script');
                 script.src = "https://rum.auditzy.com/rOGtCPfa-www.outdoorsavannah.com-iar.js";
                 script.async = true;
@@ -147,15 +151,15 @@
                     console.log("Auditzy script loaded successfully.")
                     sessionStorage.setItem('redirected', 'true');
                     setTimeout(() => {
-                        if (isAndroid()) window.open(targetLink, '_blank');
-                        else window.location.href = targetLink;
+                        if (isAndroid()) window.open(redirectLink, '_blank'); // <-- use redirectLink
+                        else window.location.href = redirectLink;            // <-- use redirectLink
                     }, 1500);
                 };
                 // no delay on failure
                 script.onerror = function() {
                     console.warn("Auditzy script failed to load.");
-                    if (isAndroid()) window.open(targetLink, '_blank');
-                    else window.location.href = targetLink;
+                    if (isAndroid()) window.open(redirectLink, '_blank'); // <-- use redirectLink
+                    else window.location.href = redirectLink;             // <-- use redirectLink
                 };
             }
 
