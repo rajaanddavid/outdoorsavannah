@@ -130,9 +130,15 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 							const productLinks = amazonLinks[productName];
 							if (!productLinks) return;
 
-							// --- Determine target key based on button order ---
+							// --- Determine target key based on button text ---
 							const keys = Object.keys(productLinks).filter(k => !k.startsWith('deeplink'));
-							const targetKey = keys[index] || keys[0]; // first button → first key, second button → second key
+							let targetKey = null;
+							const buttonText = button.textContent.trim().toLowerCase();
+
+							if (buttonText.includes('amazon') && productLinks.amazon) targetKey = 'amazon';
+							else if (buttonText.includes('aliexpress') && productLinks.aliexpress) targetKey = 'aliexpress';
+							else targetKey = keys[0]; // fallback
+
 							const targetLink = productLinks[targetKey];
 
 							// --- Determine deeplink for this button ---
