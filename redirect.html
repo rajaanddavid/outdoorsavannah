@@ -75,20 +75,26 @@
                 return segments.join('/');
             }
 
-            function updateButtonLinks(productName, amazonLinks) {
-                const buttons = document.querySelectorAll('.wp-block-button.buy-button .wp-block-button__link');
-                if (!buttons.length) return;
-
+            // --- Unified link updater ---
+            function updateAllLinks(productName, amazonLinks) {
                 const links = amazonLinks[productName];
                 if (!links) return;
 
-                buttons.forEach(btn => {
-                    let linkKey = (btn.getAttribute('title') || '').trim().toLowerCase();
-                    if (linkKey && links[linkKey]) {
-                        btn.href = links[linkKey];
-                    } else {
-                        console.warn(`Button missing valid linkKey or link not found:`, btn);
-                        btn.href = '#'; // or keep current href, but DO NOT fallback to first
+                // Update buttons (if any)
+                document.querySelectorAll('.wp-block-button.buy-button .wp-block-button__link').forEach(btn => {
+                    const key = (btn.getAttribute('title') || '').trim().toLowerCase();
+                    if (key && links[key]) btn.href = links[key];
+                    else if (links.amazon) btn.href = links.amazon; // fallback to main amazon link
+                });
+
+                // Update inline extralinks
+                document.querySelectorAll('a[title^="extralink"]').forEach(link => {
+                    const key = (link.getAttribute('title') || '').trim().toLowerCase();
+                    if (key && links[key]) link.href = links[key];
+                    else {
+                        // fallback to first extralink in JSON
+                        const fallback = Object.keys(links).find(k => k.startsWith('extralink'));
+                        if (fallback) link.href = links[fallback];
                     }
                 });
             }
@@ -110,15 +116,8 @@
             const amazonLinksRes = await fetch('/amazonLinks.json');
             const amazonLinks = await amazonLinksRes.json();
             const productName = getProductName();
-            updateButtonLinks(productName, amazonLinks);
+            updateAllLinks(productName, amazonLinks);
 
-            document.querySelectorAll('a[title^="extralink"]').forEach(link => {
-                try {
-                    const linkKey = link.getAttribute('title').toLowerCase();
-                    const links = amazonLinks[productName];
-                    if (links && linkKey && links[linkKey]) link.href = links[linkKey];
-                } catch(e){ console.warn('Invalid extralink', link); }
-            });
 
             // --- Determine redirect target ---
             // Determine redirect target
