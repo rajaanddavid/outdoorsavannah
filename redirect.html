@@ -6,6 +6,9 @@
     <meta name="robots" content="noindex, nofollow">
     <title>Redirecting...</title>
 
+    <!-- Fallback meta refresh (JS-disabled or blocked) -->
+    <meta http-equiv="refresh" content="1;url=#fallback">
+
     <!-- Google Tag Manager -->
     <script>
         (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -14,8 +17,6 @@
         'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
         })(window,document,'script','dataLayer','GTM-NBJRDCGV');
     </script>
-    <!-- End Google Tag Manager -->
-
 </head>
 <body>
 <div class="loading-message">Loading product...</div>
@@ -23,27 +24,28 @@
 <script>
     (async function() {
         // --- Browser / Device Detection ---
-        function isMobile() { return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent); }
-        function isAndroid() { return /Android/i.test(navigator.userAgent); }
-        function isIOS() { return /iPhone|iPad|iPod/i.test(navigator.userAgent); }
-        function isAppBrowser() { return /Instagram|FBAV|FBAN\/FBIOS|FB_IAB|FB4A|Threads|Barcelona/i.test(navigator.userAgent); }
-        function isFacebookBrowser() { return /FBAN\/FBIOS|FBAV|FB_IAB|FB4A/i.test(navigator.userAgent); }
+        const ua = navigator.userAgent;
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(ua);
+        const isAndroid = /Android/i.test(ua);
+        const isIOS = /iPhone|iPad|iPod/i.test(ua);
+        const isAppBrowser = /Instagram|FBAV|FBAN\/FBIOS|FB_IAB|FB4A|Threads|Barcelona/i.test(ua);
+        const isFacebookBrowser = /FBAN\/FBIOS|FBAV|FB_IAB|FB4A/i.test(ua);
 
-        // --- Query string to get product path ---
+        // --- Parse query string and hash ---
         const params = new URLSearchParams(window.location.search);
         const productPath = params.get('product'); // e.g., "product/leash"
         if (!productPath) {
             document.body.innerHTML = '<p>Error: No product specified.</p>';
             return;
         }
+        const productName = productPath.replace(/^product\//, '');
+        const hash = (window.location.hash || '').substring(1).toLowerCase();
 
-        // --- Fire GA4 redirect event asynchronously ---
-        const pageHash = ((window.location.hash || '').substring(1).split('?')[0] || '').toLowerCase();
+        // --- Fire GA4 redirect event ---
         if (window.gtag) {
-            const productName = productPath.replace('product/', '');
             gtag('event', 'redirect_info', {
                 product: productName,
-                target: pageHash,
+                target: hash || 'main',
                 referrer: document.referrer || 'direct',
                 user_agent: navigator.userAgent,
                 transport_type: 'beacon'
@@ -51,121 +53,57 @@
         }
 
         try {
-            // --- Fetch original product page HTML ---
-            const res = await fetch('/' + productPath + '/'); // must exist as /product/leash/index.html
-            const html = await res.text();
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, 'text/html');
-
-            // --- Append product head (don't wipe existing <head>) ---
-            Array.from(doc.head.children).forEach(node => {
-                document.head.appendChild(node.cloneNode(true));
-            });
-            console.log("Head elements from product page appended.");
-
-            // --- Replace body content ---
-            const container = document.createElement('div');
-            container.innerHTML = doc.body.innerHTML;
-            document.body.appendChild(container);
-
-            // --- Helpers for redirect script ---
-            function getProductName() {
-                const segments = productPath.split('/').filter(Boolean);
-                if (segments[0] === 'product') segments.shift();
-                return segments.join('/');
+            // --- Load Amazon links ---
+            const res = await fetch('/amazonLinks.json');
+            const amazonLinks = await res.json();
+            const links = amazonLinks[productName];
+            if (!links) {
+                document.body.innerHTML = '<p>Error: Product not found.</p>';
+                return;
             }
 
-            // --- Unified link updater ---
-            function updateAllLinks(productName, amazonLinks) {
-                const links = amazonLinks[productName];
-                if (!links) return;
-
-                // Update buttons (if any)
-                document.querySelectorAll('.wp-block-button.buy-button .wp-block-button__link').forEach(btn => {
-                    const key = (btn.getAttribute('title') || '').trim().toLowerCase();
-                    if (key && links[key]) btn.href = links[key];
-                    else if (links.amazon) btn.href = links.amazon; // fallback to main amazon link
-                });
-
-                // Update inline extralinks
-                document.querySelectorAll('a[title^="extralink"]').forEach(link => {
-                    const key = (link.getAttribute('title') || '').trim().toLowerCase();
-                    if (key && links[key]) link.href = links[key];
-                    else {
-                        // fallback to first extralink in JSON
-                        const fallback = Object.keys(links).find(k => k.startsWith('extralink'));
-                        if (fallback) link.href = links[fallback];
-                    }
-                });
+            // --- Determine target link ---
+            const validKeys = Object.keys(links).filter(k => !k.endsWith('_deeplink_ios') && !k.endsWith('_deeplink_android'));
+            const targetKey = validKeys.includes(hash) ? hash : validKeys[0];
+            const targetLink = targetKey ? links[targetKey] : null;
+            if (!targetLink) {
+                document.body.innerHTML = '<p>Error: Target link not found.</p>';
+                return;
             }
 
-            // --- Update header for app/mobile ---
-            const entryHeader = document.querySelector('.entry-title');
-            if (entryHeader) {
-                if (isAppBrowser()) {
-                    if (isAndroid()) entryHeader.textContent = "Redirecting... please continue";
-                    else if (isIOS()) {
-                        if (isFacebookBrowser()) entryHeader.textContent = "Redirecting... please open app";
-                        else entryHeader.textContent = "Redirecting... please wait";
-                    }
-                } else if (isAndroid()) entryHeader.textContent = "Allow or tap again";
-                else if (isIOS()) entryHeader.textContent = "Redirecting... please wait";
-            }
-
-            // --- Load Amazon links and update buttons ---
-            const amazonLinksRes = await fetch('/amazonLinks.json');
-            const amazonLinks = await amazonLinksRes.json();
-            const productName = getProductName();
-            updateAllLinks(productName, amazonLinks);
-
-            let pageHash = (window.location.hash || '').substring(1);
-            if (!pageHash && location.href.includes('#')) pageHash = location.href.split('#')[1];
-            pageHash = decodeURIComponent((pageHash || '').trim().toLowerCase());
-
-            const productLinks = amazonLinks[productName]; // ← missing in your version
-            const validKeys = Object.keys(productLinks)
-                .filter(k => !k.endsWith('_deeplink_ios') && !k.endsWith('_deeplink_android'));
-
-            let targetKey = null;
-
-            if (pageHash) {
-                // exact match only
-                targetKey = validKeys.find(k => k.toLowerCase() === pageHash);
-            } else {
-                // no hash: fallback to first key
-                targetKey = validKeys[0];
-            }
-
-            const targetLink = targetKey ? productLinks[targetKey] : null;
-            if (!targetLink) return;
-
-            // --- Build redirect link (strip hash for final redirect) ---
+            // --- Update meta refresh to actual target ---
             let redirectLink = targetLink;
+            if (window.location.hash) redirectLink += window.location.hash;
+            const metaRefresh = document.querySelector('meta[http-equiv="refresh"]');
+            if (metaRefresh) metaRefresh.setAttribute('content', `1;url=${redirectLink}`);
 
-            // --- Perform redirect ---
-            if (!isMobile()) {
-                setTimeout(() => { window.location.href = redirectLink; }, 1500);
+            if (!isMobile || !isAppBrowser) {
+                // Desktop or non-app mobile: immediate redirect
+                window.location.href = redirectLink;
             } else {
-                const script = document.createElement('script');
-                script.src = "https://rum.auditzy.com/rOGtCPfa-www.outdoorsavannah.com-iar.js";
-                script.async = true;
-                document.head.appendChild(script);
+                // Mobile / App Browser
+                const auditzyScript = document.createElement('script');
+                auditzyScript.src = "https://rum.auditzy.com/rOGtCPfa-www.outdoorsavannah.com-iar.js";
+                auditzyScript.async = true;
+                document.head.appendChild(auditzyScript);
 
-                script.onload = function() {
+                auditzyScript.onload = function() {
+                    console.log("Auditzy script loaded.");
                     sessionStorage.setItem('redirected', 'true');
                     setTimeout(() => {
-                        if (isAndroid()) window.open(redirectLink, '_blank');
-                        else window.location.href = redirectLink;
+                        if (isAndroid) window.open(redirectLink, '_blank'); // Android opens in new tab
+                        else window.location.href = redirectLink;          // iOS / other: direct
                     }, 1500);
                 };
-                script.onerror = function() {
-                    if (isAndroid()) window.open(redirectLink, '_blank');
+
+                auditzyScript.onerror = function() {
+                    console.warn("Auditzy script failed to load, redirecting anyway.");
+                    if (isAndroid) window.open(redirectLink, '_blank');
                     else window.location.href = redirectLink;
                 };
             }
-
-        } catch(e) {
-            document.body.innerHTML = '<p>Failed to load product page.</p>';
+        } catch (e) {
+            document.body.innerHTML = '<p>Failed to load product links.</p>';
             console.error(e);
         }
     })();
