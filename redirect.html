@@ -118,16 +118,25 @@
             const productName = getProductName();
             updateAllLinks(productName, amazonLinks);
 
-            // --- Determine redirect target (prioritize hash if exists) ---
             let pageHash = (window.location.hash || '').substring(1);
             if (!pageHash && location.href.includes('#')) pageHash = location.href.split('#')[1];
-            pageHash = (pageHash || '').toLowerCase();
+            pageHash = decodeURIComponent((pageHash || '').trim().toLowerCase());
 
-            const productLinks = amazonLinks[productName];
-            const validKeys = Object.keys(productLinks).filter(k => !k.endsWith('_deeplink_ios') && !k.endsWith('_deeplink_android'));
-            const targetKey = validKeys.includes(pageHash) ? pageHash : validKeys[0];
+            const productLinks = amazonLinks[productName]; // ← missing in your version
+            const validKeys = Object.keys(productLinks)
+                .filter(k => !k.endsWith('_deeplink_ios') && !k.endsWith('_deeplink_android'));
+
+            let targetKey = null;
+
+            if (pageHash) {
+                // exact match only
+                targetKey = validKeys.find(k => k.toLowerCase() === pageHash);
+            } else {
+                // no hash: fallback to first key
+                targetKey = validKeys[0];
+            }
+
             const targetLink = targetKey ? productLinks[targetKey] : null;
-
             if (!targetLink) return;
 
             // --- Build redirect link (strip hash for final redirect) ---
