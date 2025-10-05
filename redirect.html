@@ -61,12 +61,23 @@
 
             // --- Determine target link ---
             const validKeys = Object.keys(links).filter(k => !k.endsWith('_deeplink_ios') && !k.endsWith('_deeplink_android'));
-            const targetKey = validKeys.includes(hash) ? hash : validKeys[0];
-            const targetLink = targetKey ? links[targetKey] : null;
+            let targetKey;
+
+            if (isAppBrowser) {
+                // Use "variant" query param for app browsers
+                const variantParam = params.get('variant') || hash;
+                targetKey = variantParam && validKeys.includes(variantParam.toLowerCase())
+                    ? variantParam.toLowerCase()
+                    : validKeys[0];
+            } else {
+                targetKey = validKeys.includes(hash) ? hash : validKeys[0];
+            }
+
+            const targetLink = links[targetKey];
             if (!targetLink) {
                 document.body.innerHTML = '<p>Error: Target link not found.</p>';
                 return;
-            }
+        }
 
             let redirectLink = targetLink;
 
