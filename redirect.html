@@ -64,8 +64,9 @@
             console.log("Head elements from product page appended.");
 
             // --- Replace body content ---
-            document.body.innerHTML = doc.body.innerHTML;
-            console.log("Body content replaced with product page.");
+            const container = document.createElement('div');
+            container.innerHTML = doc.body.innerHTML;
+            document.body.appendChild(container);
 
             // --- Helpers for redirect script ---
             function getProductName() {
