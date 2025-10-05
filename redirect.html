@@ -71,11 +71,12 @@
                 return;
             }
 
-            // --- Update meta refresh to actual target ---
             let redirectLink = targetLink;
-            if (window.location.hash) redirectLink += window.location.hash;
-            const metaRefresh = document.querySelector('meta[http-equiv="refresh"]');
-            if (metaRefresh) metaRefresh.setAttribute('content', `1;url=${redirectLink}`);
+
+            if (isAppBrowser && window.location.hash) {
+                const hashParam = encodeURIComponent(window.location.hash.substring(1));
+                redirectLink += (redirectLink.includes('?') ? '&' : '?') + 'variant=' + hashParam;
+            }
 
             if (!isMobile || !isAppBrowser) {
                 // Desktop or non-app mobile: immediate redirect
