@@ -70,9 +70,24 @@
 
             let redirectLink = targetLink;
 
-            if (isAppBrowser && window.location.hash) {
-                const hashParam = encodeURIComponent(window.location.hash.substring(1));
-                redirectLink += (redirectLink.includes('?') ? '&' : '?') + 'variant=' + hashParam;
+            // Only convert hash to query param for app browsers
+            if (isAppBrowser && hash) {
+                const hashParam = encodeURIComponent(hash);
+
+                // Check if the redirectLink already has query params
+                if (redirectLink.includes('?')) {
+                    redirectLink += '&variant=' + hashParam;
+                } else {
+                    redirectLink += '?variant=' + hashParam;
+                }
+
+                // Append all original query params from current URL (except product)
+                const currentParams = new URLSearchParams(window.location.search);
+                currentParams.forEach((value, key) => {
+                    if (key !== 'product') {
+                        redirectLink += `&${encodeURIComponent(key)}=${encodeURIComponent(value)}`;
+                    }
+                });
             }
 
             if (!isMobile || !isAppBrowser) {
