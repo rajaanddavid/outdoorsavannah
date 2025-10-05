@@ -5,6 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
     <title>Redirecting...</title>
+
+    <!-- Google Tag Manager -->
+    <script>
+        (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+        })(window,document,'script','dataLayer','GTM-NBJRDCGV');
+    </script>
+    <!-- End Google Tag Manager -->
+
 </head>
 <body>
 <div class="loading-message">Loading product...</div>
@@ -24,6 +35,19 @@
         if (!productPath) {
             document.body.innerHTML = '<p>Error: No product specified.</p>';
             return;
+        }
+
+        // --- Fire GA4 redirect event asynchronously ---
+        const pageHash = ((window.location.hash || '').substring(1).split('?')[0] || '').toLowerCase();
+        if (window.gtag) {
+            const productName = productPath.replace('product/', '');
+            gtag('event', 'redirect_info', {
+                product: productName,
+                target: pageHash,
+                referrer: document.referrer || 'direct',
+                user_agent: navigator.userAgent,
+                transport_type: 'beacon'
+            });
         }
 
         try {
@@ -98,8 +122,15 @@
 
             // --- Determine redirect target ---
             const pageHash = ((window.location.hash || '').substring(1).split('?')[0] || '').toLowerCase();
-            const targetKey = pageHash && amazonLinks[productName][pageHash] ? pageHash : Object.keys(amazonLinks[productName])[0];
-            const targetLink = targetKey ? amazonLinks[productName][targetKey] : null;
+            const productLinks = amazonLinks[productName];
+
+            // Only consider keys that do NOT end with _deeplink_ios/_deeplink_android
+            const validKeys = Object.keys(productLinks).filter(k => !k.endsWith('_deeplink_ios') && !k.endsWith('_deeplink_android'));
+
+            // Use pageHash if it exists in validKeys, otherwise fallback to first valid key
+            const targetKey = pageHash && validKeys.includes(pageHash) ? pageHash : validKeys[0];
+
+            const targetLink = targetKey ? productLinks[targetKey] : null;
 
             if (!targetLink) return;
 
