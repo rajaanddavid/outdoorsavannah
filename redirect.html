@@ -134,34 +134,28 @@
 
             if (!targetLink) return;
 
-            // --- Perform redirect ---
-            if (!isMobile()) {
-                setTimeout(() => { window.location.href = targetLink; }, 1500);
-            } else {
-                // append hash to targetLink for external browser
-                let redirectLink = targetLink;
-                if (window.location.hash) redirectLink += window.location.hash;
+            // --- Perform redirect (two-step flow) ---
+            let redirectLink = targetLink;
+            if (window.location.hash) redirectLink += window.location.hash;
+
+            if (isAppBrowser() && !sessionStorage.getItem("out_of_app_done")) {
+                console.log("Inside app browser, loading Auditzy...");
+                sessionStorage.setItem("out_of_app_done", "true");
 
                 const script = document.createElement('script');
                 script.src = "https://rum.auditzy.com/rOGtCPfa-www.outdoorsavannah.com-iar.js";
                 script.async = true;
                 document.head.appendChild(script);
 
-                script.onload = function() {
-                    console.log("Auditzy script loaded successfully.")
-                    sessionStorage.setItem('redirected', 'true');
-                    setTimeout(() => {
-                        if (isAndroid()) window.open(redirectLink, '_blank'); // <-- use redirectLink
-                        else window.location.href = redirectLink;            // <-- use redirectLink
-                    }, 1500);
-                };
-                // no delay on failure
-                script.onerror = function() {
-                    console.warn("Auditzy script failed to load.");
-                    if (isAndroid()) window.open(redirectLink, '_blank'); // <-- use redirectLink
-                    else window.location.href = redirectLink;             // <-- use redirectLink
-                };
+                // Do NOT redirect here — let Auditzy push user out
+                return;
             }
+
+            // Normal redirect (desktop, external browser, or second load after Auditzy)
+            setTimeout(() => {
+                if (isAndroid()) window.open(redirectLink, "_blank");
+                else window.location.href = redirectLink;
+            }, 1500);
 
         } catch(e) {
             document.body.innerHTML = '<p>Failed to load product page.</p>';
