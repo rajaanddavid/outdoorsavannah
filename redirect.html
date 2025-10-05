@@ -60,6 +60,7 @@
 
             // --- Determine target key ---
             const validKeys = Object.keys(links).filter(k => !k.endsWith('_deeplink_ios') && !k.endsWith('_deeplink_android'));
+
             let targetKey;
             if (isAppBrowser) {
                 const variantParam = params.get('variant') || hash;
@@ -70,20 +71,19 @@
                 targetKey = validKeys.includes(hash) ? hash : validKeys[0];
             }
 
-            const targetLink = links[targetKey];
+            const targetLink = links[targetKey]; // <- exactly matches extralink17 for your case
             if (!targetLink) {
                 document.body.innerHTML = '<p>Error: Target link not found.</p>';
                 return;
             }
 
-            // --- Preserve all original query params (except product) ---
+            // --- Preserve other query params (like fbclid), but DO NOT append variant ---
             const redirectUrl = new URL(targetLink);
             params.forEach((value, key) => {
                 if (key !== 'product' && key !== 'variant') {
                     redirectUrl.searchParams.set(key, value);
                 }
             });
-
             const finalRedirect = redirectUrl.toString();
 
             if (!isMobile || !isAppBrowser) {
