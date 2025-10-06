@@ -85,126 +85,125 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <link rel="me" href="https://www.threads.com/@rajaanddavid">
 
 <script>document.addEventListener('DOMContentLoaded', async () => {
-		// Skip homepage
-		if (location.pathname === "/") return;
+			// Skip homepage
+			if (location.pathname === "/") return;
 
-		const ua = navigator.userAgent;
-		const isMobile = /iPhone|iPad|iPod|Android/i.test(ua);
-		const isAndroid = () => /Android/i.test(ua);
-		const isIOS = () => /iPhone|iPad|iPod/i.test(ua);
-		const isAppBrowser = /Instagram|FBAV|FBAN\/FBIOS|FB_IAB|FB4A|Threads|Barcelona/i.test(ua);
+			const ua = navigator.userAgent;
+			const isMobile = /iPhone|iPad|iPod|Android/i.test(ua);
+			const isAndroid = () => /Android/i.test(ua);
+			const isIOS = () => /iPhone|iPad|iPod/i.test(ua);
+			const isAppBrowser = /Instagram|FBAV|FBAN\/FBIOS|FB_IAB|FB4A|Threads|Barcelona/i.test(ua);
 
-		// --- Load Amazon Links ---
-		const res = await fetch('/amazonLinks.json');
-		const amazonLinks = await res.json();
+			// --- Load Amazon Links ---
+			const res = await fetch('/amazonLinks.json');
+			const amazonLinks = await res.json();
 
-		// --- Get product slug ---
-		const pathParts = location.pathname.split('/').filter(Boolean);
-		// If URL starts with /product/, include it in the productName
-		let productName = pathParts[pathParts.length - 1];
-		if (pathParts[0] === "product" && pathParts.length > 1) {
-				productName = `product/${productName}`;
-		}
+			// --- Get product slug ---
+			const pathParts = location.pathname.split('/').filter(Boolean);
+			// If URL starts with /product/, include it in the productName
+			let productName = pathParts[pathParts.length - 1];
+			if (pathParts[0] === "product" && pathParts.length > 1) {
+					productName = `product/${productName}`;
+			}
 
-		// Support both formats in amazonLinks.json: with or without "product/"
-		const links = amazonLinks[pathParts[pathParts.length - 1]] || amazonLinks[productName];
-		if (!links) return;
+			// Support both formats in amazonLinks.json: with or without "product/"
+			const links = amazonLinks[pathParts[pathParts.length - 1]] || amazonLinks[productName];
+			if (!links) return;
 
-		// --- Function to try deeplink ---
-		function tryDeeplink(deeplink, fallback) {
-				const now = Date.now();
-				const iframe = document.createElement('iframe');
-				iframe.style.display = 'none';
-				iframe.src = deeplink;
-				document.body.appendChild(iframe);
+			// --- Function to try deeplink ---
+			function tryDeeplink(deeplink, fallback) {
+					const now = Date.now();
+					const iframe = document.createElement('iframe');
+					iframe.style.display = 'none';
+					iframe.src = deeplink;
+					document.body.appendChild(iframe);
 
-				setTimeout(() => {
-						const elapsed = Date.now() - now;
-						if (elapsed < 2000) window.location.href = fallback;
-						document.body.removeChild(iframe);
-				}, 1500);
-		}
+					setTimeout(() => {
+							const elapsed = Date.now() - now;
+							if (elapsed < 2000) window.location.href = fallback;
+							document.body.removeChild(iframe);
+					}, 1500);
+			}
 
-		// --- Update buy buttons ---
-		document.querySelectorAll('.buy-button a.wp-block-button__link').forEach(button => {
-				button.addEventListener('click', e => {
-						e.preventDefault();
+			// --- Update buy buttons ---
+			document.querySelectorAll('.buy-button a.wp-block-button__link').forEach(button => {
+					button.addEventListener('click', e => {
+							e.preventDefault();
 
-						const productLinks = links;
-						if (!productLinks) return;
+							const productLinks = links;
+							if (!productLinks) return;
 
-						// --- Determine target key ---
-						const titleAttr = button.getAttribute('title');
-						let targetKey = null;
+							// --- Determine target key ---
+							const titleAttr = button.getAttribute('title');
+							let targetKey = null;
 
-						if (titleAttr && titleAttr.toLowerCase().startsWith('extralink')) {
-								targetKey = titleAttr.toLowerCase();
-						} else {
-								const buttonText = button.textContent.trim().toLowerCase();
-								targetKey = Object.keys(productLinks).find(k =>
-										!k.startsWith('deeplink') && buttonText.includes(k.toLowerCase())
-								);
-								if (!targetKey) targetKey = Object.keys(productLinks).filter(k => !k.startsWith('deeplink'))[0];
-						}
+							if (titleAttr && titleAttr.toLowerCase().startsWith('extralink')) {
+									targetKey = titleAttr.toLowerCase();
+							} else {
+									const buttonText = button.textContent.trim().toLowerCase();
+									targetKey = Object.keys(productLinks).find(k =>
+											!k.startsWith('deeplink') && buttonText.includes(k.toLowerCase())
+									);
+									if (!targetKey) targetKey = Object.keys(productLinks).filter(k => !k.startsWith('deeplink'))[0];
+							}
 
-						if (!targetKey) return;
-						const targetLink = productLinks[targetKey];
+							if (!targetKey) return;
+							const targetLink = productLinks[targetKey];
 
-						// --- Determine deeplink ---
-						let deeplink = null;
-						if (isIOS() && productLinks[`${targetKey}_deeplink_ios`]) deeplink = productLinks[`${targetKey}_deeplink_ios`];
-						else if (isAndroid() && productLinks[`${targetKey}_deeplink_android`]) deeplink = productLinks[`${targetKey}_deeplink_android`];
+							// --- Determine deeplink ---
+							let deeplink = null;
+							if (isIOS() && productLinks[`${targetKey}_deeplink_ios`]) deeplink = productLinks[`${targetKey}_deeplink_ios`];
+							else if (isAndroid() && productLinks[`${targetKey}_deeplink_android`]) deeplink = productLinks[`${targetKey}_deeplink_android`];
 
-						const fallback = isAppBrowser
-								? `/redirect.html?product=${productName}&variant=${encodeURIComponent(targetKey)}#${encodeURIComponent(targetKey)}`
-								: targetLink;
+							const fallback = isAppBrowser
+									? `/redirect.html?product=${productName}&variant=${encodeURIComponent(targetKey)}#${encodeURIComponent(targetKey)}`
+									: targetLink;
 
-						if (!isMobile) window.location.href = targetLink;
-						else if (deeplink) tryDeeplink(deeplink, fallback);
-						else window.location.href = targetLink;
-				});
-		});
+							if (!isMobile) window.location.href = targetLink;
+							else if (deeplink) tryDeeplink(deeplink, fallback);
+							else window.location.href = targetLink;
+					});
+			});
 
-		// --- Attach same click handler to extralinks ---
-		document.querySelectorAll('a[title^="extralink"]').forEach(link => {
-				link.addEventListener('click', e => {
-						e.preventDefault();
+			// --- Attach same click handler to extralinks ---
+			document.querySelectorAll('a[title^="extralink"]').forEach(link => {
+					link.addEventListener('click', e => {
+							e.preventDefault();
 
-						const productLinks = links;
-						if (!productLinks) return;
+							const productLinks = links;
+							if (!productLinks) return;
 
-						const linkKey = link.getAttribute('title').toLowerCase();
-						if (!linkKey || !productLinks[linkKey]) return;
+							const linkKey = link.getAttribute('title').toLowerCase();
+							if (!linkKey || !productLinks[linkKey]) return;
 
-						const targetLink = productLinks[linkKey];
+							const targetLink = productLinks[linkKey];
 
-						let deeplink = null;
-						if (isIOS() && productLinks[`${linkKey}_deeplink_ios`]) deeplink = productLinks[`${linkKey}_deeplink_ios`];
-						else if (isAndroid() && productLinks[`${linkKey}_deeplink_android`]) deeplink = productLinks[`${linkKey}_deeplink_android`];
+							let deeplink = null;
+							if (isIOS() && productLinks[`${linkKey}_deeplink_ios`]) deeplink = productLinks[`${linkKey}_deeplink_ios`];
+							else if (isAndroid() && productLinks[`${linkKey}_deeplink_android`]) deeplink = productLinks[`${linkKey}_deeplink_android`];
 
-						const fallback = isAppBrowser
-								? `/redirect.html?product=${productName}&variant=${encodeURIComponent(linkKey)}#${encodeURIComponent(linkKey)}`
-								: targetLink;
+							const fallback = isAppBrowser
+									? `/redirect.html?product=${productName}&variant=${encodeURIComponent(linkKey)}#${encodeURIComponent(linkKey)}`
+									: targetLink;
 
-						if (!isMobile) window.location.href = targetLink;
-						else if (deeplink) tryDeeplink(deeplink, fallback);
-						else window.location.href = targetLink;
-				});
-		});
+							if (!isMobile) window.location.href = targetLink;
+							else if (deeplink) tryDeeplink(deeplink, fallback);
+							else window.location.href = targetLink;
+					});
+			});
 
-		// --- Update extralinks href for non-app use ---
-		document.querySelectorAll('a[title^="extralink"]').forEach(link => {
-				try {
-						const linkKey = link.getAttribute('title').toLowerCase();
-						const productLinks = links;
-						if (productLinks && productLinks[linkKey]) link.href = productLinks[linkKey];
-				} catch (e) {
-						console.warn('Invalid extralink', link);
-				}
-		});
+			// --- Update extralinks href for non-app use ---
+			document.querySelectorAll('a[title^="extralink"]').forEach(link => {
+					try {
+							const linkKey = link.getAttribute('title').toLowerCase();
+							const productLinks = links;
+							if (productLinks && productLinks[linkKey]) link.href = productLinks[linkKey];
+					} catch (e) {
+							console.warn('Invalid extralink', link);
+					}
+			});
 
-});</script>
-<link rel="icon" href="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-150x150.webp" sizes="32x32">
+	});</script><link rel="icon" href="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-150x150.webp" sizes="32x32">
 <link rel="icon" href="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.webp" sizes="192x192">
 <link rel="apple-touch-icon" href="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.webp">
 <meta name="msapplication-TileImage" content="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.webp">
