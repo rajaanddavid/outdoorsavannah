@@ -99,8 +99,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 			const amazonLinks = await res.json();
 
 			// --- Get product slug ---
-			const pathParts = location.pathname.split('/').filter(Boolean);
-			const productName = pathParts[pathParts.length - 1];
+			// Use the full path (minus leading "/") as the product key
+			const productName = location.pathname.replace(/^\/+/, "");
 			const links = amazonLinks[productName];
 			if (!links) return;
 
