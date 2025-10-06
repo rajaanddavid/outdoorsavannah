@@ -123,9 +123,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 					setTimeout(() => {
 							const elapsed = Date.now() - now;
-							if (elapsed < 2000) window.location.href = fallback;
+							if (elapsed < 1000) window.location.href = fallback;
 							document.body.removeChild(iframe);
-					}, 1500);
+					}, 800);
 			}
 
 			// --- Update buy buttons ---
