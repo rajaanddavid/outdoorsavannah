@@ -77,9 +77,12 @@
     "amazon": "https://amzn.to/4nMRfHS",
     "amazon_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/PetSafe-Kitty-Harness-Bungee-Medium/dp/B000OBFI0M?tag=outdoorsavann-20",
     "amazon_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/PetSafe-Kitty-Harness-Bungee-Medium/dp/B000OBFI0M?tag=outdoorsavann-20",
-    "extralink1": "https://amzn.to/4lh9vc9",
-    "extralink1_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/PetSafe-Kitty-Glitter-Harness-Bungee/dp/B06XRVFB5K?tag=outdoorsavann-20",
-    "extralink1_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/PetSafe-Kitty-Glitter-Harness-Bungee/dp/B06XRVFB5K?tag=outdoorsavann-20"
+    "extralink1": "https://amzn.to/4nMRfHS",
+    "extralink1_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/PetSafe-Kitty-Harness-Bungee-Medium/dp/B000OBFI0M?tag=outdoorsavann-20",
+    "extralink1_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/PetSafe-Kitty-Harness-Bungee-Medium/dp/B000OBFI0M?tag=outdoorsavann-20",
+    "extralink2": "https://amzn.to/424Egti",
+    "extralink2_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/PetSafe-Kitty-Glitter-Harness-Bungee/dp/B06XRVFB5K?tag=outdoorsavann-20",
+    "extralink2_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/PetSafe-Kitty-Glitter-Harness-Bungee/dp/B06XRVFB5K?tag=outdoorsavann-20"
   },
   "backpack": {
     "amazon": "https://amzn.to/3sOCsoW",
