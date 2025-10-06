@@ -14,33 +14,36 @@
         'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
         })(window,document,'script','dataLayer','GTM-NBJRDCGV');
     </script>
+    <!-- End Google Tag Manager -->
+
 </head>
 <body>
 <div class="loading-message">Loading product...</div>
 
 <script>
     (async function() {
-        const ua = navigator.userAgent;
-        const isMobile = /iPhone|iPad|iPod|Android/i.test(ua);
-        const isAndroid = /Android/i.test(ua);
-        const isIOS = /iPhone|iPad|iPod/i.test(ua);
-        const isAppBrowser = /Instagram|FBAV|FBAN\/FBIOS|FB_IAB|FB4A|Threads|Barcelona/i.test(ua);
+        // --- Browser / Device Detection ---
+        function isMobile() { return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent); }
+        function isAndroid() { return /Android/i.test(navigator.userAgent); }
+        function isIOS() { return /iPhone|iPad|iPod/i.test(navigator.userAgent); }
+        function isAppBrowser() { return /Instagram|FBAV|FBAN\/FBIOS|FB_IAB|FB4A|Threads|Barcelona/i.test(navigator.userAgent); }
+        function isFacebookBrowser() { return /FBAN\/FBIOS|FBAV|FB_IAB|FB4A/i.test(navigator.userAgent); }
 
-        // --- Parse query string ---
+        // --- Query string to get product path ---
         const params = new URLSearchParams(window.location.search);
-        const productPath = params.get('product'); // e.g., "cat-shelf-guide"
-        const variantKey = params.get('variant');   // e.g., "extralink17"
-
-        if (!productPath || !variantKey) {
-            document.body.innerHTML = '<p>Error: No product or variant specified.</p>';
+        const productPath = params.get('product'); // e.g., "product/leash"
+        if (!productPath) {
+            document.body.innerHTML = '<p>Error: No product specified.</p>';
             return;
         }
 
-        // --- Fire GA4 redirect event ---
+        // --- Fire GA4 redirect event asynchronously ---
+        const pageHash = ((window.location.hash || '').substring(1).split('?')[0] || '').toLowerCase();
         if (window.gtag) {
+            const productName = productPath.replace('product/', '');
             gtag('event', 'redirect_info', {
-                product: productPath,
-                target: variantKey,
+                product: productName,
+                target: pageHash,
                 referrer: document.referrer || 'direct',
                 user_agent: navigator.userAgent,
                 transport_type: 'beacon'
@@ -48,45 +51,123 @@
         }
 
         try {
-            // --- Load Amazon links ---
-            const res = await fetch('/amazonLinks.json');
-            const amazonLinks = await res.json();
-            const links = amazonLinks[productPath];
-            if (!links || !links[variantKey]) {
-                document.body.innerHTML = '<p>Error: Target link not found.</p>';
-                return;
+            // --- Fetch original product page HTML ---
+            const res = await fetch('/' + productPath + '/'); // must exist as /product/leash/index.html
+            const html = await res.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+
+            // --- Append product head (don't wipe existing <head>) ---
+            Array.from(doc.head.children).forEach(node => {
+                document.head.appendChild(node.cloneNode(true));
+            });
+            console.log("Head elements from product page appended.");
+
+            // --- Replace body content ---
+            const container = document.createElement('div');
+            container.innerHTML = doc.body.innerHTML;
+            document.body.appendChild(container);
+
+            // --- Helpers for redirect script ---
+            function getProductName() {
+                const segments = productPath.split('/').filter(Boolean);
+                if (segments[0] === 'product') segments.shift();
+                return segments.join('/');
             }
 
-            const targetLink = links[variantKey];
+            // --- Unified link updater ---
+            function updateAllLinks(productName, amazonLinks) {
+                const links = amazonLinks[productName];
+                if (!links) return;
 
-            if (!isMobile || !isAppBrowser) {
-                // Desktop / external mobile: redirect immediately
-                window.location.href = targetLink;
+                // Update buttons (if any)
+                document.querySelectorAll('.wp-block-button.buy-button .wp-block-button__link').forEach(btn => {
+                    const key = (btn.getAttribute('title') || '').trim().toLowerCase();
+                    if (key && links[key]) btn.href = links[key];
+                    else if (links.amazon) btn.href = links.amazon; // fallback to main amazon link
+                });
+
+                // Update inline extralinks
+                document.querySelectorAll('a[title^="extralink"]').forEach(link => {
+                    const key = (link.getAttribute('title') || '').trim().toLowerCase();
+                    if (key && links[key]) link.href = links[key];
+                    else {
+                        // fallback to first extralink in JSON
+                        const fallback = Object.keys(links).find(k => k.startsWith('extralink'));
+                        if (fallback) link.href = links[fallback];
+                    }
+                });
+            }
+
+            // --- Update header for app/mobile ---
+            const entryHeader = document.querySelector('.entry-title');
+            if (entryHeader) {
+                if (isAppBrowser()) {
+                    if (isAndroid()) entryHeader.textContent = "Redirecting... please continue";
+                    else if (isIOS()) {
+                        if (isFacebookBrowser()) entryHeader.textContent = "Redirecting... please open app";
+                        else entryHeader.textContent = "Redirecting... please wait";
+                    }
+                } else if (isAndroid()) entryHeader.textContent = "Allow or tap again";
+                else if (isIOS()) entryHeader.textContent = "Redirecting... please wait";
+            }
+
+            // --- Load Amazon links and update buttons ---
+            const amazonLinksRes = await fetch('/amazonLinks.json');
+            const amazonLinks = await amazonLinksRes.json();
+            const productName = getProductName();
+            updateAllLinks(productName, amazonLinks);
+
+
+            // --- Determine redirect target ---
+            const variant = (params.get('variant') || '').toLowerCase();
+
+            const productLinks = amazonLinks[productName];
+            if (!productLinks) return;
+
+            const validKeys = Object.keys(productLinks).filter(
+                k => !k.endsWith('_deeplink_ios') && !k.endsWith('_deeplink_android')
+            );
+
+            // use ?variant=extralink17, else default to first available
+            const targetKey = validKeys.includes(variant) ? variant : validKeys[0];
+            const targetLink = targetKey ? productLinks[targetKey] : null;
+
+            if (!targetLink) return;
+
+            // --- Perform redirect ---
+            if (!isMobile()) {
+                setTimeout(() => { window.location.href = targetLink; }, 1500);
             } else {
-                // Mobile / App Browser: load Auditzy first
-                const auditzyScript = document.createElement('script');
-                auditzyScript.src = "https://rum.auditzy.com/rOGtCPfa-www.outdoorsavannah.com-iar.js";
-                auditzyScript.async = true;
-                document.head.appendChild(auditzyScript);
+                let redirectLink = targetLink;
+                // still preserve the hash part in case it matters (e.g. scrolling)
+                if (window.location.hash) redirectLink += window.location.hash;
 
-                auditzyScript.onload = function() {
+                const script = document.createElement('script');
+                script.src = "https://rum.auditzy.com/rOGtCPfa-www.outdoorsavannah.com-iar.js";
+                script.async = true;
+                document.head.appendChild(script);
+
+                script.onload = function() {
+                    console.log("Auditzy script loaded successfully.")
                     sessionStorage.setItem('redirected', 'true');
                     setTimeout(() => {
-                        if (isAndroid) window.open(targetLink, '_blank');
-                        else window.location.href = targetLink;
+                        if (isAndroid()) window.open(redirectLink, '_blank');
+                        else window.location.href = redirectLink;
                     }, 1500);
                 };
-
-                auditzyScript.onerror = function() {
-                    if (isAndroid) window.open(targetLink, '_blank');
-                    else window.location.href = targetLink;
+                script.onerror = function() {
+                    console.warn("Auditzy script failed to load.");
+                    if (isAndroid()) window.open(redirectLink, '_blank');
+                    else window.location.href = redirectLink;
                 };
             }
 
         } catch(e) {
-            document.body.innerHTML = '<p>Failed to load product links.</p>';
+            document.body.innerHTML = '<p>Failed to load product page.</p>';
             console.error(e);
         }
+
     })();
 </script>
 </body>

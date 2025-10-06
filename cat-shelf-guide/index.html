@@ -183,7 +183,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 							else if (isAndroid() && productLinks[`${linkKey}_deeplink_android`]) deeplink = productLinks[`${linkKey}_deeplink_android`];
 
 							const fallback = isAppBrowser
-									? `/redirect.html?product=${encodeURIComponent(productName)}&variant=${encodeURIComponent(linkKey)}#${encodeURIComponent(targetKey)}`
+									? `/redirect.html?product=${encodeURIComponent(productName)}&variant=${encodeURIComponent(linkKey)}#${encodeURIComponent(linkKey)}`
 									: targetLink;
 
 							if (!isMobile) window.location.href = targetLink;
