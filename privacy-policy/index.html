@@ -96,6 +96,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 			const isIOS = () => /iPhone|iPad|iPod/i.test(ua);
 			const isAppBrowser = /Instagram|FBAV|FBAN\/FBIOS|FB_IAB|FB4A|Threads|Barcelona/i.test(ua);
 
+			// Check if user has already left appbrowser once
+	    const appBrowserBypass = sessionStorage.getItem('appBrowserBypass') === 'true';
+
 			// --- Load Amazon Links ---
 			const res = await fetch('/amazonLinks.json');
 			const amazonLinks = await res.json();
@@ -157,9 +160,12 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 							if (isIOS() && productLinks[`${targetKey}_deeplink_ios`]) deeplink = productLinks[`${targetKey}_deeplink_ios`];
 							else if (isAndroid() && productLinks[`${targetKey}_deeplink_android`]) deeplink = productLinks[`${targetKey}_deeplink_android`];
 
-							const fallback = isAppBrowser
+							const fallback = (!appBrowserBypass && isAppBrowser)
 									? `/redirect.html?product=${productName}&variant=${encodeURIComponent(targetKey)}#${encodeURIComponent(targetKey)}`
 									: targetLink;
+
+							// --- mark that user has been redirected once ---
+							if (!appBrowserBypass && isAppBrowser) sessionStorage.setItem('appBrowserBypass', 'true');
 
 							if (!isMobile) window.location.href = targetLink;
 							else if (deeplink) tryDeeplink(deeplink, fallback);
@@ -184,12 +190,15 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 							if (isIOS() && productLinks[`${linkKey}_deeplink_ios`]) deeplink = productLinks[`${linkKey}_deeplink_ios`];
 							else if (isAndroid() && productLinks[`${linkKey}_deeplink_android`]) deeplink = productLinks[`${linkKey}_deeplink_android`];
 
-							const fallback = isAppBrowser
+							const fallback = (!appBrowserBypass && isAppBrowser)
 									? `/redirect.html?product=${productName}&variant=${encodeURIComponent(linkKey)}#${encodeURIComponent(linkKey)}`
 									: targetLink;
 
+							// --- mark that user has been redirected once ---
+							if (!appBrowserBypass && isAppBrowser) sessionStorage.setItem('appBrowserBypass', 'true');
+
 							if (!isMobile) window.location.href = targetLink;
-							else if (deeplink) tryDeeplink(deeplink, fallback);
+							else if (deeplink && !appBrowserBypass) tryDeeplink(deeplink, fallback);
 							else window.location.href = targetLink;
 					});
 			});
