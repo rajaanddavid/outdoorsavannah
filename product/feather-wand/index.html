@@ -84,8 +84,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <link rel="me" href="https://www.threads.com/@outdoorsavannah">
 <link rel="me" href="https://www.threads.com/@rajaanddavid">
 
-<script>
-	document.addEventListener('DOMContentLoaded', async () => {
+<script>document.addEventListener('DOMContentLoaded', async () => {
 			// Skip homepage
 			if (location.pathname === "/") return;
 
@@ -99,12 +98,19 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 			const res = await fetch('/amazonLinks.json');
 			const amazonLinks = await res.json();
 
-			// --- Determine product key (full path minus leading slash) ---
-			const redirectProduct = location.pathname.replace(/^\/+/, "");
-			const productLinks = amazonLinks[redirectProduct];
-			if (!productLinks) return;
+			// --- Get product slug ---
+			const pathParts = location.pathname.split('/').filter(Boolean);
+			// If URL starts with /product/, include it in the productName
+			let productName = pathParts[pathParts.length - 1];
+			if (pathParts[0] === "product" && pathParts.length > 1) {
+					productName = `product/${productName}`;
+			}
 
-			// --- Deeplink helper ---
+			// Support both formats in amazonLinks.json: with or without "product/"
+			const links = amazonLinks[pathParts[pathParts.length - 1]] || amazonLinks[productName];
+			if (!links) return;
+
+			// --- Function to try deeplink ---
 			function tryDeeplink(deeplink, fallback) {
 					const now = Date.now();
 					const iframe = document.createElement('iframe');
@@ -114,48 +120,44 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 					setTimeout(() => {
 							const elapsed = Date.now() - now;
-							if (elapsed < 2000) {
-									window.location.href = fallback;
-							}
+							if (elapsed < 2000) window.location.href = fallback;
 							document.body.removeChild(iframe);
 					}, 1500);
 			}
 
-			// --- Handle Buy Buttons ---
+			// --- Update buy buttons ---
 			document.querySelectorAll('.buy-button a.wp-block-button__link').forEach(button => {
 					button.addEventListener('click', e => {
 							e.preventDefault();
 
-							// Determine targetKey dynamically
-							let targetKey = null;
+							const productLinks = links;
+							if (!productLinks) return;
+
+							// --- Determine target key ---
 							const titleAttr = button.getAttribute('title');
+							let targetKey = null;
+
 							if (titleAttr && titleAttr.toLowerCase().startsWith('extralink')) {
 									targetKey = titleAttr.toLowerCase();
 							} else {
 									const buttonText = button.textContent.trim().toLowerCase();
-									const match = buttonText.match(/buy on (\w+)$/i); // grabs last word
-									if (match && match[1]) {
-											const lastWord = match[1].toLowerCase();
-											if (productLinks[lastWord]) targetKey = lastWord;
-									}
-									if (!targetKey) {
-											const nonDeeplinkKeys = Object.keys(productLinks).filter(k => !k.startsWith('deeplink'));
-											targetKey = nonDeeplinkKeys[0];
-									}
+									targetKey = Object.keys(productLinks).find(k =>
+											!k.startsWith('deeplink') && buttonText.includes(k.toLowerCase())
+									);
+									if (!targetKey) targetKey = Object.keys(productLinks).filter(k => !k.startsWith('deeplink'))[0];
 							}
 
 							if (!targetKey) return;
-
 							const targetLink = productLinks[targetKey];
 
-							// Determine deeplink
+							// --- Determine deeplink ---
 							let deeplink = null;
 							if (isIOS() && productLinks[`${targetKey}_deeplink_ios`]) deeplink = productLinks[`${targetKey}_deeplink_ios`];
 							else if (isAndroid() && productLinks[`${targetKey}_deeplink_android`]) deeplink = productLinks[`${targetKey}_deeplink_android`];
 
-							// Mobile / App Browser fallback
+							// --- Mobile / Desktop handling ---
 							const fallback = isAppBrowser
-									? `/redirect.html?product=${encodeURIComponent(redirectProduct)}&variant=${encodeURIComponent(targetKey)}#${encodeURIComponent(targetKey)}`
+									? `/redirect.html?product=${encodeURIComponent(productName)}&variant=${encodeURIComponent(targetKey)}#${encodeURIComponent(targetKey)}`
 									: targetLink;
 
 							if (!isMobile) window.location.href = targetLink;
@@ -164,10 +166,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 					});
 			});
 
-			// --- Handle Extralinks ---
+			// --- Attach same click handler to extralinks ---
 			document.querySelectorAll('a[title^="extralink"]').forEach(link => {
 					link.addEventListener('click', e => {
 							e.preventDefault();
+
+							const productLinks = links;
+							if (!productLinks) return;
 
 							const linkKey = link.getAttribute('title').toLowerCase();
 							if (!linkKey || !productLinks[linkKey]) return;
@@ -179,7 +184,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 							else if (isAndroid() && productLinks[`${linkKey}_deeplink_android`]) deeplink = productLinks[`${linkKey}_deeplink_android`];
 
 							const fallback = isAppBrowser
-									? `/redirect.html?product=${encodeURIComponent(redirectProduct)}&variant=${encodeURIComponent(linkKey)}#${encodeURIComponent(linkKey)}`
+									? `/redirect.html?product=${encodeURIComponent(productName)}&variant=${encodeURIComponent(linkKey)}#${encodeURIComponent(linkKey)}`
 									: targetLink;
 
 							if (!isMobile) window.location.href = targetLink;
@@ -192,15 +197,14 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 			document.querySelectorAll('a[title^="extralink"]').forEach(link => {
 					try {
 							const linkKey = link.getAttribute('title').toLowerCase();
+							const productLinks = links;
 							if (productLinks && productLinks[linkKey]) link.href = productLinks[linkKey];
-					} catch(e) {
+					} catch (e) {
 							console.warn('Invalid extralink', link);
 					}
 			});
-	});
-</script>
 
-
+	});</script>
 <link rel="icon" href="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-150x150.webp" sizes="32x32">
 <link rel="icon" href="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.webp" sizes="192x192">
 <link rel="apple-touch-icon" href="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.webp">
