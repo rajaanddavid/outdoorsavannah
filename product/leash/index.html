@@ -100,11 +100,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 			// Determine product key
 			const pathParts = location.pathname.split('/').filter(Boolean);
-			let productKey = pathParts.join('/'); // keeps "product/leash" for product pages
-			if (!amazonLinks[productKey]) {
-					// fallback to last segment if full path not found
-					productKey = pathParts[pathParts.length - 1];
-			}
+			let productKey = pathParts.length > 1 ? pathParts.join('/') : pathParts[0];
 			const productLinks = amazonLinks[productKey];
 			if (!productLinks) return;
 
