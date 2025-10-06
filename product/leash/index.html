@@ -94,16 +94,20 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 			const isIOS = () => /iPhone|iPad|iPod/i.test(ua);
 			const isAppBrowser = /Instagram|FBAV|FBAN\/FBIOS|FB_IAB|FB4A|Threads|Barcelona/i.test(ua);
 
-			// --- Load Amazon Links ---
+			// Load Amazon Links
 			const res = await fetch('/amazonLinks.json');
 			const amazonLinks = await res.json();
 
-			// --- Determine product key (full path minus leading slash) ---
-			const redirectProduct = location.pathname.replace(/^\/+/, "");
-			const productLinks = amazonLinks[redirectProduct];
+			// Determine product key
+			const pathParts = location.pathname.split('/').filter(Boolean);
+			let productKey = pathParts.join('/'); // keeps "product/leash" for product pages
+			if (!amazonLinks[productKey]) {
+					// fallback to last segment if full path not found
+					productKey = pathParts[pathParts.length - 1];
+			}
+			const productLinks = amazonLinks[productKey];
 			if (!productLinks) return;
 
-			// --- Deeplink helper ---
 			function tryDeeplink(deeplink, fallback) {
 					const now = Date.now();
 					const iframe = document.createElement('iframe');
@@ -120,30 +124,20 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 					}, 1500);
 			}
 
-			// --- Handle Buy Buttons ---
+			// Handle buy buttons
 			document.querySelectorAll('.buy-button a.wp-block-button__link').forEach(button => {
 					button.addEventListener('click', e => {
 							e.preventDefault();
 
-							// Determine targetKey dynamically
-							let targetKey = null;
-							const titleAttr = button.getAttribute('title');
-							if (titleAttr && titleAttr.toLowerCase().startsWith('extralink')) {
-									targetKey = titleAttr.toLowerCase();
-							} else {
-									const buttonText = button.textContent.trim().toLowerCase();
-									const match = buttonText.match(/buy on (\w+)$/i); // grabs last word
-									if (match && match[1]) {
-											const lastWord = match[1].toLowerCase();
-											if (productLinks[lastWord]) targetKey = lastWord;
-									}
-									if (!targetKey) {
-											const nonDeeplinkKeys = Object.keys(productLinks).filter(k => !k.startsWith('deeplink'));
-											targetKey = nonDeeplinkKeys[0];
-									}
-							}
+							// Determine target key using last word
+							const buttonText = button.textContent.trim();
+							const lastWordMatch = buttonText.match(/buy on (\w+)$/i);
+							let targetKey = lastWordMatch ? lastWordMatch[1].toLowerCase() : 'amazon';
 
-							if (!targetKey) return;
+							if (!productLinks[targetKey]) {
+									// fallback to first non-deeplink key
+									targetKey = Object.keys(productLinks).find(k => !k.includes('deeplink')) || 'amazon';
+							}
 
 							const targetLink = productLinks[targetKey];
 
@@ -152,24 +146,26 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 							if (isIOS() && productLinks[`${targetKey}_deeplink_ios`]) deeplink = productLinks[`${targetKey}_deeplink_ios`];
 							else if (isAndroid() && productLinks[`${targetKey}_deeplink_android`]) deeplink = productLinks[`${targetKey}_deeplink_android`];
 
-							// Mobile / App Browser fallback
-							const fallback = isAppBrowser
-									? `/redirect.html?product=${encodeURIComponent(redirectProduct)}&variant=${encodeURIComponent(targetKey)}#${encodeURIComponent(targetKey)}`
-									: targetLink;
+							// Redirect logic
+							const redirectURL = `/redirect.html?product=${encodeURIComponent(productKey)}&variant=${encodeURIComponent(targetKey)}#${encodeURIComponent(targetKey)}`;
 
-							if (!isMobile) window.location.href = targetLink;
-							else if (deeplink) tryDeeplink(deeplink, fallback);
-							else window.location.href = targetLink;
+							if (isAppBrowser) {
+									window.location.href = redirectURL;
+							} else if (isMobile && deeplink) {
+									tryDeeplink(deeplink, targetLink);
+							} else {
+									window.location.href = targetLink;
+							}
 					});
 			});
 
-			// --- Handle Extralinks ---
+			// Handle extralinks
 			document.querySelectorAll('a[title^="extralink"]').forEach(link => {
 					link.addEventListener('click', e => {
 							e.preventDefault();
 
 							const linkKey = link.getAttribute('title').toLowerCase();
-							if (!linkKey || !productLinks[linkKey]) return;
+							if (!productLinks[linkKey]) return;
 
 							const targetLink = productLinks[linkKey];
 
@@ -177,25 +173,26 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 							if (isIOS() && productLinks[`${linkKey}_deeplink_ios`]) deeplink = productLinks[`${linkKey}_deeplink_ios`];
 							else if (isAndroid() && productLinks[`${linkKey}_deeplink_android`]) deeplink = productLinks[`${linkKey}_deeplink_android`];
 
-							const fallback = isAppBrowser
-									? `/redirect.html?product=${encodeURIComponent(redirectProduct)}&variant=${encodeURIComponent(linkKey)}#${encodeURIComponent(linkKey)}`
-									: targetLink;
+							const redirectURL = `/redirect.html?product=${encodeURIComponent(productKey)}&variant=${encodeURIComponent(linkKey)}#${encodeURIComponent(linkKey)}`;
 
-							if (!isMobile) window.location.href = targetLink;
-							else if (deeplink) tryDeeplink(deeplink, fallback);
-							else window.location.href = targetLink;
+							if (isAppBrowser) {
+									window.location.href = redirectURL;
+							} else if (isMobile && deeplink) {
+									tryDeeplink(deeplink, targetLink);
+							} else {
+									window.location.href = targetLink;
+							}
 					});
-			});
 
-			// --- Update extralinks href for non-app use ---
-			document.querySelectorAll('a[title^="extralink"]').forEach(link => {
+					// Update href for non-app browsers
 					try {
 							const linkKey = link.getAttribute('title').toLowerCase();
-							if (productLinks && productLinks[linkKey]) link.href = productLinks[linkKey];
-					} catch(e) {
+							if (productLinks[linkKey]) link.href = productLinks[linkKey];
+					} catch (err) {
 							console.warn('Invalid extralink', link);
 					}
 			});
+
 	});
 </script>
 
