@@ -1,4 +1,50 @@
+# --- Block /redirect.html for everyone by default ---
 User-agent: *
 Disallow: /redirect.html
-
 Sitemap: http://outdoorsavannah.com/sitemap_index.xml
+
+# --- Whitelist social media scrapers for embedding ---
+User-agent: facebookexternalhit
+Allow: /redirect.html
+
+User-agent: Facebot
+Allow: /redirect.html
+
+User-agent: Instagram
+Allow: /redirect.html
+
+User-agent: ThreadsBot
+Allow: /redirect.html
+
+User-agent: MetaBot
+Allow: /redirect.html
+
+User-agent: Pinterest
+Allow: /redirect.html
+
+User-agent: Discordbot
+Allow: /redirect.html
+
+User-agent: Twitterbot
+Allow: /redirect.html
+
+User-agent: LinkedInBot
+Allow: /redirect.html
+
+User-agent: TikTokbot
+Allow: /redirect.html
+
+User-agent: YouTube
+Allow: /redirect.html
+
+User-agent: Redditbot
+Allow: /redirect.html
+
+User-agent: Slackbot
+Allow: /redirect.html
+
+User-agent: WhatsApp
+Allow: /redirect.html
+
+User-agent: TelegramBot
+Allow: /redirect.html
