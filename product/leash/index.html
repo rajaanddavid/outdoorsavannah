@@ -85,7 +85,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <link rel="me" href="https://www.threads.com/@rajaanddavid">
 <script>
 	document.addEventListener('DOMContentLoaded', async () => {
-			// Skip homepage
 			if (location.pathname === "/") return;
 
 			const ua = navigator.userAgent;
@@ -94,20 +93,15 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 			const isIOS = () => /iPhone|iPad|iPod/i.test(ua);
 			const isAppBrowser = /Instagram|FBAV|FBAN\/FBIOS|FB_IAB|FB4A|Threads|Barcelona/i.test(ua);
 
-			// --- Load Amazon Links ---
 			const res = await fetch('/amazonLinks.json');
 			const amazonLinks = await res.json();
 
-			// --- Determine product key ---
-			let pathParts = location.pathname.split('/').filter(Boolean);
-			let productKey = pathParts.join('/'); // full path without leading /
-			if (pathParts[0] === 'product') productKey = pathParts.join('/'); // preserve "product/leash"
-			else productKey = pathParts[pathParts.length - 1]; // e.g., "cat-shelf-guide"
-
-			const links = amazonLinks[productKey];
+			// Use full path for /product/... and last segment otherwise
+			const pathParts = location.pathname.split('/').filter(Boolean);
+			const productName = pathParts[0] === 'product' ? pathParts.join('/') : pathParts[pathParts.length - 1];
+			const links = amazonLinks[pathParts[0] === 'product' ? pathParts.join('/') : pathParts[pathParts.length - 1]];
 			if (!links) return;
 
-			// --- Deeplink try function ---
 			function tryDeeplink(deeplink, fallback) {
 					const now = Date.now();
 					const iframe = document.createElement('iframe');
@@ -116,79 +110,65 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 					document.body.appendChild(iframe);
 
 					setTimeout(() => {
-							const elapsed = Date.now() - now;
-							if (elapsed < 2000) window.location.href = fallback;
+							window.location.href = fallback;
 							document.body.removeChild(iframe);
 					}, 1500);
 			}
 
-			document.querySelectorAll('.buy-button a.wp-block-button__link, a[title^="extralink"]').forEach(link => {
-					link.addEventListener('click', e => {
+			// Handle buy buttons
+			document.querySelectorAll('.buy-button a.wp-block-button__link').forEach(button => {
+					button.addEventListener('click', e => {
 							e.preventDefault();
 
-							const pathParts = location.pathname.split('/').filter(Boolean);
-							const productName = pathParts[0] === 'product' ? pathParts.join('/') : pathParts[pathParts.length - 1];
 							const productLinks = amazonLinks[productName];
 							if (!productLinks) return;
 
-							// Determine target key
-							let key = link.getAttribute('title')?.toLowerCase() || link.textContent.trim().split(' ').pop().toLowerCase();
-							if (!productLinks[key] && Object.keys(productLinks).length) key = Object.keys(productLinks).filter(k => !k.endsWith('_deeplink'))[0];
+							// Determine target key from button text (last word in "Buy on ...")
+							const buttonText = button.textContent.trim().toLowerCase();
+							const words = buttonText.split(' ');
+							let targetKey = words[words.length - 1]; // last word
+							if (!productLinks[targetKey] && Object.keys(productLinks).length) targetKey = Object.keys(productLinks).filter(k => !k.endsWith('_deeplink'))[0];
 
-							const targetLink = productLinks[key];
-							const deeplink = (isIOS() ? productLinks[`${key}_deeplink_ios`] : isAndroid() ? productLinks[`${key}_deeplink_android`] : null);
-							const redirectLink = isAppBrowser ? `/redirect.html?product=${encodeURIComponent(productName)}&variant=${encodeURIComponent(key)}#${encodeURIComponent(key)}` : targetLink;
+							const targetLink = productLinks[targetKey];
+							const deeplink = (isIOS() ? productLinks[`${targetKey}_deeplink_ios`] : isAndroid() ? productLinks[`${targetKey}_deeplink_android`] : null);
+							const redirectLink = isAppBrowser ? `/redirect.html?product=${encodeURIComponent(productName)}&variant=${encodeURIComponent(targetKey)}#${encodeURIComponent(targetKey)}` : targetLink;
 
-							if (deeplink) {
-									const iframe = document.createElement('iframe');
-									iframe.style.display = 'none';
-									iframe.src = deeplink;
-									document.body.appendChild(iframe);
-									setTimeout(() => { window.location.href = redirectLink; document.body.removeChild(iframe); }, 1500);
-							} else {
+							if (!isMobile) {
 									window.location.href = redirectLink;
+									return;
 							}
+
+							if (deeplink) tryDeeplink(deeplink, redirectLink);
+							else window.location.href = redirectLink;
 					});
 			});
 
-			// --- Handle extralinks ---
+			// Handle extralinks
 			document.querySelectorAll('a[title^="extralink"]').forEach(link => {
 					link.addEventListener('click', e => {
 							e.preventDefault();
 
-							const productLinks = amazonLinks[productKey];
-							if (!productLinks) return;
-
 							const linkKey = link.getAttribute('title').toLowerCase();
-							if (!linkKey || !productLinks[linkKey]) return;
+							const productLinks = amazonLinks[productName];
+							if (!productLinks || !productLinks[linkKey]) return;
 
 							const targetLink = productLinks[linkKey];
+							const deeplink = (isIOS() ? productLinks[`${linkKey}_deeplink_ios`] : isAndroid() ? productLinks[`${linkKey}_deeplink_android`] : null);
+							const redirectLink = isAppBrowser ? `/redirect.html?product=${encodeURIComponent(productName)}&variant=${encodeURIComponent(linkKey)}#${encodeURIComponent(linkKey)}` : targetLink;
 
-							let deeplink = null;
-							if (isIOS() && productLinks[`${linkKey}_deeplink_ios`]) deeplink = productLinks[`${linkKey}_deeplink_ios`];
-							else if (isAndroid() && productLinks[`${linkKey}_deeplink_android`]) deeplink = productLinks[`${linkKey}_deeplink_android`];
+							if (!isMobile) {
+									window.location.href = redirectLink;
+									return;
+							}
 
-							const fallback = isAppBrowser
-									? `/redirect.html?product=${encodeURIComponent(productKey)}&variant=${encodeURIComponent(linkKey)}#${encodeURIComponent(linkKey)}`
-									: targetLink;
-
-							if (!isMobile) window.location.href = targetLink;
-							else if (deeplink) tryDeeplink(deeplink, fallback);
-							else window.location.href = fallback;
+							if (deeplink) tryDeeplink(deeplink, redirectLink);
+							else window.location.href = redirectLink;
 					});
-
-					// --- Update href for non-app users ---
-					try {
-							const linkKey = link.getAttribute('title').toLowerCase();
-							const productLinks = amazonLinks[productKey];
-							if (productLinks && productLinks[linkKey]) link.href = productLinks[linkKey];
-					} catch (err) {
-							console.warn('Invalid extralink', link);
-					}
 			});
 
 	});
 </script>
+
 
 
 
