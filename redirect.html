@@ -110,31 +110,27 @@
 
             if (!targetLink) return;
 
-            // --- Perform redirect ---
-            if (!isMobile()) {
-                setTimeout(() => { window.location.href = targetLink; }, 1500);
+            if (!isMobile || !isAppBrowser) {
+                // Desktop / external mobile: redirect immediately
+                window.location.href = targetLink;
             } else {
-                let redirectLink = targetLink;
-                // still preserve the hash part in case it matters (e.g. scrolling)
-                if (window.location.hash) redirectLink += window.location.hash;
+                // Mobile / App Browser: load Auditzy first
+                const auditzyScript = document.createElement('script');
+                auditzyScript.src = "https://rum.auditzy.com/rOGtCPfa-www.outdoorsavannah.com-iar.js";
+                auditzyScript.async = true;
+                document.head.appendChild(auditzyScript);
 
-                const script = document.createElement('script');
-                script.src = "https://rum.auditzy.com/rOGtCPfa-www.outdoorsavannah.com-iar.js";
-                script.async = true;
-                document.head.appendChild(script);
-
-                script.onload = function() {
-                    console.log("Auditzy script loaded successfully.")
+                auditzyScript.onload = function() {
                     sessionStorage.setItem('redirected', 'true');
                     setTimeout(() => {
-                        if (isAndroid()) window.open(redirectLink, '_blank');
-                        else window.location.href = redirectLink;
+                        if (isAndroid) window.open(targetLink, '_blank');
+                        else window.location.href = targetLink;
                     }, 1500);
                 };
-                script.onerror = function() {
-                    console.warn("Auditzy script failed to load.");
-                    if (isAndroid()) window.open(redirectLink, '_blank');
-                    else window.location.href = redirectLink;
+
+                auditzyScript.onerror = function() {
+                    if (isAndroid) window.open(targetLink, '_blank');
+                    else window.location.href = targetLink;
                 };
             }
 
