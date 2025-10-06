@@ -94,16 +94,20 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 			const isIOS = () => /iPhone|iPad|iPod/i.test(ua);
 			const isAppBrowser = /Instagram|FBAV|FBAN\/FBIOS|FB_IAB|FB4A|Threads|Barcelona/i.test(ua);
 
-			// Load Amazon Links
+			// --- Load Amazon Links ---
 			const res = await fetch('/amazonLinks.json');
 			const amazonLinks = await res.json();
 
-			// Determine product key
-			const pathParts = location.pathname.split('/').filter(Boolean);
-			let productKey = pathParts.length > 1 ? pathParts.join('/') : pathParts[0];
-			const productLinks = amazonLinks[productKey];
-			if (!productLinks) return;
+			// --- Determine product key ---
+			let pathParts = location.pathname.split('/').filter(Boolean);
+			let productKey = pathParts.join('/'); // full path without leading /
+			if (pathParts[0] === 'product') productKey = pathParts.join('/'); // preserve "product/leash"
+			else productKey = pathParts[pathParts.length - 1]; // e.g., "cat-shelf-guide"
 
+			const links = amazonLinks[productKey];
+			if (!links) return;
+
+			// --- Deeplink try function ---
 			function tryDeeplink(deeplink, fallback) {
 					const now = Date.now();
 					const iframe = document.createElement('iframe');
@@ -113,55 +117,53 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 					setTimeout(() => {
 							const elapsed = Date.now() - now;
-							if (elapsed < 2000) {
-									window.location.href = fallback;
-							}
+							if (elapsed < 2000) window.location.href = fallback;
 							document.body.removeChild(iframe);
 					}, 1500);
 			}
 
-			// Handle buy buttons
+			// --- Handle buy buttons ---
 			document.querySelectorAll('.buy-button a.wp-block-button__link').forEach(button => {
 					button.addEventListener('click', e => {
 							e.preventDefault();
 
-							// Determine target key using last word
-							const buttonText = button.textContent.trim();
-							const lastWordMatch = buttonText.match(/buy on (\w+)$/i);
-							let targetKey = lastWordMatch ? lastWordMatch[1].toLowerCase() : 'amazon';
+							const productLinks = amazonLinks[productKey];
+							if (!productLinks) return;
 
-							if (!productLinks[targetKey]) {
-									// fallback to first non-deeplink key
-									targetKey = Object.keys(productLinks).find(k => !k.includes('deeplink')) || 'amazon';
-							}
+							// --- Determine targetKey from last word in button text ---
+							const buttonText = button.textContent.trim();
+							const lastWord = buttonText.split(' ').pop().toLowerCase();
+							let targetKey = lastWord in productLinks ? lastWord : Object.keys(productLinks).find(k => !k.startsWith('deeplink'));
+							if (!targetKey) return;
 
 							const targetLink = productLinks[targetKey];
 
-							// Determine deeplink
+							// --- Deeplink if mobile ---
 							let deeplink = null;
 							if (isIOS() && productLinks[`${targetKey}_deeplink_ios`]) deeplink = productLinks[`${targetKey}_deeplink_ios`];
 							else if (isAndroid() && productLinks[`${targetKey}_deeplink_android`]) deeplink = productLinks[`${targetKey}_deeplink_android`];
 
-							// Redirect logic
-							const redirectURL = `/redirect.html?product=${encodeURIComponent(productKey)}&variant=${encodeURIComponent(targetKey)}#${encodeURIComponent(targetKey)}`;
+							// --- Redirect for app browsers ---
+							const fallback = isAppBrowser
+									? `/redirect.html?product=${encodeURIComponent(productKey)}&variant=${encodeURIComponent(targetKey)}#${encodeURIComponent(targetKey)}`
+									: targetLink;
 
-							if (isAppBrowser) {
-									window.location.href = redirectURL;
-							} else if (isMobile && deeplink) {
-									tryDeeplink(deeplink, targetLink);
-							} else {
-									window.location.href = targetLink;
-							}
+							if (!isMobile) window.location.href = targetLink;
+							else if (deeplink) tryDeeplink(deeplink, fallback);
+							else window.location.href = fallback;
 					});
 			});
 
-			// Handle extralinks
+			// --- Handle extralinks ---
 			document.querySelectorAll('a[title^="extralink"]').forEach(link => {
 					link.addEventListener('click', e => {
 							e.preventDefault();
 
+							const productLinks = amazonLinks[productKey];
+							if (!productLinks) return;
+
 							const linkKey = link.getAttribute('title').toLowerCase();
-							if (!productLinks[linkKey]) return;
+							if (!linkKey || !productLinks[linkKey]) return;
 
 							const targetLink = productLinks[linkKey];
 
@@ -169,21 +171,20 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 							if (isIOS() && productLinks[`${linkKey}_deeplink_ios`]) deeplink = productLinks[`${linkKey}_deeplink_ios`];
 							else if (isAndroid() && productLinks[`${linkKey}_deeplink_android`]) deeplink = productLinks[`${linkKey}_deeplink_android`];
 
-							const redirectURL = `/redirect.html?product=${encodeURIComponent(productKey)}&variant=${encodeURIComponent(linkKey)}#${encodeURIComponent(linkKey)}`;
+							const fallback = isAppBrowser
+									? `/redirect.html?product=${encodeURIComponent(productKey)}&variant=${encodeURIComponent(linkKey)}#${encodeURIComponent(linkKey)}`
+									: targetLink;
 
-							if (isAppBrowser) {
-									window.location.href = redirectURL;
-							} else if (isMobile && deeplink) {
-									tryDeeplink(deeplink, targetLink);
-							} else {
-									window.location.href = targetLink;
-							}
+							if (!isMobile) window.location.href = targetLink;
+							else if (deeplink) tryDeeplink(deeplink, fallback);
+							else window.location.href = fallback;
 					});
 
-					// Update href for non-app browsers
+					// --- Update href for non-app users ---
 					try {
 							const linkKey = link.getAttribute('title').toLowerCase();
-							if (productLinks[linkKey]) link.href = productLinks[linkKey];
+							const productLinks = amazonLinks[productKey];
+							if (productLinks && productLinks[linkKey]) link.href = productLinks[linkKey];
 					} catch (err) {
 							console.warn('Invalid extralink', link);
 					}
@@ -191,6 +192,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 	});
 </script>
+
 
 
 
