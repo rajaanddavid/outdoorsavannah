@@ -14,7 +14,11 @@
   },
   "string-toy": {
     "aliexpress": "https://s.click.aliexpress.com/e/_olkXEyK",
-    "amazon": "https://amzn.to/4h9gGjb"
+    "aliexpress_deeplink_ios": "aliexpress://product/detail?productId=3256806974262141&aff_fsk=_omjWMxN",
+    "aliexpress_deeplink_android": "intent://www.aliexpress.com/item/3256806974262141.html?aff_fsk=_omjWMxN#Intent;package=com.alibaba.aliexpresshd;scheme=https;end",
+    "amazon": "https://amzn.to/4h9gGjb",
+    "amazon_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/dp/B0DHZZSPMB?tag=outdoorsavann-20",
+    "amazon_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/dp/B0DHZZSPMB?tag=outdoorsavann-20"
   },
   "cat-shelf-guide": {
     "extralink1": "https://amzn.to/44gNELF",
@@ -71,22 +75,36 @@
   },
   "harness": {
     "amazon": "https://amzn.to/4nMRfHS",
-    "extralink1": "https://amzn.to/4lh9vc9"
+    "amazon_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/PetSafe-Kitty-Harness-Bungee-Medium/dp/B000OBFI0M?tag=outdoorsavann-20",
+    "amazon_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/PetSafe-Kitty-Harness-Bungee-Medium/dp/B000OBFI0M?tag=outdoorsavann-20",
+    "extralink1": "https://amzn.to/4lh9vc9",
+    "extralink1_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/PetSafe-Kitty-Glitter-Harness-Bungee/dp/B06XRVFB5K?tag=outdoorsavann-20",
+    "extralink1_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/PetSafe-Kitty-Glitter-Harness-Bungee/dp/B06XRVFB5K?tag=outdoorsavann-20"
   },
   "backpack": {
-    "amazon": "https://amzn.to/3sOCsoW"
+    "amazon": "https://amzn.to/3sOCsoW",
+    "amazon_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/Petsfit-Backpack-Carrier-Upgrade-Suitable/dp/B0C3LX7P2M?tag=outdoorsavann-20",
+    "amazon_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/Petsfit-Backpack-Carrier-Upgrade-Suitable/dp/B0C3LX7P2M?tag=outdoorsavann-20"
   },
   "rolling-ball-toy": {
-    "amazon": "https://amzn.to/3YQ0QDZ"
+    "amazon": "https://amzn.to/3YQ0QDZ",
+    "amazon_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/Catit-Design-Senses-Circuit-Original/dp/B001LWRFW2?tag=outdoorsavann-20",
+    "amazon_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/Catit-Design-Senses-Circuit-Original/dp/B001LWRFW2?tag=outdoorsavann-20"
   },
   "cat-shelves": {
-    "amazon": "https://amzn.to/3UrYedQ"
+    "amazon": "https://amzn.to/3UrYedQ",
+    "amazon_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/s?k=cat+shelves&tag=outdoorsavann-20",
+    "amazon_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/s?k=cat+shelves&tag=outdoorsavann-20"
   },
   "sleepypod-mobile-cat-bed": {
-    "amazon": "https://amzn.to/46DyNKL"
+    "amazon": "https://amzn.to/46DyNKL",
+    "amazon_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/Sleepypod-Mobile-Pet-Robin-Blue/dp/B08JQPQM8J?tag=outdoorsavann-20",
+    "amazon_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/Sleepypod-Mobile-Pet-Robin-Blue/dp/B08JQPQM8J?tag=outdoorsavann-20"
   },
   "mobile-water-bowl": {
-    "amazon": "https://amzn.to/456uWU5"
+    "amazon": "https://amzn.to/456uWU5",
+    "amazon_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/B0006BB78W?tag=outdoorsavann-20",
+    "amazon_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/B0006BB78W?tag=outdoorsavann-20"
   },
   "wall-crawler-gecko": {
     "amazon": "https://amzn.to/4nSTOrY",
@@ -97,6 +115,8 @@
     "aliexpress_deeplink_android": "intent://www.aliexpress.com/item/3256807894204108.html?aff_fsk=_omjWMxN#Intent;package=com.alibaba.aliexpresshd;scheme=https;end"
   },
   "shelf-brackets": {
-    "amazon": "https://amzn.to/4bedTn0"
+    "amazon": "https://amzn.to/4bedTn0",
+    "amazon_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/Brackets-Screws-Support-Shelves-Floating/dp/B0CQF864ZD?tag=outdoorsavann-20",
+    "amazon_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/Brackets-Screws-Support-Shelves-Floating/dp/B0CQF864ZD?tag=outdoorsavann-20"
   }
 }
