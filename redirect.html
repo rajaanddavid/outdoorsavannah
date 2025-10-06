@@ -123,13 +123,13 @@
                 auditzyScript.onload = function() {
                     sessionStorage.setItem('redirected', 'true');
                     setTimeout(() => {
-                        if (isAndroid) window.open(targetLink, '_blank');
+                        if (isAndroid()) window.open(targetLink, '_blank');
                         else window.location.href = targetLink;
                     }, 1500);
                 };
 
                 auditzyScript.onerror = function() {
-                    if (isAndroid) window.open(targetLink, '_blank');
+                    if (isAndroid()) window.open(targetLink, '_blank');
                     else window.location.href = targetLink;
                 };
             }
