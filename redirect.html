@@ -35,7 +35,17 @@
 
             // --- Append product head (don't wipe existing <head>) ---
             Array.from(doc.head.children).forEach(node => {
-                document.head.appendChild(node.cloneNode(true));
+                const clone = node.cloneNode(true);
+
+                // --- Minimal addition: convert relative URLs to absolute ---
+                if (clone.tagName === 'LINK' && clone.href && clone.href.startsWith('/')) {
+                    clone.href = window.location.origin + clone.getAttribute('href');
+                }
+                if (clone.tagName === 'SCRIPT' && clone.src && clone.src.startsWith('/')) {
+                    clone.src = window.location.origin + clone.getAttribute('src');
+                }
+
+                document.head.appendChild(clone);
             });
             console.log("Head elements from product page appended.");
 
