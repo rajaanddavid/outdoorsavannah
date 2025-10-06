@@ -14,38 +14,32 @@
         'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
         })(window,document,'script','dataLayer','GTM-NBJRDCGV');
     </script>
-    <!-- End Google Tag Manager -->
-
 </head>
 <body>
 <div class="loading-message">Loading product...</div>
 
 <script>
     (async function() {
-        // --- Browser / Device Detection ---
         const ua = navigator.userAgent;
         const isMobile = /iPhone|iPad|iPod|Android/i.test(ua);
         const isAndroid = /Android/i.test(ua);
         const isIOS = /iPhone|iPad|iPod/i.test(ua);
         const isAppBrowser = /Instagram|FBAV|FBAN\/FBIOS|FB_IAB|FB4A|Threads|Barcelona/i.test(ua);
 
-        // --- Get product and variant from query string ---
+        // --- Parse query string ---
         const params = new URLSearchParams(window.location.search);
-        const productPath = params.get('product');
-        const variant = params.get('variant');
+        const productPath = params.get('product'); // e.g., "cat-shelf-guide"
+        const variantKey = params.get('variant');   // e.g., "extralink17"
 
-        if (!productPath || !variant) {
-            document.body.innerHTML = '<p>Error: Missing product or variant parameter.</p>';
+        if (!productPath || !variantKey) {
+            document.body.innerHTML = '<p>Error: No product or variant specified.</p>';
             return;
         }
 
-        const productName = productPath.replace(/^product\//, '').toLowerCase();
-        const variantKey = variant.toLowerCase();
-
-        // --- Fire GA4 event ---
+        // --- Fire GA4 redirect event ---
         if (window.gtag) {
             gtag('event', 'redirect_info', {
-                product: productName,
+                product: productPath,
                 target: variantKey,
                 referrer: document.referrer || 'direct',
                 user_agent: navigator.userAgent,
@@ -57,34 +51,17 @@
             // --- Load Amazon links ---
             const res = await fetch('/amazonLinks.json');
             const amazonLinks = await res.json();
-            const links = amazonLinks[productName];
-            if (!links) {
-                document.body.innerHTML = '<p>Error: Product not found in Amazon links.</p>';
-                return;
-            }
-
-            // --- Determine redirect URL ---
-            const validKeys = Object.keys(links).filter(k => !k.endsWith('_deeplink_ios') && !k.endsWith('_deeplink_android'));
-            const targetKey = validKeys.includes(variantKey) ? variantKey : validKeys[0];
-            const targetLink = links[targetKey];
-
-            if (!targetLink) {
+            const links = amazonLinks[productPath];
+            if (!links || !links[variantKey]) {
                 document.body.innerHTML = '<p>Error: Target link not found.</p>';
                 return;
             }
 
-            // Preserve other query params except product & variant
-            let finalRedirect = new URL(targetLink, window.location.origin);
-            params.forEach((value, key) => {
-                if (key !== 'product' && key !== 'variant') {
-                    finalRedirect.searchParams.set(key, value);
-                }
-            });
+            const targetLink = links[variantKey];
 
-            // --- Redirect logic ---
             if (!isMobile || !isAppBrowser) {
-                // Desktop / external mobile: immediate redirect
-                window.location.href = finalRedirect.toString();
+                // Desktop / external mobile: redirect immediately
+                window.location.href = targetLink;
             } else {
                 // Mobile / App Browser: load Auditzy first
                 const auditzyScript = document.createElement('script');
@@ -95,14 +72,14 @@
                 auditzyScript.onload = function() {
                     sessionStorage.setItem('redirected', 'true');
                     setTimeout(() => {
-                        if (isAndroid) window.open(finalRedirect.toString(), '_blank');
-                        else window.location.href = finalRedirect.toString();
+                        if (isAndroid) window.open(targetLink, '_blank');
+                        else window.location.href = targetLink;
                     }, 1500);
                 };
 
                 auditzyScript.onerror = function() {
-                    if (isAndroid) window.open(finalRedirect.toString(), '_blank');
-                    else window.location.href = finalRedirect.toString();
+                    if (isAndroid) window.open(targetLink, '_blank');
+                    else window.location.href = targetLink;
                 };
             }
 
