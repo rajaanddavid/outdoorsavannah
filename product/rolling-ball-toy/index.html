@@ -82,6 +82,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 <link rel="preload" as="image" href="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/outdoorsavannah-logo-registered-links.webp" fetchpriority="high">
 <link rel="preload" href="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/Easy-Cat-Shelves-1187x1536.webp" as="image" fetchpriority="high">
+<link rel="preload" href="https://www.outdoorsavannah.com/amazonLinks.json" as="fetch" type="application/json" crossorigin="anonymous">
 
 <link rel="me" href="https://www.threads.com/@outdoorsavannah">
 <link rel="me" href="https://www.threads.com/@rajaanddavid">
@@ -122,9 +123,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 					setTimeout(() => {
 							const elapsed = Date.now() - now;
-							if (elapsed < 2000) window.location.href = fallback;
+							if (elapsed < 1000) window.location.href = fallback;
 							document.body.removeChild(iframe);
-					}, 1500);
+					}, 800);
 			}
 
 			// --- Update buy buttons ---
