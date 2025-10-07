@@ -26,15 +26,41 @@
             return;
         }
 
-        // --- Helpers for redirect script ---
         function getProductName() {
             const segments = productPath.split('/').filter(Boolean);
             if (segments[0] === 'product') segments.shift();
             return segments.join('/');
         }
 
+        // --- Android normalizeIntentLink ---
+        function normalizeIntentLink(url) {
+            if (!url) return url;
+            try {
+                if (url.startsWith("intent://")) {
+                    const [prefix, intentPart] = url.split("#Intent;");
+                    if (!intentPart) return url;
+                    const cleaned = intentPart
+                        .split(";")
+                        .filter(part =>
+                            !part.startsWith("package=") &&
+                            !part.startsWith("component=") &&
+                            !part.startsWith("S.browser_fallback_url=")
+                        )
+                        .join(";");
+                    return `${prefix}#Intent;${cleaned};scheme=https;action=android.intent.action.VIEW;end`.replace(/;;+/g, ";");
+                }
+                if (/^[a-zA-Z0-9.]+:\/\//.test(url)) {
+                    const httpsUrl = url.replace(/^[a-zA-Z0-9.]+:\/\//, "https://");
+                    return `intent://${httpsUrl.replace(/^https?:\/\//, "")}#Intent;scheme=https;action=android.intent.action.VIEW;end`;
+                }
+                return url;
+            } catch {
+                return url;
+            }
+        }
+
         try {
-            // --- Load Amazon links first ---
+            // --- Load Amazon links ---
             const amazonLinksRes = await fetch('/amazonLinks.json');
             const amazonLinks = await amazonLinksRes.json();
             const productName = getProductName();
@@ -49,57 +75,48 @@
             const targetLink = targetKey ? productLinks[targetKey] : null;
             if (!targetLink) return;
 
-            // --- NEW: fast desktop redirect ---
+            // --- Fast desktop redirect ---
             if (!isMobile || !isAppBrowser) {
                 window.location.href = targetLink;
-                return; // skip the rest
+                return;
             }
 
-            // --- Fetch original product page HTML (mobile / app browser only) ---
-            const res = await fetch('/' + productPath + '/'); // must exist as /product/leash/index.html
+            // --- Fetch original product page HTML ---
+            const res = await fetch('/' + productPath + '/');
             const html = await res.text();
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, 'text/html');
 
-            // --- Append product head (don't wipe existing <head>) ---
+            // --- Append head elements ---
             Array.from(doc.head.children).forEach(node => {
                 const clone = node.cloneNode(true);
-
-                // --- Minimal addition: convert relative URLs to absolute ---
                 if (clone.tagName === 'LINK' && clone.href && clone.href.startsWith('/')) {
                     clone.href = window.location.origin + clone.getAttribute('href');
                 }
                 if (clone.tagName === 'SCRIPT' && clone.src && clone.src.startsWith('/')) {
                     clone.src = window.location.origin + clone.getAttribute('src');
                 }
-
                 document.head.appendChild(clone);
             });
-            console.log("Head elements from product page appended.");
 
             // --- Replace body content ---
             const container = document.createElement('div');
             container.innerHTML = doc.body.innerHTML;
             document.body.appendChild(container);
 
-            // --- Unified link updater ---
+            // --- Update links (minimal) ---
             function updateAllLinks(productName, amazonLinks) {
                 const links = amazonLinks[productName];
                 if (!links) return;
-
-                // Update buttons (if any)
                 document.querySelectorAll('.wp-block-button.buy-button .wp-block-button__link').forEach(btn => {
                     const key = (btn.getAttribute('title') || '').trim().toLowerCase();
                     if (key && links[key]) btn.href = links[key];
-                    else if (links.amazon) btn.href = links.amazon; // fallback to main amazon link
+                    else if (links.amazon) btn.href = links.amazon;
                 });
-
-                // Update inline extralinks
                 document.querySelectorAll('a[title^="extralink"]').forEach(link => {
                     const key = (link.getAttribute('title') || '').trim().toLowerCase();
                     if (key && links[key]) link.href = links[key];
                     else {
-                        // fallback to first extralink in JSON
                         const fallback = Object.keys(links).find(k => k.startsWith('extralink'));
                         if (fallback) link.href = links[fallback];
                     }
@@ -108,7 +125,7 @@
 
             updateAllLinks(productName, amazonLinks);
 
-            // --- Update header for app/mobile ---
+            // --- Update header ---
             const entryHeader = document.querySelector('.entry-title');
             if (entryHeader) {
                 if (isAppBrowser()) {
@@ -121,24 +138,47 @@
                 else if (isIOS()) entryHeader.textContent = "Redirecting... please wait";
             }
 
-            // --- Mobile / App Browser: load Auditzy ---
-            const auditzyScript = document.createElement('script');
-            auditzyScript.src = "https://rum.auditzy.com/rOGtCPfa-www.outdoorsavannah.com-iar.js";
-            auditzyScript.async = true;
-            document.head.appendChild(auditzyScript);
+            // --- Mobile: try primary deeplink first ---
+            let primaryDeeplink = null;
+            if (isAndroid() && productLinks[`${targetKey}_deeplink_android`]) primaryDeeplink = productLinks[`${targetKey}_deeplink_android`];
+            if (isIOS() && productLinks[`${targetKey}_deeplink_ios`]) primaryDeeplink = productLinks[`${targetKey}_deeplink_ios`];
 
-            auditzyScript.onload = function() {
-                sessionStorage.setItem('redirected', 'true');
+            if (primaryDeeplink) {
+                const now = Date.now();
+                const iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                iframe.src = primaryDeeplink;
+                document.body.appendChild(iframe);
+
                 setTimeout(() => {
-                    if (isAndroid()) window.open(targetLink, '_blank');
-                    else window.location.href = targetLink;
-                }, 1500);
-            };
+                    const elapsed = Date.now() - now;
+                    document.body.removeChild(iframe);
 
-            auditzyScript.onerror = function() {
-                if (isAndroid()) window.open(targetLink, '_blank');
-                else window.location.href = targetLink;
-            };
+                    if (elapsed < 1000) {
+                        // Android fallback using normalized intent
+                        if (isAndroid()) {
+                            const fallback = normalizeIntentLink(primaryDeeplink);
+                            window.open(fallback, '_blank');
+                        }
+                        // iOS fallback: Auditzy + targetLink
+                        else if (isIOS()) {
+                            const auditzyScript = document.createElement('script');
+                            auditzyScript.src = "https://rum.auditzy.com/rOGtCPfa-www.outdoorsavannah.com-iar.js";
+                            auditzyScript.async = true;
+                            document.head.appendChild(auditzyScript);
+
+                            auditzyScript.onload = function() {
+                                sessionStorage.setItem('redirected', 'true');
+                                setTimeout(() => { window.location.href = targetLink; }, 1500);
+                            };
+                            auditzyScript.onerror = function() { window.location.href = targetLink; };
+                        }
+                    }
+                }, 800);
+            } else {
+                // No deeplink: go to normal target
+                window.location.href = targetLink;
+            }
 
         } catch(e) {
             document.body.innerHTML = '<p>Failed to load product page.</p>';
