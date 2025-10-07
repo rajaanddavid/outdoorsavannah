@@ -154,21 +154,29 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 			}, 800);
 		}
 
-		// --- Update buy buttons hrefs immediately ---
+		// --- Update buy buttons hrefs immediately for desktop & all links ---
 		document.querySelectorAll('.buy-button a.wp-block-button__link').forEach(button => {
 			const titleAttr = button.getAttribute('title');
 			let targetKey = null;
 
+			// Try 1: explicit extralink title
 			if (titleAttr && titleAttr.toLowerCase().startsWith('extralink')) {
 				targetKey = titleAttr.toLowerCase();
 			} else {
-				const buttonText = button.textContent.trim().toLowerCase();
-				targetKey = Object.keys(links).find(k =>
-					!k.startsWith('deeplink') && buttonText.includes(k.toLowerCase())
-				);
-				if (!targetKey) targetKey = Object.keys(links).filter(k => !k.startsWith('deeplink'))[0];
+				// Try 2: detect brand from "Buy on XXXXX"
+				const match = button.textContent.match(/buy on\s+([a-z0-9\s]+)/i);
+				if (match && match[1]) {
+					const brand = match[1].trim().toLowerCase();
+					targetKey = Object.keys(links).find(k => k.toLowerCase() === brand);
+				}
+
+				// Try 3: fallback – first non-deeplink key
+				if (!targetKey) {
+					targetKey = Object.keys(links).find(k => !k.startsWith('deeplink'));
+				}
 			}
-			if (!targetKey) return;
+
+			if (!targetKey || !links[targetKey]) return;
 			button.href = links[targetKey];
 		});
 
@@ -191,9 +199,25 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 			el.addEventListener('click', e => {
 				e.preventDefault();
 
-				const targetKey = el.getAttribute('title')
-					? el.getAttribute('title').toLowerCase()
-					: Object.keys(links)[0];
+				let targetKey = null;
+				const titleAttr = el.getAttribute('title');
+
+				// Try 1: explicit extralink
+				if (titleAttr && titleAttr.toLowerCase().startsWith('extralink')) {
+					targetKey = titleAttr.toLowerCase();
+				} else {
+					// Try 2: detect brand from button text
+					const match = el.textContent.match(/buy on\s+([a-z0-9\s]+)/i);
+					if (match && match[1]) {
+						const brand = match[1].trim().toLowerCase();
+						targetKey = Object.keys(links).find(k => k.toLowerCase() === brand);
+					}
+
+					// Try 3: fallback
+					if (!targetKey) {
+						targetKey = Object.keys(links).find(k => !k.startsWith('deeplink'));
+					}
+				}
 
 				const targetLink = links[targetKey];
 				if (!targetLink) return;
