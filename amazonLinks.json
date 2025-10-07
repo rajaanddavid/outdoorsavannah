@@ -15,7 +15,7 @@
   "string-toy": {
     "aliexpress": "https://s.click.aliexpress.com/e/_olkXEyK",
     "aliexpress_deeplink_ios": "aliexpress://product/detail?productId=3256806974262141&aff_fsk=_omjWMxN",
-    "aliexpress_deeplink_android": "intent://www.aliexpress.com/item/3256806974262141.html?aff_fsk=_omjWMxN#Intent;package=com.alibaba.aliexpresshd;scheme=https;end",
+    "aliexpress_deeplink_android": "intent://www.aliexpress.com/item/3256807894204108.html?aff_fsk=_omjWMxN#Intent;scheme=https;action=android.intent.action.VIEW;end",
     "amazon": "https://amzn.to/4h9gGjb",
     "amazon_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/dp/B0DHZZSPMB?tag=outdoorsavann-20",
     "amazon_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/dp/B0DHZZSPMB?tag=outdoorsavann-20"
@@ -115,7 +115,7 @@
     "amazon_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/dp/B0CSFPL6JN?tag=outdoorsavann-20",
     "aliexpress": "https://s.click.aliexpress.com/e/_omjWMxN",
     "aliexpress_deeplink_ios": "aliexpress://product/detail?productId=3256807894204108&aff_fsk=_omjWMxN",
-    "aliexpress_deeplink_android": "intent://www.aliexpress.com/item/3256807894204108.html?aff_fsk=_omjWMxN#Intent;package=com.alibaba.aliexpresshd;scheme=https;end"
+    "aliexpress_deeplink_android": "intent://www.aliexpress.com/item/3256807894204108.html?aff_fsk=_omjWMxN#Intent;scheme=https;action=android.intent.action.VIEW;end"
   },
   "shelf-brackets": {
     "amazon": "https://amzn.to/4bedTn0",
