@@ -185,29 +185,39 @@
                 return;
             }
 
-        // --- Improved iOS behavior ---
-        if (primaryDeeplink && isIOS()) {
-            const start = Date.now();
-            window.location = primaryDeeplink;
+            // --- Improved iOS behavior ---
+            if (primaryDeeplink && isIOS()) {
+                if (!isAppBrowser()) {
+                    // External Safari/Chrome
+                    window.location = primaryDeeplink;
+                    setTimeout(() => {
+                        // If still on page after ~2s, fallback to web URL
+                        window.location.href = targetLink;
+                    }, 2000);
+                } else {
+                    // In-app browsers (Instagram, FB, Threads)
+                    const start = Date.now();
+                    window.location = primaryDeeplink;
 
-            setTimeout(() => {
-                const elapsed = Date.now() - start;
-                // If still on page after ~1200ms, assume deeplink failed
-                if (elapsed < 1000) {
-                    const auditzyScript = document.createElement('script');
-                    auditzyScript.src = "https://rum.auditzy.com/rOGtCPfa-www.outdoorsavannah.com-iar.js";
-                    auditzyScript.async = true;
-                    document.head.appendChild(auditzyScript);
+                    setTimeout(() => {
+                        const elapsed = Date.now() - start;
+                        // If still on page after ~2s, assume deeplink failed
+                        if (elapsed < 2200) {
+                            const auditzyScript = document.createElement('script');
+                            auditzyScript.src = "https://rum.auditzy.com/rOGtCPfa-www.outdoorsavannah.com-iar.js";
+                            auditzyScript.async = true;
+                            document.head.appendChild(auditzyScript);
 
-                    auditzyScript.onload = function() {
-                        sessionStorage.setItem('redirected', 'true');
-                        setTimeout(() => { window.location.href = targetLink; }, 1500);
-                    };
-                    auditzyScript.onerror = function() { window.location.href = targetLink; };
+                            auditzyScript.onload = function() {
+                                sessionStorage.setItem('redirected', 'true');
+                                setTimeout(() => { window.location.href = targetLink; }, 1500);
+                            };
+                            auditzyScript.onerror = function() { window.location.href = targetLink; };
+                        }
+                    }, 2000);
                 }
-            }, 800);
-            return;
-        }
+                return;
+            }
 
             // --- Fallback if no deeplink ---
             if (!primaryDeeplink) {
