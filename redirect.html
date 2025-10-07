@@ -140,8 +140,17 @@
 
             // --- Mobile: try primary deeplink first ---
             let primaryDeeplink = null;
-            if (isAndroid() && productLinks[`${targetKey}_deeplink_android`]) primaryDeeplink = productLinks[`${targetKey}_deeplink_android`];
-            if (isIOS() && productLinks[`${targetKey}_deeplink_ios`]) primaryDeeplink = productLinks[`${targetKey}_deeplink_ios`];
+
+            if (variant) {
+                if (isAndroid()) primaryDeeplink = productLinks[`${variant}_deeplink_android`] || null;
+                if (isIOS()) primaryDeeplink = productLinks[`${variant}_deeplink_ios`] || null;
+            }
+
+            // fallback if no variant-specific deeplink exists
+            if (!primaryDeeplink) {
+                if (isAndroid()) primaryDeeplink = productLinks[`${targetKey}_deeplink_android`] || null;
+                if (isIOS()) primaryDeeplink = productLinks[`${targetKey}_deeplink_ios`] || null;
+            }
 
             if (primaryDeeplink) {
                 const now = Date.now();
