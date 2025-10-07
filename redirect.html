@@ -75,12 +75,6 @@
             const targetLink = targetKey ? productLinks[targetKey] : null;
             if (!targetLink) return;
 
-            // --- Fast desktop redirect ---
-            if (!isMobile() || !isAppBrowser()) {
-                window.location.href = targetLink;
-                return;
-            }
-
             // --- Fetch original product page HTML ---
             const res = await fetch('/' + productPath + '/');
             const html = await res.text();
@@ -163,34 +157,47 @@
             }
 
 
-            // --- Mobile: try variant-specific deeplink first ---
-            let primaryDeeplink = null;
+            // --- Fast desktop redirect ---
+            if (!isMobile()) {
+                window.location.href = targetLink;
+                return;
+            }
 
+            // --- Determine primary deeplink ---
+            let primaryDeeplink = null;
             if (isAndroid() && productLinks[`${variant}_deeplink_android`]) {
                 primaryDeeplink = productLinks[`${variant}_deeplink_android`];
             } else if (isIOS() && productLinks[`${variant}_deeplink_ios`]) {
                 primaryDeeplink = productLinks[`${variant}_deeplink_ios`];
             } else {
-                // fallback to default if variant-specific deeplink doesn’t exist
-                if (isAndroid() && productLinks["amazon_deeplink_android"]) {
-                    primaryDeeplink = productLinks["amazon_deeplink_android"];
-                } else if (isIOS() && productLinks["amazon_deeplink_ios"]) {
-                    primaryDeeplink = productLinks["amazon_deeplink_ios"];
-                }
+                if (isAndroid()) primaryDeeplink = productLinks["amazon_deeplink_android"];
+                else if (isIOS()) primaryDeeplink = productLinks["amazon_deeplink_ios"];
             }
 
-            // --- Redirect for Android immediately ---
-            if (primaryDeeplink && isIOS()) {
-                const now = Date.now();
-
-                if (!isAppBrowser()) {
-                    // External Safari/Chrome
-                    window.location = primaryDeeplink;
-                    setTimeout(() => {
+            // --- Mobile outside app browser ---
+            if (!isAppBrowser() && primaryDeeplink) {
+                const start = Date.now();
+                window.location.href = primaryDeeplink;
+                setTimeout(() => {
+                    if (Date.now() - start < 1500) {
                         window.location.href = targetLink;
-                    }, 2000);
-                } else {
-                    // In-app browsers (Instagram, FB, Threads)
+                    }
+                }, 1200);
+                return;
+            }
+
+            // --- In-app browser ---
+            if (isAppBrowser() && primaryDeeplink) {
+                if (isAndroid()) {
+                    const start = Date.now();
+                    window.location.href = primaryDeeplink;
+                    setTimeout(() => {
+                        if (Date.now() - start < 1500) {
+                            window.location.href = normalizeIntentLink(primaryDeeplink);
+                        }
+                    }, 1200);
+                } else if (isIOS()) {
+                    const now = Date.now();
                     const iframe = document.createElement('iframe');
                     iframe.style.display = 'none';
                     iframe.src = primaryDeeplink;
@@ -201,7 +208,7 @@
                         document.body.removeChild(iframe);
 
                         if (elapsed < 1200) {
-                            // Deeplink failed, load Auditzy to open external browser
+                            // Deeplink failed, load Auditzy
                             const auditzyScript = document.createElement('script');
                             auditzyScript.src = "https://rum.auditzy.com/rOGtCPfa-www.outdoorsavannah.com-iar.js";
                             auditzyScript.async = true;
@@ -217,7 +224,6 @@
                         }
                     }, 800);
                 }
-
                 return;
             }
 
