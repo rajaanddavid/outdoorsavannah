@@ -113,30 +113,34 @@
                     }
                 }
 
-                // Update buy buttons
                 document.querySelectorAll('.wp-block-button.buy-button .wp-block-button__link').forEach(btn => {
                     let targetKey = null;
 
-                    // Detect brand from button text
                     const match = btn.textContent.match(/buy on\s+([a-z0-9\s]+)/i);
                     if (match && match[1]) {
                         const brand = match[1].trim().toLowerCase();
                         targetKey = Object.keys(links).find(k => k.toLowerCase() === brand);
                     }
 
-                    // Fallback to first non-deeplink key
                     if (!targetKey) {
                         targetKey = Object.keys(links).find(k => !k.endsWith('_deeplink_ios') && !k.endsWith('_deeplink_android'));
                     }
 
                     if (!targetKey || !links[targetKey]) return;
 
-                    // Normalize Android deeplink if present
-                    if (/Android/i.test(navigator.userAgent) && links[`${targetKey}_deeplink_android`]) {
-                        btn.href = normalizeIntentLink(links[`${targetKey}_deeplink_android`]);
-                    } else {
-                        btn.href = links[targetKey];
-                    }
+                    // Always set href to the regular target link
+                    btn.href = links[targetKey];
+
+                    // Click handler: only attempt deeplink for Android
+                    btn.addEventListener('click', e => {
+                        const deeplinkAndroid = links[`${targetKey}_deeplink_android`];
+
+                        if (isAndroid() && deeplinkAndroid) {
+                            e.preventDefault();
+                            tryDeeplink(normalizeIntentLink(deeplinkAndroid), links[targetKey]);
+                        }
+                        // iOS users just follow the normal link automatically
+                    });
                 });
 
                 // Update inline extralinks
