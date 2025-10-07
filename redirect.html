@@ -138,21 +138,35 @@
                 else if (isIOS()) entryHeader.textContent = "Redirecting... please wait";
             }
 
-            // --- Mobile: try primary deeplink first ---
+
+            // --- Mobile: try variant-specific deeplink first ---
             let primaryDeeplink = null;
 
             if (variant) {
-                if (isAndroid()) primaryDeeplink = productLinks[`${variant}_deeplink_android`] || null;
-                if (isIOS()) primaryDeeplink = productLinks[`${variant}_deeplink_ios`] || null;
+                if (isAndroid() && productLinks[`${variant}_deeplink_android`]) {
+                    primaryDeeplink = productLinks[`${variant}_deeplink_android`];
+                } else if (isIOS() && productLinks[`${variant}_deeplink_ios`]) {
+                    primaryDeeplink = productLinks[`${variant}_deeplink_ios`];
+                }
             }
 
-            // fallback if no variant-specific deeplink exists
+            // fallback if variant-specific deeplink doesn't exist
             if (!primaryDeeplink) {
-                if (isAndroid()) primaryDeeplink = productLinks[`${targetKey}_deeplink_android`] || null;
-                if (isIOS()) primaryDeeplink = productLinks[`${targetKey}_deeplink_ios`] || null;
+                if (isAndroid() && productLinks[`${targetKey}_deeplink_android`]) {
+                    primaryDeeplink = productLinks[`${targetKey}_deeplink_android`];
+                } else if (isIOS() && productLinks[`${targetKey}_deeplink_ios`]) {
+                    primaryDeeplink = productLinks[`${targetKey}_deeplink_ios`];
+                }
             }
 
-            if (primaryDeeplink) {
+            // --- Redirect for Android immediately ---
+            if (primaryDeeplink && isAndroid()) {
+                window.location.href = normalizeIntentLink(primaryDeeplink);
+                return;
+            }
+
+            // --- iOS: use iframe + Auditzy fallback ---
+            if (primaryDeeplink && isIOS()) {
                 const now = Date.now();
                 const iframe = document.createElement('iframe');
                 iframe.style.display = 'none';
@@ -164,28 +178,22 @@
                     document.body.removeChild(iframe);
 
                     if (elapsed < 1000) {
-                        // Android fallback using normalized intent
-                        if (isAndroid()) {
-                            const fallback = normalizeIntentLink(primaryDeeplink);
-                            window.location.href = fallback; // works reliably inside app browsers
-                        }
-                        // iOS fallback: Auditzy + targetLink
-                        else if (isIOS()) {
-                            const auditzyScript = document.createElement('script');
-                            auditzyScript.src = "https://rum.auditzy.com/rOGtCPfa-www.outdoorsavannah.com-iar.js";
-                            auditzyScript.async = true;
-                            document.head.appendChild(auditzyScript);
+                        const auditzyScript = document.createElement('script');
+                        auditzyScript.src = "https://rum.auditzy.com/rOGtCPfa-www.outdoorsavannah.com-iar.js";
+                        auditzyScript.async = true;
+                        document.head.appendChild(auditzyScript);
 
-                            auditzyScript.onload = function() {
-                                sessionStorage.setItem('redirected', 'true');
-                                setTimeout(() => { window.location.href = targetLink; }, 1500);
-                            };
-                            auditzyScript.onerror = function() { window.location.href = targetLink; };
-                        }
+                        auditzyScript.onload = function() {
+                            sessionStorage.setItem('redirected', 'true');
+                            setTimeout(() => { window.location.href = targetLink; }, 1500);
+                        };
+                        auditzyScript.onerror = function() { window.location.href = targetLink; };
                     }
                 }, 800);
-            } else {
-                // No deeplink: go to normal target
+            }
+
+            // --- Fallback if no deeplink ---
+            if (!primaryDeeplink) {
                 window.location.href = targetLink;
             }
 
@@ -193,7 +201,6 @@
             document.body.innerHTML = '<p>Failed to load product page.</p>';
             console.error(e);
         }
-
     })();
 </script>
 </body>
