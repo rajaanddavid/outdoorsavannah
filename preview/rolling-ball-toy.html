@@ -17,7 +17,7 @@
     <meta property="og:image:width" content="819">
     <meta property="og:image:height" content="1024">
     <meta property="og:image:alt" content="">
-    <meta property="og:updated_time" content="2025-10-07T02:29:01.644Z">
+    <meta property="og:updated_time" content="2025-10-07T22:36:51.421Z">
     <meta property="fb:app_id" content="1234567890">
 
     <!-- Twitter -->
@@ -31,16 +31,34 @@
     <meta name="robots" content="noindex, nofollow">
 
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const url = new URL(window.location.href);
-            const variant = url.searchParams.get('variant');
-            const hash = window.location.hash;
-            const slug = "rolling-ball-toy";
-            let redirectUrl = "/redirect.html?product=product/" + slug;
-            if (variant) redirectUrl += "&variant=" + encodeURIComponent(variant);
-            if (hash) redirectUrl += hash;
-            window.location.replace(redirectUrl);
-        });
+    document.addEventListener("DOMContentLoaded", function() {
+        const url = new URL(window.location.href);
+
+        // Use slug from generator as fallback
+        let slug = "rolling-ball-toy";
+
+        // Support extracting slug from the path
+        const pathSegments = url.pathname.split("/").filter(Boolean); // ["preview", "wall-crawler-gecko"]
+        if (pathSegments[0] === "preview" && pathSegments[1]) {
+            slug = pathSegments[1];
+        }
+
+        // Preserve variant and hash (also allow for &variant= and ?variant=
+        let variant = url.searchParams.get('variant');
+
+        // fallback if variant is in path like &variant=aliexpress
+        if (!variant && slug.includes("&variant=")) {
+            const parts = slug.split("&variant=");
+            slug = parts[0];
+            variant = parts[1];
+        }
+        let redirectUrl = "/redirect.html?product=product/" + slug;
+        if (variant) redirectUrl += "&variant=" + encodeURIComponent(variant);
+        if (url.hash) redirectUrl += url.hash;
+
+        // Redirect
+        window.location.replace(redirectUrl);
+    });
     </script>
 </head>
 <body>
