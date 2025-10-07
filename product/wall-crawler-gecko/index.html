@@ -223,26 +223,28 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 				if (!targetLink) return;
 
 				let deeplink = null;
-				if (isIOS() && links[`${targetKey}_deeplink_ios`]) {
-					deeplink = links[`${targetKey}_deeplink_ios`];
-				} else if (isAndroid() && links[`${targetKey}_deeplink_android`]) {
-					deeplink = normalizeIntentLink(links[`${targetKey}_deeplink_android`]);
+				let fallback = targetLink;
+
+				// Android
+				if (isAndroid() && links[`${targetKey}_deeplink_android`]) {
+						deeplink = normalizeIntentLink(links[`${targetKey}_deeplink_android`]);
 				}
 
-        // --- Fallback logic ---
-        let fallback = targetLink; // Android will never go to redirect.html
-        if (!isAndroid() && isAppBrowser() && !appBrowserBypass) {
-            fallback = `/redirect.html?product=${productName}&variant=${encodeURIComponent(targetKey)}#${encodeURIComponent(targetKey)}`;
-        }
+				// iOS
+				if (isIOS()) {
+						if (links[`${targetKey}_deeplink_ios`]) {
+								deeplink = links[`${targetKey}_deeplink_ios`];
+						}
+						// If the iOS deeplink fails, fallback to targetLink (or redirect.html)
+						fallback = `/redirect.html?product=${productName}&variant=${encodeURIComponent(targetKey)}#${encodeURIComponent(targetKey)}`;
+				}
 
 				if (!appBrowserBypass && isAppBrowser) sessionStorage.setItem('appBrowserBypass', 'true');
 
-				if (!isMobile) {
-					window.location.href = targetLink;
-				} else if (deeplink) {
-					tryDeeplink(deeplink, fallback);
+				if (deeplink) {
+						tryDeeplink(deeplink, fallback); // Android and iOS both use it
 				} else {
-					window.location.href = targetLink;
+						window.location.href = fallback;
 				}
 			});
 		});
