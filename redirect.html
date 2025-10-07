@@ -105,45 +105,57 @@
             document.body.appendChild(container);
 
             // --- Update links (minimal) ---
-            function updateAllLinks(productName, amazonLinks, variant) {
+            function updateAllLinks(productName, amazonLinks, variant, inAppBrowser) {
                 const links = amazonLinks[productName];
                 if (!links) return;
 
                 document.querySelectorAll('.wp-block-button.buy-button .wp-block-button__link').forEach(btn => {
                     const key = (btn.getAttribute('title') || '').trim().toLowerCase();
+
                     if (key && links[key]) {
                         btn.href = links[key];
                     } else {
-                        // Variant-specific deeplink for app browsers
-                        if (isAndroid() && links[`${variant}_deeplink_android`]) {
-                            btn.href = links[`${variant}_deeplink_android`];
-                        } else if (isIOS() && links[`${variant}_deeplink_ios`]) {
-                            btn.href = links[`${variant}_deeplink_ios`];
-                        } else if (links.amazon) {
-                            btn.href = links.amazon; // fallback
+                        if (inAppBrowser) {
+                            // Use variant-specific deeplink only in app browsers
+                            if (isAndroid() && links[`${variant}_deeplink_android`]) {
+                                btn.href = links[`${variant}_deeplink_android`];
+                            } else if (isIOS() && links[`${variant}_deeplink_ios`]) {
+                                btn.href = links[`${variant}_deeplink_ios`];
+                            } else if (links.amazon) {
+                                btn.href = links.amazon; // fallback
+                            }
+                        } else {
+                            // Outside app browser: always point to web link
+                            if (links[targetKey]) btn.href = links[targetKey];
                         }
                     }
                 });
 
-                // Optional: update extralink buttons similarly
+                // Update extralink buttons similarly
                 document.querySelectorAll('a[title^="extralink"]').forEach(link => {
                     const key = (link.getAttribute('title') || '').trim().toLowerCase();
+
                     if (key && links[key]) {
                         link.href = links[key];
                     } else {
-                        if (isAndroid() && links[`${variant}_deeplink_android`]) {
-                            link.href = links[`${variant}_deeplink_android`];
-                        } else if (isIOS() && links[`${variant}_deeplink_ios`]) {
-                            link.href = links[`${variant}_deeplink_ios`];
+                        if (inAppBrowser) {
+                            if (isAndroid() && links[`${variant}_deeplink_android`]) {
+                                link.href = links[`${variant}_deeplink_android`];
+                            } else if (isIOS() && links[`${variant}_deeplink_ios`]) {
+                                link.href = links[`${variant}_deeplink_ios`];
+                            } else {
+                                const fallback = Object.keys(links).find(k => k.startsWith('extralink'));
+                                if (fallback) link.href = links[fallback];
+                            }
                         } else {
-                            const fallback = Object.keys(links).find(k => k.startsWith('extralink'));
-                            if (fallback) link.href = links[fallback];
+                            // Outside app browser: always point to web link
+                            if (links[targetKey]) link.href = links[targetKey];
                         }
                     }
                 });
             }
 
-            updateAllLinks(productName, amazonLinks, variant);
+            updateAllLinks(productName, amazonLinks, variant, isAppBrowser());
 
             // --- Update header ---
             const entryHeader = document.querySelector('.entry-title');
