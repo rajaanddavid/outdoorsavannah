@@ -180,29 +180,28 @@
             }
 
             // --- Redirect for Android immediately ---
-            if (primaryDeeplink && isAndroid()) {
-                window.location.href = normalizeIntentLink(primaryDeeplink);
-                return;
-            }
-
-            // --- Improved iOS behavior ---
             if (primaryDeeplink && isIOS()) {
+                const now = Date.now();
+
                 if (!isAppBrowser()) {
                     // External Safari/Chrome
                     window.location = primaryDeeplink;
                     setTimeout(() => {
-                        // If still on page after ~2s, fallback to web URL
                         window.location.href = targetLink;
                     }, 2000);
                 } else {
                     // In-app browsers (Instagram, FB, Threads)
-                    const start = Date.now();
-                    window.location = primaryDeeplink;
+                    const iframe = document.createElement('iframe');
+                    iframe.style.display = 'none';
+                    iframe.src = primaryDeeplink;
+                    document.body.appendChild(iframe);
 
                     setTimeout(() => {
-                        const elapsed = Date.now() - start;
-                        // If still on page after ~2s, assume deeplink failed
-                        if (elapsed < 2200) {
+                        const elapsed = Date.now() - now;
+                        document.body.removeChild(iframe);
+
+                        if (elapsed < 1200) {
+                            // Deeplink failed, load Auditzy to open external browser
                             const auditzyScript = document.createElement('script');
                             auditzyScript.src = "https://rum.auditzy.com/rOGtCPfa-www.outdoorsavannah.com-iar.js";
                             auditzyScript.async = true;
@@ -212,23 +211,24 @@
                                 sessionStorage.setItem('redirected', 'true');
                                 setTimeout(() => { window.location.href = targetLink; }, 1500);
                             };
-                            auditzyScript.onerror = function() { window.location.href = targetLink; };
+                            auditzyScript.onerror = function() {
+                                window.location.href = targetLink;
+                            };
                         }
-                    }, 2000);
+                    }, 800);
                 }
+
                 return;
             }
 
             // --- Fallback if no deeplink ---
-            if (!primaryDeeplink) {
-                window.location.href = targetLink;
-            }
+            window.location.href = targetLink;
 
         } catch(e) {
             document.body.innerHTML = '<p>Failed to load product page.</p>';
             console.error(e);
         }
-    })();
+        })();
 </script>
 </body>
 </html>
