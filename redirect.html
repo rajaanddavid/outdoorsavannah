@@ -142,20 +142,16 @@
             // --- Mobile: try variant-specific deeplink first ---
             let primaryDeeplink = null;
 
-            if (variant) {
-                if (isAndroid() && productLinks[`${variant}_deeplink_android`]) {
-                    primaryDeeplink = productLinks[`${variant}_deeplink_android`];
-                } else if (isIOS() && productLinks[`${variant}_deeplink_ios`]) {
-                    primaryDeeplink = productLinks[`${variant}_deeplink_ios`];
-                }
-            }
-
-            // fallback if variant-specific deeplink doesn't exist
-            if (!primaryDeeplink) {
-                if (isAndroid() && productLinks[`${targetKey}_deeplink_android`]) {
-                    primaryDeeplink = productLinks[`${targetKey}_deeplink_android`];
-                } else if (isIOS() && productLinks[`${targetKey}_deeplink_ios`]) {
-                    primaryDeeplink = productLinks[`${targetKey}_deeplink_ios`];
+            if (isAndroid() && productLinks[`${variant}_deeplink_android`]) {
+                primaryDeeplink = productLinks[`${variant}_deeplink_android`];
+            } else if (isIOS() && productLinks[`${variant}_deeplink_ios`]) {
+                primaryDeeplink = productLinks[`${variant}_deeplink_ios`];
+            } else {
+                // fallback to default if variant-specific deeplink doesn’t exist
+                if (isAndroid() && productLinks["amazon_deeplink_android"]) {
+                    primaryDeeplink = productLinks["amazon_deeplink_android"];
+                } else if (isIOS() && productLinks["amazon_deeplink_ios"]) {
+                    primaryDeeplink = productLinks["amazon_deeplink_ios"];
                 }
             }
 
