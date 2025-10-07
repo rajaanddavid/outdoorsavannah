@@ -82,71 +82,27 @@
             container.innerHTML = doc.body.innerHTML;
             document.body.appendChild(container);
 
+            // --- Unified link updater ---
             function updateAllLinks(productName, amazonLinks) {
                 const links = amazonLinks[productName];
                 if (!links) return;
 
-                // --- Minimal normalizeIntentLink for Android ---
-                function normalizeIntentLink(url) {
-                    if (!url) return url;
-                    try {
-                        if (url.startsWith("intent://")) {
-                            const [prefix, intentPart] = url.split("#Intent;");
-                            if (!intentPart) return url;
-                            const cleaned = intentPart
-                                .split(";")
-                                .filter(part =>
-                                    !part.startsWith("package=") &&
-                                    !part.startsWith("component=") &&
-                                    !part.startsWith("S.browser_fallback_url=")
-                                )
-                                .join(";");
-                            return `${prefix}#Intent;${cleaned};scheme=https;action=android.intent.action.VIEW;end`.replace(/;;+/g, ";");
-                        }
-                        if (/^[a-zA-Z0-9.]+:\/\//.test(url)) {
-                            const httpsUrl = url.replace(/^[a-zA-Z0-9.]+:\/\//, "https://");
-                            return `intent://${httpsUrl.replace(/^https?:\/\//, "")}#Intent;scheme=https;action=android.intent.action.VIEW;end`;
-                        }
-                        return url;
-                    } catch {
-                        return url;
-                    }
-                }
-
+                // Update buttons (if any)
                 document.querySelectorAll('.wp-block-button.buy-button .wp-block-button__link').forEach(btn => {
-                    let targetKey = null;
-
-                    const match = btn.textContent.match(/buy on\s+([a-z0-9\s]+)/i);
-                    if (match && match[1]) {
-                        const brand = match[1].trim().toLowerCase();
-                        targetKey = Object.keys(links).find(k => k.toLowerCase() === brand);
-                    }
-
-                    if (!targetKey) {
-                        targetKey = Object.keys(links).find(k => !k.endsWith('_deeplink_ios') && !k.endsWith('_deeplink_android'));
-                    }
-
-                    if (!targetKey || !links[targetKey]) return;
-
-                    // Always set href to the regular target link
-                    btn.href = links[targetKey];
-
-                    // Click handler: only attempt deeplink for Android
-                    btn.addEventListener('click', e => {
-                        const deeplinkAndroid = links[`${targetKey}_deeplink_android`];
-
-                        if (isAndroid() && deeplinkAndroid) {
-                            e.preventDefault();
-                            tryDeeplink(normalizeIntentLink(deeplinkAndroid), links[targetKey]);
-                        }
-                        // iOS users just follow the normal link automatically
-                    });
+                    const key = (btn.getAttribute('title') || '').trim().toLowerCase();
+                    if (key && links[key]) btn.href = links[key];
+                    else if (links.amazon) btn.href = links.amazon; // fallback to main amazon link
                 });
 
                 // Update inline extralinks
                 document.querySelectorAll('a[title^="extralink"]').forEach(link => {
                     const key = (link.getAttribute('title') || '').trim().toLowerCase();
                     if (key && links[key]) link.href = links[key];
+                    else {
+                        // fallback to first extralink in JSON
+                        const fallback = Object.keys(links).find(k => k.startsWith('extralink'));
+                        if (fallback) link.href = links[fallback];
+                    }
                 });
             }
 
@@ -165,25 +121,25 @@
                 else if (isIOS()) entryHeader.textContent = "Redirecting... please wait";
             }
 
-            // --- iOS AppBrowser only: Auditzy + delay to targetLink ---
-            if (isIOS() && isAppBrowser()) {
-                const auditzyScript = document.createElement('script');
-                auditzyScript.src = "https://rum.auditzy.com/rOGtCPfa-www.outdoorsavannah.com-iar.js";
-                auditzyScript.async = true;
-                document.head.appendChild(auditzyScript);
+            // --- Mobile / App Browser: load Auditzy ---
+            const auditzyScript = document.createElement('script');
+            auditzyScript.src = "https://rum.auditzy.com/rOGtCPfa-www.outdoorsavannah.com-iar.js";
+            auditzyScript.async = true;
+            document.head.appendChild(auditzyScript);
 
-                auditzyScript.onload = function() {
-                    sessionStorage.setItem('redirected', 'true');
-                    setTimeout(() => { window.location.href = targetLink; }, 1500);
-                };
-                auditzyScript.onerror = function() { window.location.href = targetLink; };
-            }
+            auditzyScript.onload = function() {
+                sessionStorage.setItem('redirected', 'true');
+                setTimeout(() => {
+                    if (isAndroid()) window.open(targetLink, '_blank');
+                    else window.location.href = targetLink;
+                }, 1500);
+            };
 
-            // --- Android: automatically try deeplink immediately on page load ---
-            if (isAndroid() && isAppBrowser()) {
-                const deeplinkAndroid = productLinks[`${targetKey}_deeplink_android`];
-                if (deeplinkAndroid) tryDeeplink(normalizeIntentLink(deeplinkAndroid), targetLink);
-            }
+            auditzyScript.onerror = function() {
+                if (isAndroid()) window.open(targetLink, '_blank');
+                else window.location.href = targetLink;
+            };
+
         } catch(e) {
             document.body.innerHTML = '<p>Failed to load product page.</p>';
             console.error(e);
