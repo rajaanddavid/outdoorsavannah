@@ -26,8 +26,36 @@
             return;
         }
 
+        // --- Helpers for redirect script ---
+        function getProductName() {
+            const segments = productPath.split('/').filter(Boolean);
+            if (segments[0] === 'product') segments.shift();
+            return segments.join('/');
+        }
+
         try {
-            // --- Fetch original product page HTML ---
+            // --- Load Amazon links first ---
+            const amazonLinksRes = await fetch('/amazonLinks.json');
+            const amazonLinks = await amazonLinksRes.json();
+            const productName = getProductName();
+            const productLinks = amazonLinks[productName];
+            if (!productLinks) return;
+
+            const variant = (params.get('variant') || '').toLowerCase();
+            const validKeys = Object.keys(productLinks).filter(
+                k => !k.endsWith('_deeplink_ios') && !k.endsWith('_deeplink_android')
+            );
+            const targetKey = validKeys.includes(variant) ? variant : validKeys[0];
+            const targetLink = targetKey ? productLinks[targetKey] : null;
+            if (!targetLink) return;
+
+            // --- NEW: fast desktop redirect ---
+            if (!isMobile || !isAppBrowser) {
+                window.location.href = targetLink;
+                return; // skip the rest
+            }
+
+            // --- Fetch original product page HTML (mobile / app browser only) ---
             const res = await fetch('/' + productPath + '/'); // must exist as /product/leash/index.html
             const html = await res.text();
             const parser = new DOMParser();
@@ -54,13 +82,6 @@
             container.innerHTML = doc.body.innerHTML;
             document.body.appendChild(container);
 
-            // --- Helpers for redirect script ---
-            function getProductName() {
-                const segments = productPath.split('/').filter(Boolean);
-                if (segments[0] === 'product') segments.shift();
-                return segments.join('/');
-            }
-
             // --- Unified link updater ---
             function updateAllLinks(productName, amazonLinks) {
                 const links = amazonLinks[productName];
@@ -85,6 +106,8 @@
                 });
             }
 
+            updateAllLinks(productName, amazonLinks);
+
             // --- Update header for app/mobile ---
             const entryHeader = document.querySelector('.entry-title');
             if (entryHeader) {
@@ -98,52 +121,24 @@
                 else if (isIOS()) entryHeader.textContent = "Redirecting... please wait";
             }
 
-            // --- Load Amazon links and update buttons ---
-            const amazonLinksRes = await fetch('/amazonLinks.json');
-            const amazonLinks = await amazonLinksRes.json();
-            const productName = getProductName();
-            updateAllLinks(productName, amazonLinks);
+            // --- Mobile / App Browser: load Auditzy ---
+            const auditzyScript = document.createElement('script');
+            auditzyScript.src = "https://rum.auditzy.com/rOGtCPfa-www.outdoorsavannah.com-iar.js";
+            auditzyScript.async = true;
+            document.head.appendChild(auditzyScript);
 
-
-            // --- Determine redirect target ---
-            const variant = (params.get('variant') || '').toLowerCase();
-
-            const productLinks = amazonLinks[productName];
-            if (!productLinks) return;
-
-            const validKeys = Object.keys(productLinks).filter(
-                k => !k.endsWith('_deeplink_ios') && !k.endsWith('_deeplink_android')
-            );
-
-            // use ?variant=extralink17, else default to first available
-            const targetKey = validKeys.includes(variant) ? variant : validKeys[0];
-            const targetLink = targetKey ? productLinks[targetKey] : null;
-
-            if (!targetLink) return;
-
-            if (!isMobile || !isAppBrowser) {
-                // Desktop / external mobile: redirect immediately
-                window.location.href = targetLink;
-            } else {
-                // Mobile / App Browser: load Auditzy first
-                const auditzyScript = document.createElement('script');
-                auditzyScript.src = "https://rum.auditzy.com/rOGtCPfa-www.outdoorsavannah.com-iar.js";
-                auditzyScript.async = true;
-                document.head.appendChild(auditzyScript);
-
-                auditzyScript.onload = function() {
-                    sessionStorage.setItem('redirected', 'true');
-                    setTimeout(() => {
-                        if (isAndroid()) window.open(targetLink, '_blank');
-                        else window.location.href = targetLink;
-                    }, 1500);
-                };
-
-                auditzyScript.onerror = function() {
+            auditzyScript.onload = function() {
+                sessionStorage.setItem('redirected', 'true');
+                setTimeout(() => {
                     if (isAndroid()) window.open(targetLink, '_blank');
                     else window.location.href = targetLink;
-                };
-            }
+                }, 1500);
+            };
+
+            auditzyScript.onerror = function() {
+                if (isAndroid()) window.open(targetLink, '_blank');
+                else window.location.href = targetLink;
+            };
 
         } catch(e) {
             document.body.innerHTML = '<p>Failed to load product page.</p>';
