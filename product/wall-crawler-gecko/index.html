@@ -231,7 +231,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
         // --- Fallback logic ---
         let fallback = targetLink; // Android will never go to redirect.html
-        if (!isAndroid() && !deeplink && isAppBrowser && !appBrowserBypass) {
+        if (!isAndroid() && isAppBrowser() && !appBrowserBypass) {
             fallback = `/redirect.html?product=${productName}&variant=${encodeURIComponent(targetKey)}#${encodeURIComponent(targetKey)}`;
         }
 
