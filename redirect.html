@@ -185,32 +185,29 @@
                 return;
             }
 
-            // --- iOS: use iframe + Auditzy fallback ---
-            if (primaryDeeplink && isIOS()) {
-                const now = Date.now();
-                const iframe = document.createElement('iframe');
-                iframe.style.display = 'none';
-                iframe.src = primaryDeeplink;
-                document.body.appendChild(iframe);
+        // --- Improved iOS behavior ---
+        if (primaryDeeplink && isIOS()) {
+            const start = Date.now();
+            window.location = primaryDeeplink;
 
-                setTimeout(() => {
-                    const elapsed = Date.now() - now;
-                    document.body.removeChild(iframe);
+            setTimeout(() => {
+                const elapsed = Date.now() - start;
+                // If still on page after ~1200ms, assume deeplink failed
+                if (elapsed < 1000) {
+                    const auditzyScript = document.createElement('script');
+                    auditzyScript.src = "https://rum.auditzy.com/rOGtCPfa-www.outdoorsavannah.com-iar.js";
+                    auditzyScript.async = true;
+                    document.head.appendChild(auditzyScript);
 
-                    if (elapsed < 1000) {
-                        const auditzyScript = document.createElement('script');
-                        auditzyScript.src = "https://rum.auditzy.com/rOGtCPfa-www.outdoorsavannah.com-iar.js";
-                        auditzyScript.async = true;
-                        document.head.appendChild(auditzyScript);
-
-                        auditzyScript.onload = function() {
-                            sessionStorage.setItem('redirected', 'true');
-                            setTimeout(() => { window.location.href = targetLink; }, 1500);
-                        };
-                        auditzyScript.onerror = function() { window.location.href = targetLink; };
-                    }
-                }, 800);
-            }
+                    auditzyScript.onload = function() {
+                        sessionStorage.setItem('redirected', 'true');
+                        setTimeout(() => { window.location.href = targetLink; }, 1500);
+                    };
+                    auditzyScript.onerror = function() { window.location.href = targetLink; };
+                }
+            }, 800);
+            return;
+        }
 
             // --- Fallback if no deeplink ---
             if (!primaryDeeplink) {
