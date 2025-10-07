@@ -158,7 +158,7 @@
                         // Android fallback using normalized intent
                         if (isAndroid()) {
                             const fallback = normalizeIntentLink(primaryDeeplink);
-                            window.open(fallback, '_blank');
+                            window.location.href = fallback; // ✅ works reliably inside app browsers
                         }
                         // iOS fallback: Auditzy + targetLink
                         else if (isIOS()) {
