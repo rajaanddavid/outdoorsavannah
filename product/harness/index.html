@@ -86,104 +86,144 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <link rel="me" href="https://www.threads.com/@rajaanddavid">
 
 
-<script>document.addEventListener('DOMContentLoaded', async () => {
-			// Skip homepage
-			if (location.pathname === "/") return;
+<script>
+	document.addEventListener('DOMContentLoaded', async () => {
+		// Skip homepage
+		if (location.pathname === "/") return;
 
-			const ua = navigator.userAgent;
-			const isMobile = /iPhone|iPad|iPod|Android/i.test(ua);
-			const isAndroid = () => /Android/i.test(ua);
-			const isIOS = () => /iPhone|iPad|iPod/i.test(ua);
-			const isAppBrowser = /Instagram|FBAV|FBAN\/FBIOS|FB_IAB|FB4A|Threads|Barcelona/i.test(ua);
+		const ua = navigator.userAgent;
+		const isMobile = /iPhone|iPad|iPod|Android/i.test(ua);
+		const isAndroid = () => /Android/i.test(ua);
+		const isIOS = () => /iPhone|iPad|iPod/i.test(ua);
+		const isAppBrowser = /Instagram|FBAV|FBAN\/FBIOS|FB_IAB|FB4A|Threads|Barcelona/i.test(ua);
 
-			// Check if user has already left appbrowser once
-			const appBrowserBypass = sessionStorage.getItem('appBrowserBypass') === 'true';
+		const appBrowserBypass = sessionStorage.getItem('appBrowserBypass') === 'true';
 
-			// --- Load Amazon Links ---
-			const res = await fetch('/amazonLinks.json');
-			const amazonLinks = await res.json();
+		// --- Load Amazon Links ---
+		const res = await fetch('/amazonLinks.json');
+		const amazonLinks = await res.json();
 
-			// --- Get product slug ---
-			const pathParts = location.pathname.split('/').filter(Boolean);
-			let productName = pathParts[pathParts.length - 1];
-			if (pathParts[0] === "product" && pathParts.length > 1) {
-					productName = `product/${productName}`;
+		// --- Get product slug ---
+		const pathParts = location.pathname.split('/').filter(Boolean);
+		let productName = pathParts[pathParts.length - 1];
+		if (pathParts[0] === "product" && pathParts.length > 1) {
+			productName = `product/${productName}`;
+		}
+
+		const links = amazonLinks[pathParts[pathParts.length - 1]] || amazonLinks[productName];
+		if (!links) return;
+
+		// --- Minimal normalizeIntentLink for Android ---
+		function normalizeIntentLink(url) {
+			if (!url) return url;
+			try {
+				if (url.startsWith("intent://")) {
+					const [prefix, intentPart] = url.split("#Intent;");
+					if (!intentPart) return url;
+					const cleaned = intentPart
+						.split(";")
+						.filter(part =>
+							!part.startsWith("package=") &&
+							!part.startsWith("component=") &&
+							!part.startsWith("S.browser_fallback_url=")
+						)
+						.join(";");
+					return `${prefix}#Intent;${cleaned};scheme=https;action=android.intent.action.VIEW;end`.replace(/;;+/g, ";");
+				}
+				if (/^[a-zA-Z0-9.]+:\/\//.test(url)) {
+					const httpsUrl = url.replace(/^[a-zA-Z0-9.]+:\/\//, "https://");
+					return `intent://${httpsUrl.replace(/^https?:\/\//, "")}#Intent;scheme=https;action=android.intent.action.VIEW;end`;
+				}
+				return url;
+			} catch {
+				return url;
 			}
+		}
 
-			// Support both formats in amazonLinks.json: with or without "product/"
-			const links = amazonLinks[pathParts[pathParts.length - 1]] || amazonLinks[productName];
-			if (!links) return;
+		// --- Try deeplink function ---
+		function tryDeeplink(deeplink, fallback) {
+			const now = Date.now();
+			const iframe = document.createElement('iframe');
+			iframe.style.display = 'none';
+			iframe.src = deeplink;
+			document.body.appendChild(iframe);
 
-			// --- Function to try deeplink ---
-			function tryDeeplink(deeplink, fallback) {
-					const now = Date.now();
-					const iframe = document.createElement('iframe');
-					iframe.style.display = 'none';
-					iframe.src = deeplink;
-					document.body.appendChild(iframe);
+			setTimeout(() => {
+				const elapsed = Date.now() - now;
+				if (elapsed < 1000) window.location.href = fallback;
+				document.body.removeChild(iframe);
+			}, 800);
+		}
 
-					setTimeout(() => {
-							const elapsed = Date.now() - now;
-							if (elapsed < 1000) window.location.href = fallback;
-							document.body.removeChild(iframe);
-					}, 800);
+		// --- Update buy buttons hrefs immediately ---
+		document.querySelectorAll('.buy-button a.wp-block-button__link').forEach(button => {
+			const titleAttr = button.getAttribute('title');
+			let targetKey = null;
+
+			if (titleAttr && titleAttr.toLowerCase().startsWith('extralink')) {
+				targetKey = titleAttr.toLowerCase();
+			} else {
+				const buttonText = button.textContent.trim().toLowerCase();
+				targetKey = Object.keys(links).find(k =>
+					!k.startsWith('deeplink') && buttonText.includes(k.toLowerCase())
+				);
+				if (!targetKey) targetKey = Object.keys(links).filter(k => !k.startsWith('deeplink'))[0];
 			}
+			if (!targetKey) return;
+			button.href = links[targetKey];
+		});
 
-			// --- Update buy buttons hrefs immediately for desktop & all links ---
-			document.querySelectorAll('.buy-button a.wp-block-button__link').forEach(button => {
-					const titleAttr = button.getAttribute('title');
-					let targetKey = null;
+		document.querySelectorAll('a[title^="extralink"]').forEach(link => {
+			try {
+				const linkKey = link.getAttribute('title').toLowerCase();
+				if (links && links[linkKey]) link.href = links[linkKey];
+			} catch (e) {
+				console.warn('Invalid extralink', link);
+			}
+		});
 
-					if (titleAttr && titleAttr.toLowerCase().startsWith('extralink')) {
-							targetKey = titleAttr.toLowerCase();
-					} else {
-							const buttonText = button.textContent.trim().toLowerCase();
-							targetKey = Object.keys(links).find(k =>
-									!k.startsWith('deeplink') && buttonText.includes(k.toLowerCase())
-							);
-							if (!targetKey) targetKey = Object.keys(links).filter(k => !k.startsWith('deeplink'))[0];
-					}
+		// --- Attach click handlers for app/mobile ---
+		const allLinks = [
+			...document.querySelectorAll('.buy-button a.wp-block-button__link'),
+			...document.querySelectorAll('a[title^="extralink"]')
+		];
 
-					if (!targetKey) return;
-					button.href = links[targetKey];
+		allLinks.forEach(el => {
+			el.addEventListener('click', e => {
+				e.preventDefault();
+
+				const targetKey = el.getAttribute('title')
+					? el.getAttribute('title').toLowerCase()
+					: Object.keys(links)[0];
+
+				const targetLink = links[targetKey];
+				if (!targetLink) return;
+
+				let deeplink = null;
+				if (isIOS() && links[`${targetKey}_deeplink_ios`]) {
+					deeplink = links[`${targetKey}_deeplink_ios`];
+				} else if (isAndroid() && links[`${targetKey}_deeplink_android`]) {
+					deeplink = normalizeIntentLink(links[`${targetKey}_deeplink_android`]);
+				}
+
+				const fallback = (!appBrowserBypass && isAppBrowser)
+					? `/redirect.html?product=${productName}&variant=${encodeURIComponent(targetKey)}#${encodeURIComponent(targetKey)}`
+					: targetLink;
+
+				if (!appBrowserBypass && isAppBrowser) sessionStorage.setItem('appBrowserBypass', 'true');
+
+				if (!isMobile) {
+					window.location.href = targetLink;
+				} else if (deeplink) {
+					tryDeeplink(deeplink, fallback);
+				} else {
+					window.location.href = targetLink;
+				}
 			});
-
-			// --- Update inline extralinks immediately for desktop ---
-			document.querySelectorAll('a[title^="extralink"]').forEach(link => {
-					try {
-							const linkKey = link.getAttribute('title').toLowerCase();
-							if (links && links[linkKey]) link.href = links[linkKey];
-					} catch (e) {
-							console.warn('Invalid extralink', link);
-					}
-			});
-
-			// --- Attach click handlers for app/mobile ---
-			const allLinks = [...document.querySelectorAll('.buy-button a.wp-block-button__link'), ...document.querySelectorAll('a[title^="extralink"]')];
-			allLinks.forEach(el => {
-					el.addEventListener('click', e => {
-							e.preventDefault();
-
-							const targetKey = el.getAttribute('title') ? el.getAttribute('title').toLowerCase() : Object.keys(links)[0];
-							const targetLink = links[targetKey];
-							if (!targetLink) return;
-
-							let deeplink = null;
-							if (isIOS() && links[`${targetKey}_deeplink_ios`]) deeplink = links[`${targetKey}_deeplink_ios`];
-							else if (isAndroid() && links[`${targetKey}_deeplink_android`]) deeplink = links[`${targetKey}_deeplink_android`];
-
-							const fallback = (!appBrowserBypass && isAppBrowser)
-									? `/redirect.html?product=${productName}&variant=${encodeURIComponent(targetKey)}#${encodeURIComponent(targetKey)}`
-									: targetLink;
-
-							if (!appBrowserBypass && isAppBrowser) sessionStorage.setItem('appBrowserBypass', 'true');
-
-							if (!isMobile) window.location.href = targetLink;
-							else if (deeplink) tryDeeplink(deeplink, fallback);
-							else window.location.href = targetLink;
-					});
-			});
-	});</script><link rel="icon" href="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-150x150.webp" sizes="32x32">
+		});
+	});
+</script>
+<link rel="icon" href="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-150x150.webp" sizes="32x32">
 <link rel="icon" href="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.webp" sizes="192x192">
 <link rel="apple-touch-icon" href="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.webp">
 <meta name="msapplication-TileImage" content="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.webp">
