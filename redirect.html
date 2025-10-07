@@ -113,23 +113,23 @@
                     const key = (btn.getAttribute('title') || '').trim().toLowerCase();
 
                     if (key && links[key]) {
+                        // Always use the web URL for button href
                         btn.href = links[key];
                     } else {
-                        if (inAppBrowser) {
-                            // Use variant-specific deeplink only in app browsers
-                            if (isAndroid() && links[`${variant}_deeplink_android`]) {
-                                btn.href = links[`${variant}_deeplink_android`];
-                            } else if (isIOS() && links[`${variant}_deeplink_ios`]) {
-                                btn.href = links[`${variant}_deeplink_ios`];
-                            } else if (links.amazon) {
-                                btn.href = links.amazon; // fallback
-                            }
-                        } else {
-                            // Outside app browser: always point to web link
-                            if (links[targetKey]) btn.href = links[targetKey];
-                        }
+                        // Fallback to the default product link
+                        btn.href = links[targetKey] || '#';
                     }
                 });
+
+                document.querySelectorAll('a[title^="extralink"]').forEach(link => {
+                    const key = (link.getAttribute('title') || '').trim().toLowerCase();
+                    if (key && links[key]) {
+                        link.href = links[key];
+                    } else {
+                        link.href = links[targetKey] || '#';
+                    }
+                });
+            }
 
                 // Update extralink buttons similarly
                 document.querySelectorAll('a[title^="extralink"]').forEach(link => {
