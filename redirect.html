@@ -67,11 +67,17 @@
             const productLinks = amazonLinks[productName];
             if (!productLinks) return;
 
-            const variant = (params.get('variant') || '').toLowerCase();
-            const validKeys = Object.keys(productLinks).filter(
-                k => !k.endsWith('_deeplink_ios') && !k.endsWith('_deeplink_android')
-            );
-            const targetKey = validKeys.includes(variant) ? variant : validKeys[0];
+            // --- Determine target key based on variant ---
+            let targetKey = (params.get('variant') || '').toLowerCase();
+
+            // fallback to first valid key if variant not found
+            if (!targetKey || !productLinks[targetKey]) {
+                const validKeys = Object.keys(productLinks).filter(
+                    k => !k.endsWith('_deeplink_ios') && !k.endsWith('_deeplink_android')
+                );
+                targetKey = validKeys[0];
+            }
+
             const targetLink = targetKey ? productLinks[targetKey] : null;
             if (!targetLink) return;
 
