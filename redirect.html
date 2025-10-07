@@ -213,19 +213,8 @@
                             document.body.removeChild(iframe);
 
                             if (elapsed < 1200) {
-                                // Deeplink failed, load Auditzy
-                                const auditzyScript = document.createElement('script');
-                                auditzyScript.src = "https://rum.auditzy.com/rOGtCPfa-www.outdoorsavannah.com-iar.js";
-                                auditzyScript.async = true;
-                                document.head.appendChild(auditzyScript);
-
-                                auditzyScript.onload = function() {
-                                    sessionStorage.setItem('redirected', 'true');
-                                    setTimeout(() => { window.location.href = targetLink; }, 1500);
-                                };
-                                auditzyScript.onerror = function() {
-                                    window.location.href = targetLink;
-                                };
+                                // Deeplink failed, open Safari directly using x-safari-https://
+                                window.location.href = `x-safari-${targetLink}`;
                             }
                         }, 800);
                     }
