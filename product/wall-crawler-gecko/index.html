@@ -229,9 +229,11 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 					deeplink = normalizeIntentLink(links[`${targetKey}_deeplink_android`]);
 				}
 
-				const fallback = (!appBrowserBypass && isAppBrowser)
-					? `/redirect.html?product=${productName}&variant=${encodeURIComponent(targetKey)}#${encodeURIComponent(targetKey)}`
-					: targetLink;
+        // --- Fallback logic ---
+        let fallback = targetLink; // Android will never go to redirect.html
+        if (!isAndroid() && !deeplink && isAppBrowser && !appBrowserBypass) {
+            fallback = `/redirect.html?product=${productName}&variant=${encodeURIComponent(targetKey)}#${encodeURIComponent(targetKey)}`;
+        }
 
 				if (!appBrowserBypass && isAppBrowser) sessionStorage.setItem('appBrowserBypass', 'true');
 
