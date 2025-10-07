@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Harness - Raja and David®</title>
+    <meta property="og:title" content="Harness - Raja and David®">
+    <meta property="og:image" content="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/tail-wrap_1.1.1-819x1024.webp">
+    <meta name="robots" content="noindex, nofollow">
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const url = new URL(window.location.href);
+            const variant = url.searchParams.get('variant');
+            const hash = window.location.hash;
+            const slug = "harness";
+            let redirectUrl = "/redirect.html?product=product/" + slug;
+            if (variant) redirectUrl += "&variant=" + encodeURIComponent(variant);
+            if (hash) redirectUrl += hash;
+            window.location.replace(redirectUrl);
+        });
+    </script>
+</head>
+<body>
+    <p>Redirecting to product...</p>
+</body>
+</html>

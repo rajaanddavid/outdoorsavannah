@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premade Cat Wall - Raja and David®</title>
+    <meta property="og:title" content="Premade Cat Wall - Raja and David®">
+    <meta property="og:image" content="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/premade-cat-wall_1.2.2.webp">
+    <meta name="robots" content="noindex, nofollow">
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const url = new URL(window.location.href);
+            const variant = url.searchParams.get('variant');
+            const hash = window.location.hash;
+            const slug = "cat-shelves";
+            let redirectUrl = "/redirect.html?product=product/" + slug;
+            if (variant) redirectUrl += "&variant=" + encodeURIComponent(variant);
+            if (hash) redirectUrl += hash;
+            window.location.replace(redirectUrl);
+        });
+    </script>
+</head>
+<body>
+    <p>Redirecting to product...</p>
+</body>
+</html>
