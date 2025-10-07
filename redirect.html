@@ -20,6 +20,9 @@
 
         // --- Query string to get product path ---
         const params = new URLSearchParams(window.location.search);
+        // --- If user is returning from in-app redirect, skip deeplink ---
+        const utmTerm = params.get('utm_term');
+        const skipDeeplink = utmTerm === 'inappredirect';
         const productPath = params.get('product'); // e.g., "product/leash"
         if (!productPath) {
             document.body.innerHTML = '<p>Error: No product specified.</p>';
@@ -174,59 +177,61 @@
                 else if (isIOS()) primaryDeeplink = productLinks["amazon_deeplink_ios"];
             }
 
-            // --- Mobile outside app browser ---
-            if (!isAppBrowser() && primaryDeeplink) {
-                const start = Date.now();
-                window.location.href = primaryDeeplink;
-                setTimeout(() => {
-                    if (Date.now() - start < 1500) {
-                        window.location.href = targetLink;
-                    }
-                }, 1200);
-                return;
-            }
 
-            // --- In-app browser ---
-            if (isAppBrowser() && primaryDeeplink) {
-                if (isAndroid()) {
+            if (!skipDeeplink) {
+                // --- Mobile outside app browser ---
+                if (!isAppBrowser() && primaryDeeplink) {
                     const start = Date.now();
                     window.location.href = primaryDeeplink;
                     setTimeout(() => {
                         if (Date.now() - start < 1500) {
-                            window.location.href = normalizeIntentLink(primaryDeeplink);
+                            window.location.href = targetLink;
                         }
                     }, 1200);
-                } else if (isIOS()) {
-                    const now = Date.now();
-                    const iframe = document.createElement('iframe');
-                    iframe.style.display = 'none';
-                    iframe.src = primaryDeeplink;
-                    document.body.appendChild(iframe);
-
-                    setTimeout(() => {
-                        const elapsed = Date.now() - now;
-                        document.body.removeChild(iframe);
-
-                        if (elapsed < 1200) {
-                            // Deeplink failed, load Auditzy
-                            const auditzyScript = document.createElement('script');
-                            auditzyScript.src = "https://rum.auditzy.com/rOGtCPfa-www.outdoorsavannah.com-iar.js";
-                            auditzyScript.async = true;
-                            document.head.appendChild(auditzyScript);
-
-                            auditzyScript.onload = function() {
-                                sessionStorage.setItem('redirected', 'true');
-                                setTimeout(() => { window.location.href = targetLink; }, 1500);
-                            };
-                            auditzyScript.onerror = function() {
-                                window.location.href = targetLink;
-                            };
-                        }
-                    }, 800);
+                    return;
                 }
-                return;
-            }
 
+                // --- In-app browser ---
+                if (isAppBrowser() && primaryDeeplink) {
+                    if (isAndroid()) {
+                        const start = Date.now();
+                        window.location.href = primaryDeeplink;
+                        setTimeout(() => {
+                            if (Date.now() - start < 1500) {
+                                window.location.href = normalizeIntentLink(primaryDeeplink);
+                            }
+                        }, 1200);
+                    } else if (isIOS()) {
+                        const now = Date.now();
+                        const iframe = document.createElement('iframe');
+                        iframe.style.display = 'none';
+                        iframe.src = primaryDeeplink;
+                        document.body.appendChild(iframe);
+
+                        setTimeout(() => {
+                            const elapsed = Date.now() - now;
+                            document.body.removeChild(iframe);
+
+                            if (elapsed < 1200) {
+                                // Deeplink failed, load Auditzy
+                                const auditzyScript = document.createElement('script');
+                                auditzyScript.src = "https://rum.auditzy.com/rOGtCPfa-www.outdoorsavannah.com-iar.js";
+                                auditzyScript.async = true;
+                                document.head.appendChild(auditzyScript);
+
+                                auditzyScript.onload = function() {
+                                    sessionStorage.setItem('redirected', 'true');
+                                    setTimeout(() => { window.location.href = targetLink; }, 1500);
+                                };
+                                auditzyScript.onerror = function() {
+                                    window.location.href = targetLink;
+                                };
+                            }
+                        }, 800);
+                    }
+                    return;
+                }
+            }
             // --- Fallback if no deeplink ---
             window.location.href = targetLink;
 
