@@ -57,16 +57,34 @@ const template = (meta, slug) => `<!DOCTYPE html>
     <meta name="robots" content="noindex, nofollow">
 
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const url = new URL(window.location.href);
-            const variant = url.searchParams.get('variant');
-            const hash = window.location.hash;
-            const slug = "${slug}";
-            let redirectUrl = "/redirect.html?product=product/" + slug;
-            if (variant) redirectUrl += "&variant=" + encodeURIComponent(variant);
-            if (hash) redirectUrl += hash;
-            window.location.replace(redirectUrl);
-        });
+    document.addEventListener("DOMContentLoaded", function() {
+        const url = new URL(window.location.href);
+
+        // Use slug from generator as fallback
+        let slug = "${slug}";
+
+        // Support extracting slug from the path
+        const pathSegments = url.pathname.split("/").filter(Boolean); // ["preview", "wall-crawler-gecko"]
+        if (pathSegments[0] === "preview" && pathSegments[1]) {
+            slug = pathSegments[1];
+        }
+
+        // Preserve variant and hash (also allow for &variant= and ?variant=
+        let variant = url.searchParams.get('variant');
+
+        // fallback if variant is in path like &variant=aliexpress
+        if (!variant && slug.includes("&variant=")) {
+            const parts = slug.split("&variant=");
+            slug = parts[0];
+            variant = parts[1];
+        }
+        let redirectUrl = "/redirect.html?product=product/" + slug;
+        if (variant) redirectUrl += "&variant=" + encodeURIComponent(variant);
+        if (url.hash) redirectUrl += url.hash;
+
+        // Redirect
+        window.location.replace(redirectUrl);
+    });
     </script>
 </head>
 <body>
