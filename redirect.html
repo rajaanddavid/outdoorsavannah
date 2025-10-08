@@ -6,6 +6,13 @@
     <meta name="robots" content="noindex, nofollow">
     <title>Redirecting...</title>
     <link rel="preload" href="/amazonLinks.json" as="fetch" type="application/json" crossorigin="anonymous">
+    <style>
+        /* Reset any default styling */
+        html, body {
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+    </style>
 </head>
 <body>
 
@@ -96,6 +103,15 @@
             document.head.appendChild(clone);
         });
 
+        // --- Copy html and body attributes ---
+        Array.from(doc.documentElement.attributes).forEach(attr => {
+            document.documentElement.setAttribute(attr.name, attr.value);
+        });
+
+        Array.from(doc.body.attributes).forEach(attr => {
+            document.body.setAttribute(attr.name, attr.value);
+        });
+
         // --- Append body <style> tags to head ---
         Array.from(doc.body.querySelectorAll('style')).forEach(styleTag => {
             const clone = styleTag.cloneNode(true);
@@ -108,10 +124,13 @@
             document.head.appendChild(clone);
         });
 
-        // --- Clear body and replace content ---
-        document.body.innerHTML = '';
+        // --- Copy body attributes and styles ---
+        // Copy all body attributes (class, style, etc.)
+        Array.from(doc.body.attributes).forEach(attr => {
+            document.body.setAttribute(attr.name, attr.value);
+        });
 
-        // Clone body content
+        // --- Clear body and replace content ---
         Array.from(doc.body.childNodes).forEach(node => {
             const clone = node.cloneNode(true);
 
