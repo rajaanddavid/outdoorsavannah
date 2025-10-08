@@ -225,16 +225,32 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 				// Android
 				if (isAndroid() && links[`${targetKey}_deeplink_android`]) {
-						deeplink = normalizeIntentLink(links[`${targetKey}_deeplink_android`]);
+						const rawDeeplink = links[`${targetKey}_deeplink_android`];
+						const normalizedDeeplink = normalizeIntentLink(rawDeeplink);
+
+						// On Android, just try to open rawDeeplink via window.location
+						window.location.href = rawDeeplink;
+
+						// Fallback to normalizedIntent if rawDeeplink fails after 1s
+						setTimeout(() => {
+								window.location.href = normalizedDeeplink;
+						}, 1000);
+
+						return; // stop further click handling
 				}
 
 				// iOS
-				if (isIOS() && isAppBrowser()) {
+				if (isIOS()) {
 						if (links[`${targetKey}_deeplink_ios`]) {
 								deeplink = links[`${targetKey}_deeplink_ios`];
 						}
-						// If the iOS deeplink fails, fallback to targetLink (or redirect.html)
-						fallback = `x-safari-https://www.outdoorsavannah.com/redirect.html?product=${productName}&variant=${encodeURIComponent(targetKey)}#${encodeURIComponent(targetKey)}`;
+						if (isAppBrowser()) {
+							// If the iOS deeplink fails, fallback to targetLink (or redirect.html)
+							fallback = `x-safari-https://www.outdoorsavannah.com/redirect.html?product=${productName}&variant=${encodeURIComponent(targetKey)}#${encodeURIComponent(targetKey)}`;
+						} else {
+								// External browser: fallback to normal product link
+								fallback = links[targetKey];
+						}
 				}
 
 				if (deeplink) {
