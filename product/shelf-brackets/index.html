@@ -315,6 +315,13 @@ body.page-id-5 {
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NBJRDCGV"
                   height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
+<script>
+    // Check if we're on the homepage path
+    if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
+      document.body.classList.add('page-id-5');
+    }
+</script>
+
 <!-- END BODY SNIPPET -->
 <div id="wrapper" class="site wp-site-blocks">
 			<a class="skip-link screen-reader-text scroll-ignore" href="#main">Skip to content</a>
