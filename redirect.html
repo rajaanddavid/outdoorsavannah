@@ -20,9 +20,9 @@
 
         // --- Query string to get product path ---
         const params = new URLSearchParams(window.location.search);
-        // --- If user is returning from in-app redirect, skip deeplink ---
-        const utmTerm = params.get('utm_term');
-        const skipDeeplink = utmTerm === 'inappredirect';
+        // --- If user is returning from Meta app, skip deeplink ---
+        const fbclid = params.get('fbclid');
+        const skipDeeplink = !!fbclid;
         const productPath = params.get('product'); // e.g., "product/leash"
         if (!productPath) {
             document.body.innerHTML = '<p>Error: No product specified.</p>';
