@@ -277,7 +277,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     min-width: 100px;
     min-height: 40px;
     font-size: 16px; /* Adjust font size */
-    border-radius: 50px; !important /* Add rounded corners */
+    border-radius: 50px !important; /* Add rounded corners */
 	}
 /*Button outline color (OJ)*/
 .page-id-5 .wp-block-button.is-style-outline .wp-block-button__link {
@@ -286,10 +286,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 @media (max-width:600px){
     .page-id-5 .wp-block-buttons>.wp-block-button {
-       width: 90%;
+       width: 90% !important;
     }
     .page-id-5 a.wp-block-button__link {
-        display:block
+        display:block !important;
     }    
 }
 
@@ -300,6 +300,12 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     a.wp-block-button__link {
         display:block
     }    
+}
+
+/* Reset page background for redirect.html specifically */
+body.page-id-5 {
+    margin: 0 !important;
+    padding: 0 !important;
 }</style>
 		</head>
 
