@@ -256,8 +256,45 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 						window.location.href = fallback;
 				}
 			});
+	});
+	// --- Dark mode image swap ---
+	const swapDarkModeImages = (isDark) => {
+		const imgs = document.querySelectorAll(".entry-content.single-content img");
+		imgs.forEach(img => {
+			const src = img.getAttribute("src");
+			const srcset = img.getAttribute("srcset") || "";
+			if (!src || !src.includes("outdoorsavannah-logo-registered-links")) return;
+
+			if (isDark) {
+				// Convert:
+				// outdoorsavannah-logo-registered-links.webp → outdoorsavannah-logo-registered-links-white.webp
+				// outdoorsavannah-logo-registered-links-300x184.webp → outdoorsavannah-logo-registered-links-white-300x184.webp
+				img.src = src
+					.replace(/-white(?=-\d+x\d+)?\.webp/, ".webp") // clean previous
+					.replace(/(\d+x\d+)?\.webp$/, (m) =>
+						m.startsWith('3') ? `-white-${m}` : `-white${m}`
+					)
+					.replace(/-white--/, '-white-'); // clean any double dash cases
+
+				img.srcset = srcset
+					.replace(/-white(?=-\d+x\d+)?\.webp/g, ".webp")
+					.replace(/(\d+x\d+)?\.webp/g, (m) =>
+						m.startsWith('3') ? `-white-${m}` : `-white${m}`
+					)
+					.replace(/-white--/g, '-white-');
+			} else {
+				// Revert to normal version
+				img.src = src.replace(/-white(?=-\d+x\d+)?\.webp/, ".webp");
+				img.srcset = srcset.replace(/-white(?=-\d+x\d+)?\.webp/g, ".webp");
+			}
 		});
-	});</script>
+	};
+
+	const darkModeMedia = window.matchMedia("(prefers-color-scheme: dark)");
+	swapDarkModeImages(darkModeMedia.matches);
+	darkModeMedia.addEventListener("change", e => swapDarkModeImages(e.matches));
+});
+</script>
 <!-- END HEADER SNIPPET -->
 <link rel="icon" href="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-150x150.webp" sizes="32x32">
 <link rel="icon" href="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.webp" sizes="192x192">
