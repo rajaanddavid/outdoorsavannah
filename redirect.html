@@ -15,8 +15,8 @@
         function isMobile() { return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent); }
         function isAndroid() { return /Android/i.test(navigator.userAgent); }
         function isIOS() { return /iPhone|iPad|iPod/i.test(navigator.userAgent); }
-        function isAppBrowser() { return /Instagram|FBAV|FBAN\/FBIOS|FB_IAB|FB4A|Threads|Barcelona/i.test(navigator.userAgent); }
-        function isFacebookBrowser() { return /FBAN\/FBIOS|FBAV|FB_IAB|FB4A/i.test(navigator.userAgent); }
+        function isAppBrowser() { return /Instagram|FBAV|FBAN\/FBIOS|FB_IAB|FB4A|MetaIAB|Threads|Barcelona/i.test(navigator.userAgent); }
+        function isFacebookBrowser() { return /FBAN\/FBIOS|FBAV|FB_IAB|FB4A|MetaIAB/i.test(navigator.userAgent); }
 
         // --- Query string to get product path ---
         const params = new URLSearchParams(window.location.search);
