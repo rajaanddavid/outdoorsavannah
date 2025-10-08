@@ -276,36 +276,45 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     display: inline-block;
     min-width: 100px;
     min-height: 40px;
-    font-size: 16px; /* Adjust font size */
-    border-radius: 50px !important; /* Add rounded corners */
-	}
-/*Button outline color (OJ)*/
+    font-size: 16px;
+    border-radius: 50px !important;
+}
+
+/* Button outline color */
 .page-id-5 .wp-block-button.is-style-outline .wp-block-button__link {
-  border-color: #000000;
+    border-color: #000000;
 }
 
-@media (max-width:600px){
-    .page-id-5 .wp-block-buttons>.wp-block-button {
-       width: 90% !important;
+/* Make buttons container center and match content width */
+.page-id-5 .wp-block-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    width: 350px; /* Changed to width instead of max-width for exact sizing */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Make individual button wrappers appropriate width */
+.page-id-5 .wp-block-buttons > .wp-block-button {
+    flex: 1 1 calc(50% - 5px); /* Split into two equal columns with gap */
+    min-width: 0; /* Allow flex to shrink below content size */
+}
+
+/* Make button links fill their container */
+.page-id-5 .wp-block-buttons > .wp-block-button .wp-block-button__link {
+    display: block;
+    width: 100%;
+    text-align: center;
+}
+
+/* Mobile adjustments - stack vertically */
+@media (max-width: 600px) {
+    .page-id-5 .wp-block-buttons {
+        width: 90%;
     }
-    .page-id-5 a.wp-block-button__link {
-        display:block !important;
-    }    
-}
-
-@media (max-width:600px){
-    .wp-block-buttons>.wp-block-button {
-       width: 100%;
-    }
-    a.wp-block-button__link {
-        display:block
-    }    
-}
-
-/* Reset page background for redirect.html specifically */
-body.page-id-5 {
-    margin: 0 !important;
-    padding: 0 !important;
 }</style>
 		</head>
 
