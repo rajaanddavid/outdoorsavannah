@@ -101,50 +101,58 @@
             container.innerHTML = doc.body.innerHTML;
             document.body.appendChild(container);
 
-            // --- Update links (minimal) ---
-            function updateAllLinks(productName, amazonLinks, variant, inAppBrowser) {
+            function updateAllLinksSimple(productName, amazonLinks) {
                 const links = amazonLinks[productName];
                 if (!links) return;
 
-                document.querySelectorAll('.wp-block-button.buy-button .wp-block-button__link').forEach(btn => {
-                    const key = (btn.getAttribute('title') || '').trim().toLowerCase();
+                // Select all relevant links
+                const allLinks = document.querySelectorAll(
+                    '.wp-block-button.buy-button .wp-block-button__link, a[title^="extralink"], li[id^="extralink"] a'
+                );
 
-                    if (key && links[key]) {
-                        // Always use the web URL for button href
-                        btn.href = links[key];
-                    } else {
-                        // Fallback to the default product link
-                        btn.href = links[targetKey] || '#';
+                allLinks.forEach(linkEl => {
+                    let key = null;
+
+                    // Buy button: last word in text
+                    if (linkEl.classList.contains('wp-block-button__link')) {
+                        const text = linkEl.textContent.trim();
+                        const match = text.match(/Buy on\s+([\w-]+)/i);
+                        if (match) key = match[1].toLowerCase();
                     }
-                });
 
-                // Update extralink buttons similarly
-                document.querySelectorAll('a[title^="extralink"]').forEach(link => {
-                    const key = (link.getAttribute('title') || '').trim().toLowerCase();
+                    // Title starts with extralink
+                    if (!key && linkEl.hasAttribute('title')) {
+                        const title = linkEl.getAttribute('title').trim();
+                        const match = title.match(/^extralink[-_]?([\w-]+)/i);
+                        if (match) key = match[1].toLowerCase();
+                    }
 
-                    if (key && links[key]) {
-                        link.href = links[key];
-                    } else {
-                        if (inAppBrowser) {
-                            if (isAndroid() && links[`${variant}_deeplink_android`]) {
-                                link.href = links[`${variant}_deeplink_android`];
-                            } else if (isIOS() && links[`${variant}_deeplink_ios`]) {
-                                link.href = links[`${variant}_deeplink_ios`];
-                            } else {
-                                const fallback = Object.keys(links).find(k => k.startsWith('extralink'));
-                                if (fallback) link.href = links[fallback];
-                            }
-                        } else {
-                            // Outside app browser: always point to web link
-                            if (links[targetKey]) link.href = links[targetKey];
-                        }
+                    // li[id^="extralink"] a
+                    if (!key && linkEl.closest('li[id^="extralink"]')) {
+                        const li = linkEl.closest('li[id^="extralink"]');
+                        const idMatch = li.id.match(/^extralink[-_]?([\w-]+)/i);
+                        if (idMatch) key = idMatch[1].toLowerCase();
+                    }
+
+                    // Fallback: infer from URL
+                    if (!key && linkEl.href) {
+                        if (linkEl.href.includes('amazon')) key = 'amazon';
+                        else if (linkEl.href.includes('aliexpress')) key = 'aliexpress';
+                    }
+
+                    if (!key) return;
+
+                    // Set link to web target from amazonLinks.json
+                    const newHref = links[key] || Object.values(links).find(v => typeof v === 'string');
+                    if (newHref) {
+                        linkEl.href = newHref;
+                        linkEl.target = '_blank';
+                        linkEl.rel = 'noopener noreferrer nofollow';
                     }
                 });
             }
 
-            if (isAppBrowser()) {
-                updateAllLinks(productName, amazonLinks, variant, true);
-            }
+            updateAllLinksSimple(productName, amazonLinks);
 
             // --- Update header ---
             const entryHeader = document.querySelector('.entry-title');
