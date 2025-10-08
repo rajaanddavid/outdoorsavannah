@@ -1,5 +1,25 @@
 {
-  "leash": {
+  "home": {
+    "extralink1": "https://www.facebook.com/outdoorsavannah",
+    "extralink1_deeplink_ios": "fb://profile/100083382630651",
+    "extralink1_deeplink_android": "intent://profile/100083382630651#Intent;package=com.facebook.katana;scheme=fb;end",
+    "extralink2": "http://www.youtube.com/@outdoorsavannah",
+    "extralink2_deeplink_ios": "vnd.youtube://www.youtube.com/@outdoorsavannah",
+    "extralink2_deeplink_android": "intent://www.youtube.com/@outdoorsavannah#Intent;package=com.google.android.youtube;scheme=https;end",
+    "extralink3": "https://www.snapchat.com/add/outdoorsavannah",
+    "extralink3_deeplink_ios": "snapchat://add/outdoorsavannah",
+    "extralink3_deeplink_android": "intent://add/outdoorsavannah#Intent;scheme=snapchat;package=com.snapchat.android;end;",
+    "extralink4": "https://www.instagram.com/outdoorsavannah?igsh=MXV1Mzh5cnl5MWx2cg==",
+    "extralink4_deeplink_ios": "instagram://user?username=outdoorsavannah&igsh=MXV1Mzh5cnl5MWx2cg==",
+    "extralink4_deeplink_android": "intent://www.instagram.com/outdoorsavannah?igsh=MXV1Mzh5cnl5MWx2cg==#Intent;package=com.instagram.android;scheme=https;end",
+    "extralink5": "https://www.tiktok.com/@outdoorsavannah_us",
+    "extralink5_deeplink_ios": "snssdk1233://user/@outdoorsavannah_us",
+    "extralink5_deeplink_android": "intent://www.tiktok.com/@outdoorsavannah_us#Intent;package=com.zhiliaoapp.musically;scheme=https;end",
+    "extralink6": "https://discord.com/invite/PK8cagfaUz",
+    "extralink6_deeplink_ios": "com.hammerandchisel.discord://discord.com/invite/PK8cagfaUz",
+    "extralink6_deeplink_android": "intent://discord.com/invite/PK8cagfaUz#Intent;package=com.discord;scheme=https;end"
+  },
+    "leash": {
     "amazon": "https://amzn.to/3N3Z2Az",
     "amazon_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/dp/B07DDK9M6M?tag=outdoorsavann-20",
     "amazon_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/dp/B07DDK9M6M?tag=outdoorsavann-20"

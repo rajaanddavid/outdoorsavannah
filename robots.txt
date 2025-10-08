@@ -1,6 +1,7 @@
 # --- Block /redirect.html for everyone by default ---
 User-agent: *
 Disallow: /redirect.html
+Disallow: /preview
 Sitemap: http://outdoorsavannah.com/sitemap_index.xml
 
 # --- Whitelist social media scrapers for embedding ---

@@ -79,7 +79,9 @@
             if (!targetLink) return;
 
             // --- Fetch original product page HTML ---
-            const res = await fetch('/' + productPath + '/');
+            let fetchPath = '/' + productPath + '/';
+            if (productPath === 'home') fetchPath = '/'; // homepage
+            const res = await fetch(fetchPath);
             const html = await res.text();
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, 'text/html');

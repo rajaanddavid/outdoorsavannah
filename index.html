@@ -23,7 +23,7 @@
 		<meta name="twitter:title" content="Links - Raja and David®">
 		<meta name="twitter:description" content="OutdoorSavannah social media links, products and cat shelf guide!">
 		<meta name="twitter:image" content="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/outdoorsavannah-logo-registered.webp">
-		<script type="application/ld+json" class="aioseo-schema">{"@context":"https:\/\/schema.org","@graph":[{"@type":"BreadcrumbList","@id":"https:\/\/www.outdoorsavannah.com\/#breadcrumblist","itemListElement":[{"@type":"ListItem","@id":"https:\/\/www.outdoorsavannah.com\/#listItem","position":1,"name":"Home"}]},{"@type":"Organization","@id":"https:\/\/www.outdoorsavannah.com\/#organization","name":"Raja and David®","description":"OutdoorSavannah®","url":"https:\/\/www.outdoorsavannah.com\/","logo":{"@type":"ImageObject","url":"https:\/\/www.outdoorsavannah.com\/wp-content\/uploads\/2025\/04\/cropped-profile-pic-yt_1.1.2-scaled-2.webp","@id":"https:\/\/www.outdoorsavannah.com\/#organizationLogo","width":512,"height":512},"image":{"@id":"https:\/\/www.outdoorsavannah.com\/#organizationLogo"},"sameAs":["https:\/\/www.facebook.com\/outdoorsavannah","https:\/\/www.instagram.com\/outdoorsavannah","https:\/\/www.tiktok.com\/@outdoorsavannah_us","https:\/\/www.youtube.com\/@outdoorsavannah"]},{"@type":"WebPage","@id":"https:\/\/www.outdoorsavannah.com\/#webpage","url":"https:\/\/www.outdoorsavannah.com\/","name":"Links - Raja and David®","description":"OutdoorSavannah social media links, products and cat shelf guide!","inLanguage":"en-US","isPartOf":{"@id":"https:\/\/www.outdoorsavannah.com\/#website"},"breadcrumb":{"@id":"https:\/\/www.outdoorsavannah.com\/#breadcrumblist"},"image":{"@type":"ImageObject","url":"https:\/\/www.outdoorsavannah.com\/wp-content\/uploads\/2025\/04\/outdoorsavannah-logo-registered-links.webp","@id":"https:\/\/www.outdoorsavannah.com\/#mainImage","width":365,"height":224},"primaryImageOfPage":{"@id":"https:\/\/www.outdoorsavannah.com\/#mainImage"},"datePublished":"2025-04-06T21:05:57+00:00","dateModified":"2025-10-03T23:37:14+00:00"},{"@type":"WebSite","@id":"https:\/\/www.outdoorsavannah.com\/#website","url":"https:\/\/www.outdoorsavannah.com\/","name":"Raja and David®","description":"OutdoorSavannah®","inLanguage":"en-US","publisher":{"@id":"https:\/\/www.outdoorsavannah.com\/#organization"}}]}</script>
+		<script type="application/ld+json" class="aioseo-schema">{"@context":"https:\/\/schema.org","@graph":[{"@type":"BreadcrumbList","@id":"https:\/\/www.outdoorsavannah.com\/#breadcrumblist","itemListElement":[{"@type":"ListItem","@id":"https:\/\/www.outdoorsavannah.com\/#listItem","position":1,"name":"Home"}]},{"@type":"Organization","@id":"https:\/\/www.outdoorsavannah.com\/#organization","name":"Raja and David®","description":"OutdoorSavannah®","url":"https:\/\/www.outdoorsavannah.com\/","logo":{"@type":"ImageObject","url":"https:\/\/www.outdoorsavannah.com\/wp-content\/uploads\/2025\/04\/cropped-profile-pic-yt_1.1.2-scaled-2.webp","@id":"https:\/\/www.outdoorsavannah.com\/#organizationLogo","width":512,"height":512},"image":{"@id":"https:\/\/www.outdoorsavannah.com\/#organizationLogo"},"sameAs":["https:\/\/www.facebook.com\/outdoorsavannah","https:\/\/www.instagram.com\/outdoorsavannah","https:\/\/www.tiktok.com\/@outdoorsavannah_us","https:\/\/www.youtube.com\/@outdoorsavannah"]},{"@type":"WebPage","@id":"https:\/\/www.outdoorsavannah.com\/#webpage","url":"https:\/\/www.outdoorsavannah.com\/","name":"Links - Raja and David®","description":"OutdoorSavannah social media links, products and cat shelf guide!","inLanguage":"en-US","isPartOf":{"@id":"https:\/\/www.outdoorsavannah.com\/#website"},"breadcrumb":{"@id":"https:\/\/www.outdoorsavannah.com\/#breadcrumblist"},"image":{"@type":"ImageObject","url":"https:\/\/www.outdoorsavannah.com\/wp-content\/uploads\/2025\/04\/outdoorsavannah-logo-registered-links.webp","@id":"https:\/\/www.outdoorsavannah.com\/#mainImage","width":365,"height":224},"primaryImageOfPage":{"@id":"https:\/\/www.outdoorsavannah.com\/#mainImage"},"datePublished":"2025-04-06T21:05:57+00:00","dateModified":"2025-10-08T20:03:21+00:00"},{"@type":"WebSite","@id":"https:\/\/www.outdoorsavannah.com\/#website","url":"https:\/\/www.outdoorsavannah.com\/","name":"Raja and David®","description":"OutdoorSavannah®","inLanguage":"en-US","publisher":{"@id":"https:\/\/www.outdoorsavannah.com\/#organization"}}]}</script>
 		<!-- All in One SEO -->
 
 <link rel="alternate" type="application/rss+xml" title="Raja and David® &raquo; Feed" href="https://www.outdoorsavannah.com/feed/">
@@ -79,8 +79,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
 <script>document.addEventListener('DOMContentLoaded', async () => {
-		// Skip homepage
-		if (location.pathname === "/") return;
 
 		const ua = navigator.userAgent;
 		const isMobile = () => /iPhone|iPad|iPod|Android/i.test(ua);
@@ -92,12 +90,19 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 		const res = await fetch('/amazonLinks.json');
 		const amazonLinks = await res.json();
 
-		// --- Get product slug ---
-		const pathParts = location.pathname.split('/').filter(Boolean);
-		let productName = pathParts[pathParts.length - 1];
-		if (pathParts[0] === "product" && pathParts.length > 1) {
-			productName = `product/${productName}`;
-		}
+    const pathParts = location.pathname.split('/').filter(Boolean);
+    let productName;
+
+    // Handle homepage
+    if (location.pathname === "/") {
+      productName = "home";
+    } else {
+      // --- Get product slug ---
+      productName = pathParts[pathParts.length - 1];
+      if (pathParts[0] === "product" && pathParts.length > 1) {
+        productName = `product/${productName}`;
+      }
+    }
 
 		const links = amazonLinks[pathParts[pathParts.length - 1]] || amazonLinks[productName];
 		if (!links) return;
@@ -340,35 +345,35 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
 <div class="wp-block-buttons is-content-justification-center is-layout-flex wp-container-core-buttons-is-layout-16018d1d wp-block-buttons-is-layout-flex">
-<div class="wp-block-button is-style-outline is-style-outline--5"><a class="wp-block-button__link has-theme-palette-9-color has-text-color has-background has-link-color wp-element-button" href="https://links.outdoorsavannah.com/facebook-outdoorsavannah" style="background-color:#2b6cb0">Facebook</a></div>
+<div class="wp-block-button is-style-outline is-style-outline--5"><a class="wp-block-button__link has-theme-palette-9-color has-text-color has-background has-link-color wp-element-button" href="https://links.outdoorsavannah.com/facebook-outdoorsavannah" title="extralink1" style="background-color:#2b6cb0" target="_blank" rel="noreferrer noopener">Facebook</a></div>
 </div>
 
 
 
 <div class="wp-block-buttons is-content-justification-center is-layout-flex wp-container-core-buttons-is-layout-16018d1d wp-block-buttons-is-layout-flex">
-<div class="wp-block-button is-style-outline is-style-outline--6"><a class="wp-block-button__link has-theme-palette-9-color has-text-color has-background has-link-color wp-element-button" href="https://links.outdoorsavannah.com/youtube-outdoorsavannah" style="background-color:#ff0004">YouTube</a></div>
+<div class="wp-block-button is-style-outline is-style-outline--6"><a class="wp-block-button__link has-theme-palette-9-color has-text-color has-background has-link-color wp-element-button" href="https://links.outdoorsavannah.com/youtube-outdoorsavannah" title="extralink2" style="background-color:#ff0004" target="_blank" rel="noreferrer noopener">YouTube</a></div>
 </div>
 
 
 
 <div class="wp-block-buttons is-content-justification-center is-layout-flex wp-container-core-buttons-is-layout-5590e8cb wp-block-buttons-is-layout-flex">
-<div class="wp-block-button is-style-outline is-style-outline--7"><a class="wp-block-button__link has-theme-palette-3-color has-text-color has-background has-link-color wp-element-button" href="https://links.outdoorsavannah.com/snapchat-outdoorsavannah" style="background-color:#fffe58">Snapchat</a></div>
+<div class="wp-block-button is-style-outline is-style-outline--7"><a class="wp-block-button__link has-theme-palette-3-color has-text-color has-background has-link-color wp-element-button" href="https://links.outdoorsavannah.com/snapchat-outdoorsavannah" title="extralink3" style="background-color:#fffe58" target="_blank" rel="noreferrer noopener">Snapchat</a></div>
 </div>
 
 
 
 <div class="wp-block-buttons is-content-justification-center is-layout-flex wp-container-core-buttons-is-layout-16018d1d wp-block-buttons-is-layout-flex">
-<div class="wp-block-button is-style-outline is-style-outline--8"><a class="wp-block-button__link has-theme-palette-9-color has-text-color has-background has-link-color wp-element-button" href="https://links.outdoorsavannah.com/instagram-outdoorsavannah" style="background-color:#d81582">Instagram</a></div>
+<div class="wp-block-button is-style-outline is-style-outline--8"><a class="wp-block-button__link has-theme-palette-9-color has-text-color has-background has-link-color wp-element-button" href="https://links.outdoorsavannah.com/instagram-outdoorsavannah" title="extralink4" style="background-color:#d81582" target="_blank" rel="noreferrer noopener">Instagram</a></div>
 </div>
 
 
 
 <div class="wp-block-buttons is-content-justification-center is-nowrap is-layout-flex wp-container-core-buttons-is-layout-ab317eca wp-block-buttons-is-layout-flex" style="padding-right:var(--wp--preset--spacing--40);padding-left:var(--wp--preset--spacing--40)">
-<div class="wp-block-button is-style-outline is-style-outline--9"><a class="wp-block-button__link has-theme-palette-9-color has-theme-palette-3-background-color has-text-color has-background has-link-color wp-element-button" href="https://links.outdoorsavannah.com/tiktokUS-outdoorsavannah">TikTok</a></div>
+<div class="wp-block-button is-style-outline is-style-outline--9"><a class="wp-block-button__link has-theme-palette-9-color has-theme-palette-3-background-color has-text-color has-background has-link-color wp-element-button" href="https://links.outdoorsavannah.com/tiktokUS-outdoorsavannah" title="extralink5" target="_blank" rel="noreferrer noopener">TikTok</a></div>
 
 
 
-<div class="wp-block-button is-style-outline is-style-outline--10"><a class="wp-block-button__link has-theme-palette-9-color has-text-color has-background has-link-color wp-element-button" href="https://links.outdoorsavannah.com/discord-outdoorsavannah" style="background-color:#738adb">Chat on Discord!</a></div>
+<div class="wp-block-button is-style-outline is-style-outline--10"><a class="wp-block-button__link has-theme-palette-9-color has-text-color has-background has-link-color wp-element-button" href="https://links.outdoorsavannah.com/discord-outdoorsavannah" title="extralink6" style="background-color:#738adb" target="_blank" rel="noreferrer noopener">Chat on Discord!</a></div>
 </div>
 
 
