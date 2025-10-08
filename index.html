@@ -222,13 +222,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 				}
 
 				// iOS
-				if (isIOS()) {
-						if (links[`${targetKey}_deeplink_ios`]) {
-								deeplink = links[`${targetKey}_deeplink_ios`];
-						}
-						// If the iOS deeplink fails, fallback to targetLink (or redirect.html)
-						fallback = `/redirect.html?product=${productName}&variant=${encodeURIComponent(targetKey)}#${encodeURIComponent(targetKey)}`;
-				}
+        if (isIOS()) {
+            if (links[`${targetKey}_deeplink_ios`]) {
+                deeplink = links[`${targetKey}_deeplink_ios`];
+            }
+            // iOS fallback is now x-safari-https:// only
+            fallback = `x-safari-${targetLink}`;
+        }
 
 				if (!appBrowserBypass && isAppBrowser) sessionStorage.setItem('appBrowserBypass', 'true');
 
