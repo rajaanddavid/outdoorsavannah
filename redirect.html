@@ -55,20 +55,20 @@
         });
 
         // --- Replace body content ---
-        const container = document.createElement('div');
-        container.innerHTML = doc.body.innerHTML;
-        document.body.appendChild(container);
-        // Check if we're on the homepage path
-        if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
-          document.body.classList.add('page-id-5');
-        }
+        // Clone the original body
+        const bodyNodes = Array.from(doc.body.childNodes);
+        bodyNodes.forEach(node => document.body.appendChild(node.cloneNode(true)));
 
-        // --- Execute inline scripts ---
-        Array.from(doc.querySelectorAll('script:not([src])')).forEach(script => {
+        // Run inline scripts
+        doc.querySelectorAll('script:not([src])').forEach(script => {
             const s = document.createElement('script');
             s.textContent = script.textContent;
             document.body.appendChild(s);
         });
+        // Check if we're on the homepage path
+        if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
+          document.body.classList.add('page-id-5');
+        }
 
         function getProductName() {
             const segments = productPath.split('/').filter(Boolean);
