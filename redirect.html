@@ -37,6 +37,20 @@
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
 
+        // --- Preload main image ---
+        const ogImage = doc.querySelector('meta[property="og:image"]');
+        if (ogImage && ogImage.content) {
+            const link = document.createElement('link');
+            link.rel = 'preload';
+            link.as = 'image';
+            link.href = ogImage.content;
+            document.head.appendChild(link);
+
+            // Optional hidden image for faster load
+            const img = new Image();
+            img.src = ogImage.content;
+        }
+
         // --- Append head elements ---
         Array.from(doc.head.children).forEach(node => {
             const clone = node.cloneNode(true);
