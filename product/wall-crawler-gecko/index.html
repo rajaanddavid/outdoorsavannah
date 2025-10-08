@@ -96,8 +96,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 		const isIOS = () => /iPhone|iPad|iPod/i.test(ua);
 		const isAppBrowser = /Instagram|FBAV|FBAN\/FBIOS|FB_IAB|FB4A|MetaIAB|Threads|Barcelona/i.test(ua);
 
-		const appBrowserBypass = sessionStorage.getItem('appBrowserBypass') === 'true';
-
 		// --- Load Amazon Links ---
 		const res = await fetch('/amazonLinks.json');
 		const amazonLinks = await res.json();
@@ -238,8 +236,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 						// If the iOS deeplink fails, fallback to targetLink (or redirect.html)
 						fallback = `x-safari-https://www.outdoorsavannah.com/redirect.html?product=${productName}&variant=${encodeURIComponent(targetKey)}#${encodeURIComponent(targetKey)}`;
 				}
-
-				if (!appBrowserBypass && isAppBrowser) sessionStorage.setItem('appBrowserBypass', 'true');
 
 				if (deeplink) {
 						tryDeeplink(deeplink, fallback); // Android and iOS both use it
