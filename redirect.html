@@ -167,71 +167,72 @@
                 else if (isIOS()) entryHeader.textContent = "Redirecting... please wait";
             }
 
-
             // --- Fast desktop redirect ---
             if (!isMobile()) {
                 window.location.href = targetLink;
                 return;
             }
 
-            // --- Determine primary deeplink ---
-            let primaryDeeplink = null;
-            if (isAndroid() && productLinks[`${variant}_deeplink_android`]) {
-                primaryDeeplink = productLinks[`${variant}_deeplink_android`];
-            } else if (isIOS() && productLinks[`${variant}_deeplink_ios`]) {
-                primaryDeeplink = productLinks[`${variant}_deeplink_ios`];
-            } else {
-                if (isAndroid()) primaryDeeplink = productLinks["amazon_deeplink_android"];
-                else if (isIOS()) primaryDeeplink = productLinks["amazon_deeplink_ios"];
-            }
+            if (isMobile() && !sessionStorage.getItem('redirectedOnce')) {
+                sessionStorage.setItem('redirectedOnce', 'true');
 
-
-            if (!skipDeeplink) {
-                // --- Mobile outside app browser ---
-                if (!isAppBrowser() && primaryDeeplink) {
-                    const start = Date.now();
-                    window.location.href = primaryDeeplink;
-                    setTimeout(() => {
-                        if (Date.now() - start < 1500) {
-                            window.location.href = targetLink;
-                        }
-                    }, 1200);
-                    return;
+                // --- Determine primary deeplink ---
+                let primaryDeeplink = null;
+                if (isAndroid() && productLinks[`${variant}_deeplink_android`]) {
+                    primaryDeeplink = productLinks[`${variant}_deeplink_android`];
+                } else if (isIOS() && productLinks[`${variant}_deeplink_ios`]) {
+                    primaryDeeplink = productLinks[`${variant}_deeplink_ios`];
+                } else {
+                    if (isAndroid()) primaryDeeplink = productLinks["amazon_deeplink_android"];
+                    else if (isIOS()) primaryDeeplink = productLinks["amazon_deeplink_ios"];
                 }
 
-                // --- In-app browser ---
-                if (isAppBrowser() && primaryDeeplink) {
-                    if (isAndroid()) {
+                if (!skipDeeplink) {
+                    // --- Mobile outside app browser ---
+                    if (!isAppBrowser() && primaryDeeplink) {
                         const start = Date.now();
                         window.location.href = primaryDeeplink;
                         setTimeout(() => {
                             if (Date.now() - start < 1500) {
-                                window.location.href = normalizeIntentLink(primaryDeeplink);
+                                window.location.href = targetLink;
                             }
                         }, 1200);
-                    } else if (isIOS()) {
-                        const now = Date.now();
-                        const iframe = document.createElement('iframe');
-                        iframe.style.display = 'none';
-                        iframe.src = primaryDeeplink;
-                        document.body.appendChild(iframe);
-
-                        setTimeout(() => {
-                            const elapsed = Date.now() - now;
-                            document.body.removeChild(iframe);
-
-                            if (elapsed < 1200) {
-                                // Deeplink failed, open Safari directly using x-safari-https://
-                                window.location.href = `x-safari-${targetLink}`;
-                            }
-                        }, 800);
+                        return;
                     }
-                    return;
-                }
-            }
-            // --- Fallback if no deeplink ---
-            window.location.href = targetLink;
 
+                    // --- In-app browser ---
+                    if (isAppBrowser() && primaryDeeplink) {
+                        if (isAndroid()) {
+                            const start = Date.now();
+                            window.location.href = primaryDeeplink;
+                            setTimeout(() => {
+                                if (Date.now() - start < 1500) {
+                                    window.location.href = normalizeIntentLink(primaryDeeplink);
+                                }
+                            }, 1200);
+                        } else if (isIOS()) {
+                            const now = Date.now();
+                            const iframe = document.createElement('iframe');
+                            iframe.style.display = 'none';
+                            iframe.src = primaryDeeplink;
+                            document.body.appendChild(iframe);
+
+                            setTimeout(() => {
+                                const elapsed = Date.now() - now;
+                                document.body.removeChild(iframe);
+
+                                if (elapsed < 1200) {
+                                    // Deeplink failed, open Safari directly using x-safari-https://
+                                    window.location.href = `x-safari-${targetLink}`;
+                                }
+                            }, 800);
+                        }
+                        return;
+                    }
+                }
+                // --- Fallback if no deeplink ---
+                window.location.href = targetLink;
+            }
         } catch(e) {
             document.body.innerHTML = '<p>Failed to load product page.</p>';
             console.error(e);
