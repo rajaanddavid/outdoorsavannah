@@ -56,6 +56,7 @@
 <link rel="shortlink" href="https://www.outdoorsavannah.com/?p=58">
 <link rel="alternate" title="oEmbed (JSON)" type="application/json+oembed" href="https://www.outdoorsavannah.com/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fhttps%3A%2F%2Fwww.outdoorsavannah.com%2Flicensing%2F">
 <link rel="alternate" title="oEmbed (XML)" type="text/xml+oembed" href="https://www.outdoorsavannah.com/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fhttps%3A%2F%2Fwww.outdoorsavannah.com%2Flicensing%2F#038;format=xml">
+<!-- START HEADER SNIPPET -->
 <!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -91,12 +92,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 		if (location.pathname === "/") return;
 
 		const ua = navigator.userAgent;
-		const isMobile = /iPhone|iPad|iPod|Android/i.test(ua);
+		const isMobile = () => /iPhone|iPad|iPod|Android/i.test(ua);
 		const isAndroid = () => /Android/i.test(ua);
 		const isIOS = () => /iPhone|iPad|iPod/i.test(ua);
-		const isAppBrowser = /Instagram|FBAV|FBAN\/FBIOS|FB_IAB|FB4A|Threads|Barcelona/i.test(ua);
-
-		const appBrowserBypass = sessionStorage.getItem('appBrowserBypass') === 'true';
+		const isAppBrowser = () => /Instagram|FBAV|FBAN\/FBIOS|FB_IAB|FB4A|MetaIAB|Threads|Barcelona/i.test(ua);
 
 		// --- Load Amazon Links ---
 		const res = await fetch('/amazonLinks.json');
@@ -227,19 +226,33 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 				// Android
 				if (isAndroid() && links[`${targetKey}_deeplink_android`]) {
-						deeplink = normalizeIntentLink(links[`${targetKey}_deeplink_android`]);
+						const rawDeeplink = links[`${targetKey}_deeplink_android`];
+						const normalizedDeeplink = normalizeIntentLink(rawDeeplink);
+
+						// On Android, just try to open rawDeeplink via window.location
+						window.location.href = rawDeeplink;
+
+						// Fallback to normalizedIntent if rawDeeplink fails after 1s
+						setTimeout(() => {
+								window.location.href = normalizedDeeplink;
+						}, 1000);
+
+						return; // stop further click handling
 				}
 
 				// iOS
-        if (isIOS()) {
-            if (links[`${targetKey}_deeplink_ios`]) {
-                deeplink = links[`${targetKey}_deeplink_ios`];
-            }
-            // iOS fallback is now x-safari-https:// only
-            fallback = `x-safari-${targetLink}`;
-        }
-
-				if (!appBrowserBypass && isAppBrowser) sessionStorage.setItem('appBrowserBypass', 'true');
+				if (isIOS()) {
+						if (links[`${targetKey}_deeplink_ios`]) {
+								deeplink = links[`${targetKey}_deeplink_ios`];
+						}
+						if (isAppBrowser()) {
+							// If the iOS deeplink fails, fallback to targetLink (or redirect.html)
+							fallback = `x-safari-https://www.outdoorsavannah.com/redirect.html?product=${productName}&variant=${encodeURIComponent(targetKey)}&skipDeeplink=true#${encodeURIComponent(targetKey)}`;
+						} else {
+								// External browser: fallback to normal product link
+								fallback = links[targetKey];
+						}
+				}
 
 				if (deeplink) {
 						tryDeeplink(deeplink, fallback); // Android and iOS both use it
@@ -248,7 +261,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 				}
 			});
 		});
-	});</script><link rel="icon" href="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-150x150.webp" sizes="32x32">
+	});</script>
+<!-- END HEADER SNIPPET -->
+<link rel="icon" href="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-150x150.webp" sizes="32x32">
 <link rel="icon" href="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.webp" sizes="192x192">
 <link rel="apple-touch-icon" href="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.webp">
 <meta name="msapplication-TileImage" content="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.webp">
@@ -284,9 +299,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 		</head>
 
 <body class="wp-singular page-template-default page page-id-58 wp-custom-logo wp-embed-responsive wp-theme-kadence footer-on-bottom hide-focus-outline link-style-standard content-title-style-normal content-width-normal content-style-boxed content-vertical-padding-show non-transparent-header mobile-non-transparent-header">
+<!-- START BODY SNIPPET -->
 <!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NBJRDCGV" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-<!-- End Google Tag Manager (noscript) --><div id="wrapper" class="site wp-site-blocks">
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NBJRDCGV"
+                  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+<!-- END BODY SNIPPET -->
+<div id="wrapper" class="site wp-site-blocks">
 			<a class="skip-link screen-reader-text scroll-ignore" href="#main">Skip to content</a>
 		<header id="masthead" class="site-header" role="banner" itemtype="https://schema.org/WPHeader" itemscope>
 	<div id="main-header" class="site-header-wrap">
