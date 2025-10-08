@@ -231,7 +231,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 				}
 
 				// iOS
-				if (isIOS()) {
+				if (isIOS() && isAppBrowser()) {
 						if (links[`${targetKey}_deeplink_ios`]) {
 								deeplink = links[`${targetKey}_deeplink_ios`];
 						}
