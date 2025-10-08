@@ -37,51 +37,125 @@
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
 
+        // --- Helper to fix relative URLs ---
+        function fixUrl(url) {
+            if (!url || url.startsWith('http://') || url.startsWith('https://') || url.startsWith('//')) {
+                return url;
+            }
+            if (url.startsWith('/')) {
+                return window.location.origin + url;
+            }
+            // Handle relative paths like '../' or 'assets/'
+            const base = window.location.origin + fetchPath.replace(/[^/]*$/, '');
+            return new URL(url, base).href;
+        }
+
         // --- Preload main image ---
         const ogImage = doc.querySelector('meta[property="og:image"]');
         if (ogImage && ogImage.content) {
             const link = document.createElement('link');
             link.rel = 'preload';
             link.as = 'image';
-            link.href = ogImage.content;
+            link.href = fixUrl(ogImage.content);
             document.head.appendChild(link);
 
             // Optional hidden image for faster load
             const img = new Image();
-            img.src = ogImage.content;
+            img.src = fixUrl(ogImage.content);
         }
 
-        // --- Append head elements ---
+        // --- Clear current head (except initial meta/title) ---
+        const initialElements = ['meta[charset]', 'meta[name="viewport"]', 'meta[name="robots"]', 'title', 'link[rel="preload"]'];
+        Array.from(document.head.children).forEach(node => {
+            const isInitial = initialElements.some(sel => node.matches?.(sel));
+            if (!isInitial) node.remove();
+        });
+
+        // --- Append head elements with fixed URLs ---
         Array.from(doc.head.children).forEach(node => {
             const clone = node.cloneNode(true);
-            if (clone.tagName === 'LINK' && clone.href && clone.href.startsWith('/')) {
-                clone.href = window.location.origin + clone.getAttribute('href');
+
+            // Fix link href
+            if (clone.tagName === 'LINK' && clone.href) {
+                clone.href = fixUrl(clone.getAttribute('href'));
             }
-            if (clone.tagName === 'SCRIPT' && clone.src && clone.src.startsWith('/')) {
-                clone.src = window.location.origin + clone.getAttribute('src');
+
+            // Fix script src
+            if (clone.tagName === 'SCRIPT' && clone.src) {
+                clone.src = fixUrl(clone.getAttribute('src'));
             }
+
+            // Fix style URLs (background images, etc.)
+            if (clone.tagName === 'STYLE' && clone.textContent) {
+                clone.textContent = clone.textContent.replace(
+                    /url\(['"]?([^'"()]+)['"]?\)/g,
+                    (match, url) => `url('${fixUrl(url)}')`
+                );
+            }
+
             document.head.appendChild(clone);
         });
 
         // --- Append body <style> tags to head ---
         Array.from(doc.body.querySelectorAll('style')).forEach(styleTag => {
-            document.head.appendChild(styleTag.cloneNode(true));
+            const clone = styleTag.cloneNode(true);
+            if (clone.textContent) {
+                clone.textContent = clone.textContent.replace(
+                    /url\(['"]?([^'"()]+)['"]?\)/g,
+                    (match, url) => `url('${fixUrl(url)}')`
+                );
+            }
+            document.head.appendChild(clone);
         });
 
-        // --- Replace body content ---
-        // Clone the original body
-        const bodyNodes = Array.from(doc.body.childNodes);
-        bodyNodes.forEach(node => document.body.appendChild(node.cloneNode(true)));
+        // --- Clear body and replace content ---
+        document.body.innerHTML = '';
 
-        // Run inline scripts
-        doc.querySelectorAll('script:not([src])').forEach(script => {
+        // Clone body content
+        Array.from(doc.body.childNodes).forEach(node => {
+            const clone = node.cloneNode(true);
+
+            // Fix image sources
+            if (clone.nodeType === 1) { // Element node
+                clone.querySelectorAll?.('img[src], source[srcset], img[srcset]').forEach(img => {
+                    if (img.src) img.src = fixUrl(img.getAttribute('src'));
+                    if (img.srcset) {
+                        img.srcset = img.srcset.split(',').map(src => {
+                            const parts = src.trim().split(/\s+/);
+                            parts[0] = fixUrl(parts[0]);
+                            return parts.join(' ');
+                        }).join(', ');
+                    }
+                });
+            }
+
+            document.body.appendChild(clone);
+        });
+
+        // --- Re-execute scripts ---
+        const scripts = Array.from(doc.body.querySelectorAll('script'));
+        for (const script of scripts) {
             const s = document.createElement('script');
-            s.textContent = script.textContent;
+            if (script.src) {
+                s.src = fixUrl(script.getAttribute('src'));
+                // Wait for external scripts to load
+                if (script.src) {
+                    await new Promise((resolve) => {
+                        s.onload = resolve;
+                        s.onerror = resolve;
+                        document.body.appendChild(s);
+                    });
+                    continue;
+                }
+            } else {
+                s.textContent = script.textContent;
+            }
             document.body.appendChild(s);
-        });
+        }
+
         // Check if we're on the homepage path
-        if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
-          document.body.classList.add('page-id-5');
+        if (productPath === 'home') {
+            document.body.classList.add('page-id-5');
         }
 
         function getProductName() {
@@ -269,7 +343,7 @@
             document.body.innerHTML = '<p>Failed to load product page.</p>';
             console.error(e);
         }
-        })();
+    })();
 </script>
 </body>
 </html>
