@@ -98,10 +98,22 @@
                 document.head.appendChild(clone);
             });
 
+            // --- Append body <style> tags to head ---
+            Array.from(doc.body.querySelectorAll('style')).forEach(styleTag => {
+                document.head.appendChild(styleTag.cloneNode(true));
+            });
+
             // --- Replace body content ---
             const container = document.createElement('div');
             container.innerHTML = doc.body.innerHTML;
             document.body.appendChild(container);
+
+            // --- Execute inline scripts ---
+            Array.from(doc.querySelectorAll('script:not([src])')).forEach(script => {
+                const s = document.createElement('script');
+                s.textContent = script.textContent;
+                document.body.appendChild(s);
+            });
 
             function updateAllLinksSimple(productName, amazonLinks) {
                 const links = amazonLinks[productName];
