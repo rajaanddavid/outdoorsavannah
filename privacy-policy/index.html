@@ -89,8 +89,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
 <script>document.addEventListener('DOMContentLoaded', async () => {
-		// Skip homepage
-		if (location.pathname === "/") return;
 
 		const ua = navigator.userAgent;
 		const isMobile = () => /iPhone|iPad|iPod|Android/i.test(ua);
@@ -102,12 +100,19 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 		const res = await fetch('/amazonLinks.json');
 		const amazonLinks = await res.json();
 
-		// --- Get product slug ---
-		const pathParts = location.pathname.split('/').filter(Boolean);
-		let productName = pathParts[pathParts.length - 1];
-		if (pathParts[0] === "product" && pathParts.length > 1) {
-			productName = `product/${productName}`;
-		}
+    const pathParts = location.pathname.split('/').filter(Boolean);
+    let productName;
+
+    // Handle homepage
+    if (location.pathname === "/") {
+      productName = "home";
+    } else {
+      // --- Get product slug ---
+      productName = pathParts[pathParts.length - 1];
+      if (pathParts[0] === "product" && pathParts.length > 1) {
+        productName = `product/${productName}`;
+      }
+    }
 
 		const links = amazonLinks[pathParts[pathParts.length - 1]] || amazonLinks[productName];
 		if (!links) return;
@@ -274,7 +279,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     min-width: 100px;
     min-height: 40px;
     font-size: 16px; /* Adjust font size */
-    border-radius: 50px; /* Add rounded corners */
+    border-radius: 50px; !important /* Add rounded corners */
 	}
 /*Button outline color (OJ)*/
 .page-id-5 .wp-block-button.is-style-outline .wp-block-button__link {
