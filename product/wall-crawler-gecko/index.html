@@ -91,10 +91,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 		if (location.pathname === "/") return;
 
 		const ua = navigator.userAgent;
-		const isMobile = /iPhone|iPad|iPod|Android/i.test(ua);
+		const isMobile = () => /iPhone|iPad|iPod|Android/i.test(ua);
 		const isAndroid = () => /Android/i.test(ua);
 		const isIOS = () => /iPhone|iPad|iPod/i.test(ua);
-		const isAppBrowser () => /Instagram|FBAV|FBAN\/FBIOS|FB_IAB|FB4A|MetaIAB|Threads|Barcelona/i.test(ua);
+		const isAppBrowser = () => /Instagram|FBAV|FBAN\/FBIOS|FB_IAB|FB4A|MetaIAB|Threads|Barcelona/i.test(ua);
 
 		// --- Load Amazon Links ---
 		const res = await fetch('/amazonLinks.json');
