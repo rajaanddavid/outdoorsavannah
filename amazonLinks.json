@@ -140,9 +140,9 @@
   "shelf-brackets": {
     "amazon": "https://amzn.to/4bedTn0",
     "amazon_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/Brackets-Screws-Support-Shelves-Floating/dp/B0CQF864ZD?tag=outdoorsavann-20",
-    "amazon_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/Brackets-Screws-Support-Shelves-Floating/dp/B0CQF864ZD?tag=outdoorsavann-20",
+    "amazon_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/Brackets-Screws-Support-Shelves-Floating/dp/B0CQF864ZD?tag=outdoorsavann-20"
   },
-  "amazon": {
+  "amzn": {
     "store": "https://amzn.to/3W0Dc5I",
     "store_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/shop/rajaanddavid?tag=outdoorsavann-20",
     "store_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/shop/rajaanddavid?tag=outdoorsavann-20",
