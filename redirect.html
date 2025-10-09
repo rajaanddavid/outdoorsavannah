@@ -245,18 +245,18 @@
                         if (match) key = match[1].toLowerCase();
                     }
 
+
                     // Title starts with extralink
                     if (!key && linkEl.hasAttribute('title')) {
-                        const title = linkEl.getAttribute('title').trim();
-                        const match = title.match(/^extralink[-_]?([\w-]+)/i);
-                        if (match) key = match[1].toLowerCase();
+                        const title = linkEl.getAttribute('title').trim().toLowerCase();
+                        if (title.startsWith('extralink')) key = title; // use full title as key
                     }
 
                     // li[id^="extralink"] a
                     if (!key && linkEl.closest('li[id^="extralink"]')) {
                         const li = linkEl.closest('li[id^="extralink"]');
-                        const idMatch = li.id.match(/^extralink[-_]?([\w-]+)/i);
-                        if (idMatch) key = idMatch[1].toLowerCase();
+                        const liId = li.id.trim().toLowerCase();
+                        if (liId.startsWith('extralink')) key = liId; // use full ID as key
                     }
 
                     // Fallback: infer from URL
