@@ -327,19 +327,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     }    
 }
 
-/* Make only regular text links blue - exclude ALL button types and social icons */
-p a:not(.wp-block-button__link),
-.entry-content > a:not(.wp-block-button__link),
-.has-text-align-center > a:not(.wp-block-button__link):not([class*="wp-block-social"]) {
-    color: #0066cc !important;
-}
-
-p a:not(.wp-block-button__link):hover,
-.entry-content > a:not(.wp-block-button__link):hover,
-.has-text-align-center > a:not(.wp-block-button__link):not([class*="wp-block-social"]):hover {
-    color: #004499 !important;
-}
-
 /* Dark mode adjustments */
 @media (prefers-color-scheme: dark) {
     /* Background and text colors for Kadence theme */
@@ -419,61 +406,35 @@ p a:not(.wp-block-button__link):hover,
         color: #99ccff !important;
     }
     
-    /* CookieYes Banner Dark Mode Styling */
-    #cookie-law-info-bar,
-    .cli-bar-container,
-    .cli-style-v2,
-    #cliSettingsPopup {
+    /* CookieYes Banner - try multiple selectors */
+    div[id*="cookie"],
+    div[class*="cookie"],
+    div[class*="cky"],
+    .cky-consent-container,
+    .cky-consent-bar,
+    [data-cky-tag="detail"],
+    [data-cky-tag="notice"] {
         background-color: #1a1a1a !important;
         color: #f0f0f0 !important;
-        border-color: #333333 !important;
     }
     
     /* CookieYes text */
-    #cookie-law-info-bar span,
-    #cookie-law-info-bar p,
-    #cookie-law-info-bar a:not(.cli-plugin-button),
-    .cli-bar-message,
-    .cli-tab-header,
-    .cli-tab-content,
-    .cli-privacy-content-text {
+    div[id*="cookie"] span,
+    div[id*="cookie"] p,
+    div[id*="cookie"] div,
+    div[class*="cookie"] span,
+    div[class*="cookie"] p,
+    div[class*="cky"] span,
+    div[class*="cky"] p {
         color: #f0f0f0 !important;
     }
     
-    /* CookieYes links */
-    #cookie-law-info-bar a:not(.cli-plugin-button),
-    .cli-privacy-readmore {
-        color: #66b3ff !important;
-    }
-    
-    /* CookieYes buttons - keep their original colors or adjust */
-    .cli-plugin-button,
-    .cli-plugin-main-button,
-    #cookie_action_close_header {
-        /* Let them keep their original colors, or customize here */
+    /* CookieYes buttons */
+    div[id*="cookie"] button,
+    div[class*="cookie"] button,
+    div[class*="cky"] button,
+    .cky-btn {
         border-color: #ffffff !important;
-    }
-    
-    /* CookieYes settings popup */
-    .cli-modal-dialog,
-    .cli-modal-content,
-    .cli-privacy-overview {
-        background-color: #1a1a1a !important;
-        color: #f0f0f0 !important;
-    }
-    
-    /* CookieYes toggle switches */
-    .cli-switch input:checked + .cli-slider {
-        background-color: #4CAF50 !important;
-    }
-    
-    /* CookieYes table in settings */
-    .cli-tab-content table,
-    .cli-tab-content table th,
-    .cli-tab-content table td {
-        background-color: #252525 !important;
-        color: #f0f0f0 !important;
-        border-color: #333333 !important;
     }
     
     /* BACK TO PRODUCTS BUTTON - Keep original theme colors */
