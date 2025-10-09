@@ -134,21 +134,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 			}
 		}
 
-		// --- Try deeplink function ---
-		function tryDeeplink(deeplink, fallback) {
-			const now = Date.now();
-			const iframe = document.createElement('iframe');
-			iframe.style.display = 'none';
-			iframe.src = deeplink;
-			document.body.appendChild(iframe);
-
-			setTimeout(() => {
-				const elapsed = Date.now() - now;
-				if (elapsed < 1000) window.location.href = fallback;
-				document.body.removeChild(iframe);
-			}, 800);
-		}
-
 		// --- Update buy buttons hrefs immediately for desktop & all links ---
 		document.querySelectorAll('.buy-button a.wp-block-button__link').forEach(button => {
 			const titleAttr = button.getAttribute('title');
@@ -220,66 +205,83 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 				let deeplink = null;
 				let fallback = targetLink;
 
-        // Android handling - replace your existing Android section with this:
-        if (isAndroid() && links[`${targetKey}_deeplink_android`]) {
-            const rawDeeplink = links[`${targetKey}_deeplink_android`];
-            const normalizedDeeplink = normalizeIntentLink(rawDeeplink);
-            const webFallback = targetLink;
+
+        if (isAndroid()) {
+            if (links[`${targetKey}_deeplink_android`]) {
+                deeplink = links[`${targetKey}_deeplink_android`];
+            }
 
             if (isAppBrowser()) {
-                // In-app browser: try raw deeplink, then normalized, then web fallback
-                const start = Date.now();
-                window.location.href = rawDeeplink;
+                // Try deeplink first with iframe
+                const now = Date.now();
+                const iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                iframe.src = deeplink;
+                document.body.appendChild(iframe);
 
                 setTimeout(() => {
-                    if (Date.now() - start < 1500) {
-                        const start2 = Date.now();
+                    const elapsed = Date.now() - now;
+                    if (elapsed < 1500) {
+                        document.body.removeChild(iframe);
+                        const normalizedDeeplink = normalizeIntentLink(fallback);
                         window.location.href = normalizedDeeplink;
 
-                        // Final fallback to web link if normalized intent also fails
                         setTimeout(() => {
-                            if (Date.now() - start2 < 1500) {
-                                window.location.href = webFallback;
-                            }
+                            window.location.href = fallback;
                         }, 1200);
+                    } else {
+                        document.body.removeChild(iframe);
                     }
                 }, 1200);
             } else {
-                // External browser: try raw deeplink, then web fallback
-                const start = Date.now();
-                window.location.href = rawDeeplink;
+                // Not in app browser - try deeplink, fallback after 1200ms
+                const now = Date.now();
+                const iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                iframe.src = deeplink;
+                document.body.appendChild(iframe);
 
                 setTimeout(() => {
-                    if (Date.now() - start < 1500) {
-                        window.location.href = webFallback;
+                    const elapsed = Date.now() - now;
+                    if (elapsed < 1500) {
+                        window.location.href = fallback;
                     }
+                    document.body.removeChild(iframe);
                 }, 1200);
             }
-            return; // stop further click handling
+            return; // Stop here for Android
         }
 
-				// iOS
-				if (isIOS()) {
-						if (links[`${targetKey}_deeplink_ios`]) {
-								deeplink = links[`${targetKey}_deeplink_ios`];
-						}
-						if (isAppBrowser()) {
-							// If the iOS deeplink fails, fallback to targetLink (or redirect.html)
-							fallback = `x-safari-https://www.outdoorsavannah.com/redirect.html?product=${productName}&variant=${encodeURIComponent(targetKey)}&skipDeeplink=true#${encodeURIComponent(targetKey)}`;
-						} else {
-								// External browser: fallback to normal product link
-								fallback = links[targetKey];
-						}
-				}
+        if (isIOS()) {
+            if (links[`${targetKey}_deeplink_ios`]) {
+                deeplink = links[`${targetKey}_deeplink_ios`];
+            }
 
-				if (deeplink) {
-						tryDeeplink(deeplink, fallback); // Android and iOS both use it
-				} else {
-						window.location.href = fallback;
-				}
-			});
-		});
-	});</script>
+            if (isAppBrowser()) {
+                fallback = `x-safari-https://www.outdoorsavannah.com/redirect.html?product=${productName}&variant=${encodeURIComponent(targetKey)}&skipDeeplink=true#${encodeURIComponent(targetKey)}`;
+            }
+
+            // Try deeplink with iframe (inline tryDeeplink logic)
+            const now = Date.now();
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = deeplink;
+            document.body.appendChild(iframe);
+
+            setTimeout(() => {
+                const elapsed = Date.now() - now;
+                if (elapsed < 1200) window.location.href = fallback;
+                document.body.removeChild(iframe);
+            }, 1000);
+
+            return; // Stop here for iOS
+        }
+
+        // Desktop - go directly to target link (no deeplink needed)
+        window.location.href = fallback;
+    });
+});
+</script>
 <!-- END HEADER SNIPPET -->
 <link rel="icon" href="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-150x150.webp" sizes="32x32">
 <link rel="icon" href="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.webp" sizes="192x192">
