@@ -29,7 +29,8 @@
         const params = new URLSearchParams(window.location.search);
         // --- If user is returning from Meta app, skip deeplink ---
         // --- Check skipDeeplink param instead of fbclid ---
-        const skipDeeplink = params.get('skipDeeplink') === 'true';
+        const fbclid = params.get('fbclid');
+        const skipDeeplink = params.get('skipDeeplink') === 'true' || !!fbclid;
         const productPath = params.get('product'); // e.g., "product/leash"
         if (!productPath) {
             document.body.innerHTML = '<p>Error: No product specified.</p>';
