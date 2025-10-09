@@ -233,14 +233,25 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 				if (isAndroid() && links[`${targetKey}_deeplink_android`]) {
 						const rawDeeplink = links[`${targetKey}_deeplink_android`];
 						const normalizedDeeplink = normalizeIntentLink(rawDeeplink);
+						const webFallback = targetLink; // define fallback
 
 						// On Android, just try to open rawDeeplink via window.location
 						window.location.href = rawDeeplink;
 
-						// Fallback to normalizedIntent if rawDeeplink fails after 1s
-						setTimeout(() => {
-								window.location.href = normalizedDeeplink;
-						}, 1000);
+            // Step 2: fallback to normalized intent after 1200ms
+            setTimeout(() => {
+                // Use iframe for normalized intent
+                const iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                iframe.src = normalizedDeeplink;
+                document.body.appendChild(iframe);
+
+                // Step 3: fallback to web link after another 1200ms
+                setTimeout(() => {
+                    document.body.removeChild(iframe);
+                    window.location.href = webFallback;
+                }, 1200);
+            }, 1200);
 
 						return; // stop further click handling
 				}
