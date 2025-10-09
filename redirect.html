@@ -317,12 +317,36 @@
                     // --- Mobile outside app browser ---
                     if (!isAppBrowser() && primaryDeeplink) {
                         const start = Date.now();
-                        window.location.href = primaryDeeplink;
-                        setTimeout(() => {
-                            if (Date.now() - start < 1500) {
-                                window.location.href = targetLink;
-                            }
-                        }, 1200);
+
+                        if (isAndroid()) {
+                            // Try opening the Android app directly
+                            window.location.href = primaryDeeplink;
+
+                            // If app doesn't open, fall back to web target
+                            setTimeout(() => {
+                                if (Date.now() - start < 1500) {
+                                    window.location.href = targetLink;
+                                }
+                            }, 1200);
+
+                        } else if (isIOS()) {
+                            // Use hidden iframe for iOS deeplink (works in Safari)
+                            const iframe = document.createElement('iframe');
+                            iframe.style.display = 'none';
+                            iframe.src = primaryDeeplink;
+                            document.body.appendChild(iframe);
+
+                            setTimeout(() => {
+                                const elapsed = Date.now() - start;
+                                document.body.removeChild(iframe);
+
+                                if (elapsed < 1200) {
+                                    // Deeplink failed, open Safari link normally
+                                    window.location.href = targetLink;
+                                }
+                            }, 1000);
+                        }
+
                         return;
                     }
 
@@ -351,7 +375,7 @@
                                     // Deeplink failed, open Safari directly using x-safari-https://
                                     window.location.href = `x-safari-${targetLink}`;
                                 }
-                            }, 800);
+                            }, 1000);
                         }
                         return;
                     }
