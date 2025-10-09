@@ -229,22 +229,26 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 						// On Android, just try to open rawDeeplink via window.location
 						window.location.href = rawDeeplink;
 
-            // Step 2: fallback to normalized intent after 1200ms
             setTimeout(() => {
-                // Use iframe for normalized intent
-                const iframe = document.createElement('iframe');
-                iframe.style.display = 'none';
-                iframe.src = normalizedDeeplink;
-                document.body.appendChild(iframe);
+                if (isAppBrowser()) {
+                    // Step 2: fallback to normalized intent after 1200ms
+                    // Use iframe for normalized intent
+                    const iframe = document.createElement('iframe');
+                    iframe.style.display = 'none';
+                    iframe.src = normalizedDeeplink;
+                    document.body.appendChild(iframe);
 
-                // Step 3: fallback to web link after another 1200ms
-                setTimeout(() => {
-                    document.body.removeChild(iframe);
-                    window.location.href = webFallback;
-                }, 1200);
+                    // Step 3: fallback to web link after another 1200ms
+                    setTimeout(() => {
+                        document.body.removeChild(iframe);
+                        window.location.href = webFallback;
+                    }, 1200);
+                } else {
+                    // External browser: skip normalized intent, just go to web fallback
+                    window.location.href = rawDeeplink || webFallback;
+                }
             }, 1200);
-
-						return; // stop further click handling
+            return; // stop further click handling
 				}
 
 				// iOS
