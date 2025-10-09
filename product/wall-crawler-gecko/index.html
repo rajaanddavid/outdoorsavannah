@@ -229,36 +229,43 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 				let deeplink = null;
 				let fallback = targetLink;
 
-				// Android
-				if (isAndroid() && links[`${targetKey}_deeplink_android`]) {
-						const rawDeeplink = links[`${targetKey}_deeplink_android`];
-						const normalizedDeeplink = normalizeIntentLink(rawDeeplink);
-						const webFallback = targetLink; // define fallback
+        // Android handling - replace your existing Android section with this:
+        if (isAndroid() && links[`${targetKey}_deeplink_android`]) {
+            const rawDeeplink = links[`${targetKey}_deeplink_android`];
+            const normalizedDeeplink = normalizeIntentLink(rawDeeplink);
+            const webFallback = targetLink;
 
-						// On Android, just try to open rawDeeplink via window.location
-						window.location.href = rawDeeplink;
+            if (isAppBrowser()) {
+                // In-app browser: try raw deeplink, then normalized, then web fallback
+                const start = Date.now();
+                window.location.href = rawDeeplink;
 
-            setTimeout(() => {
-                if (isAppBrowser()) {
-                    // Step 2: fallback to normalized intent after 1200ms
-                    // Use iframe for normalized intent
-                    const iframe = document.createElement('iframe');
-                    iframe.style.display = 'none';
-                    iframe.src = normalizedDeeplink;
-                    document.body.appendChild(iframe);
+                setTimeout(() => {
+                    if (Date.now() - start < 1500) {
+                        const start2 = Date.now();
+                        window.location.href = normalizedDeeplink;
 
-                    // Step 3: fallback to web link after another 1200ms
-                    setTimeout(() => {
-                        document.body.removeChild(iframe);
+                        // Final fallback to web link if normalized intent also fails
+                        setTimeout(() => {
+                            if (Date.now() - start2 < 1500) {
+                                window.location.href = webFallback;
+                            }
+                        }, 1200);
+                    }
+                }, 1200);
+            } else {
+                // External browser: try raw deeplink, then web fallback
+                const start = Date.now();
+                window.location.href = rawDeeplink;
+
+                setTimeout(() => {
+                    if (Date.now() - start < 1500) {
                         window.location.href = webFallback;
-                    }, 1200);
-                } else {
-                    // External browser: skip normalized intent, just go to web fallback
-                    window.location.href = rawDeeplink || webFallback;
-                }
-            }, 1200);
+                    }
+                }, 1200);
+            }
             return; // stop further click handling
-				}
+        }
 
 				// iOS
 				if (isIOS()) {
