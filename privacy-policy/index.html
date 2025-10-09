@@ -114,8 +114,25 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       }
     }
 
-		const links = amazonLinks[pathParts[pathParts.length - 1]] || amazonLinks[productName];
-		if (!links) return;
+
+    //////////////////
+    const links = amazonLinks[pathParts[pathParts.length - 1]] || amazonLinks[productName];
+    console.log('=== DEBUG START ===');
+    console.log('links object:', links);
+    console.log('links is truthy?', !!links);
+    if (!links) {
+        console.log('❌ No links found! Exiting early.');
+        return;
+    }
+
+    console.log('Buttons found:', document.querySelectorAll('.buy-button a.wp-block-button__link'));
+    console.log('Extralinks found:', document.querySelectorAll('a[title^="extralink"]'));
+    console.log('=== DEBUG END ===');
+
+
+
+		// const links = amazonLinks[pathParts[pathParts.length - 1]] || amazonLinks[productName];
+		// if (!links) return;
 
 		// --- Minimal normalizeIntentLink for Android ---
 		function normalizeIntentLink(url) {
@@ -146,6 +163,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 		// --- Update buy buttons hrefs immediately for desktop & all links ---
 		document.querySelectorAll('.buy-button a.wp-block-button__link').forEach(button => {
+      console.log('Processing button:', button);
 			const titleAttr = button.getAttribute('title');
 			let targetKey = null;
 
