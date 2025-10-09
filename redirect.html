@@ -298,7 +298,7 @@
                 return;
             }
 
-            if (isMobile() && !sessionStorage.getItem('redirectedOnce')) {
+            if (isMobile() && fetchPath !== '/' && !sessionStorage.getItem('redirectedOnce')) {
                 sessionStorage.setItem('redirectedOnce', 'true');
 
                 // --- Determine primary deeplink ---
