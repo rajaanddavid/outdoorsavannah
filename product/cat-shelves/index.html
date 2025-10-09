@@ -293,16 +293,16 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     flex-wrap: wrap;
     justify-content: center;
     align-items: center;
-    gap: 10px;
-    width: 350px; /* Changed to width instead of max-width for exact sizing */
+    gap: 1px;
+    width: 350px;
     margin-left: auto;
     margin-right: auto;
 }
 
 /* Make individual button wrappers appropriate width */
 .page-id-5 .wp-block-buttons > .wp-block-button {
-    flex: 1 1 calc(50% - 5px); /* Split into two equal columns with gap */
-    min-width: 0; /* Allow flex to shrink below content size */
+    flex: 1 1 calc(50% - 5px);
+    min-width: 0;
 }
 
 /* Make button links fill their container */
@@ -316,6 +316,113 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 @media (max-width: 600px) {
     .page-id-5 .wp-block-buttons {
         width: 90%;
+    }
+    
+    .wp-block-buttons > .wp-block-button {
+        width: 100%;
+    }
+    
+    a.wp-block-button__link {
+        display: block;
+    }    
+}
+
+/* Make only regular text links blue - exclude ALL button types and social icons */
+p a:not(.wp-block-button__link),
+.entry-content > a:not(.wp-block-button__link),
+.has-text-align-center > a:not(.wp-block-button__link):not([class*="wp-block-social"]) {
+    color: #0066cc !important;
+}
+
+p a:not(.wp-block-button__link):hover,
+.entry-content > a:not(.wp-block-button__link):hover,
+.has-text-align-center > a:not(.wp-block-button__link):not([class*="wp-block-social"]):hover {
+    color: #004499 !important;
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+    /* Background and text colors for Kadence theme */
+    body,
+    .site,
+    .site-content,
+    .content-bg,
+    article,
+    .entry-content {
+        background-color: #0d0d0d !important;
+        color: #f0f0f0 !important;
+    }
+    
+    /* Invert the cat logo to white - ALL PAGES */
+    img[src*="logo"], 
+    .site-logo img,
+    .site-branding img,
+    .custom-logo,
+    img.wp-image-318 {
+        filter: brightness(0) invert(1) !important;
+    }
+    
+    /* TOP NAVIGATION MENU - Fix white background */
+    .site-header,
+    .site-top-header,
+    .site-main-header,
+    .header-navigation,
+    nav,
+    .primary-navigation,
+    .site-header-wrap,
+    #masthead {
+        background-color: #0d0d0d !important;
+    }
+    
+    /* Navigation links */
+    .site-header a,
+    .header-navigation a,
+    .primary-navigation a,
+    .main-navigation a {
+        color: #f0f0f0 !important;
+    }
+    
+    /* Email button - white outline, black fill, white text */
+    .page-id-5 a.wp-block-button__link[href^="mailto:"] {
+        background-color: #000000 !important;
+        color: #ffffff !important;
+        border-color: #ffffff !important;
+    }
+    
+    /* Keep all OTHER button colors the same - just update border to white */
+    .page-id-5 .wp-block-button__link:not([href^="mailto:"]) {
+        border-color: #ffffff !important;
+    }
+    
+    /* Text elements that need white color */
+    h1, h2, h3, h4, h5, h6, 
+    p:not([style*="color:#000000"]) {
+        color: #f0f0f0 !important;
+    }
+    
+    /* Keep specific black text elements as white in dark mode */
+    p[style*="color:#000000"],
+    .has-text-color[style*="color:#000000"] {
+        color: #f0f0f0 !important;
+    }
+    
+    /* Make only regular text links light blue in dark mode */
+    p a:not(.wp-block-button__link),
+    .entry-content > a:not(.wp-block-button__link),
+    .has-text-align-center > a:not(.wp-block-button__link):not([class*="wp-block-social"]) {
+        color: #66b3ff !important;
+    }
+    
+    p a:not(.wp-block-button__link):hover,
+    .entry-content > a:not(.wp-block-button__link):hover,
+    .has-text-align-center > a:not(.wp-block-button__link):not([class*="wp-block-social"]):hover {
+        color: #99ccff !important;
+    }
+    
+    /* BACK TO PRODUCTS BUTTON - Keep original theme colors */
+    a.wp-block-button__link.has-theme-palette-3-color.has-theme-palette-9-background-color {
+        /* Let WordPress theme colors handle it naturally */
+        filter: none !important;
     }
 }</style>
 		</head>
