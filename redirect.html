@@ -298,8 +298,11 @@
                 return;
             }
 
-            if (isMobile() && fetchPath !== '/' && !sessionStorage.getItem('redirectedOnce')) {
-                sessionStorage.setItem('redirectedOnce', 'true');
+            if (isMobile() && !sessionStorage.getItem('redirectedOnce')) {
+                // Only set redirectedOnce for non-home pages
+                if (fetchPath !== '/') {
+                    sessionStorage.setItem('redirectedOnce', 'true');
+                }
 
                 // --- Determine primary deeplink ---
                 let primaryDeeplink = null;
