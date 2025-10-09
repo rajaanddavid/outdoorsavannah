@@ -38,7 +38,7 @@
 
         // --- Fetch original product page HTML ---
         let fetchPath = '/' + productPath + '/';
-        if (productPath === 'home') fetchPath = '/'; // homepage
+        if (productPath === 'home' || productPath === 'amazon') fetchPath = '/'; // homepage or amazon storefront
         const res = await fetch(fetchPath);
         const html = await res.text();
         const parser = new DOMParser();

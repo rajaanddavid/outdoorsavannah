@@ -140,6 +140,17 @@
   "shelf-brackets": {
     "amazon": "https://amzn.to/4bedTn0",
     "amazon_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/Brackets-Screws-Support-Shelves-Floating/dp/B0CQF864ZD?tag=outdoorsavann-20",
-    "amazon_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/Brackets-Screws-Support-Shelves-Floating/dp/B0CQF864ZD?tag=outdoorsavann-20"
+    "amazon_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/Brackets-Screws-Support-Shelves-Floating/dp/B0CQF864ZD?tag=outdoorsavann-20",
+  },
+  "amazon": {
+    "store": "https://amzn.to/3W0Dc5I",
+    "store_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/shop/rajaanddavid?tag=outdoorsavann-20",
+    "store_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/shop/rajaanddavid?tag=outdoorsavann-20",
+    "outdoor-adventures": "https://amzn.to/480dHWz",
+    "outdoor-adventures_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/shop/rajaanddavid/list/D5GVMCFY9TDS?tag=outdoorsavann-20",
+    "outdoor-adventures_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/shop/rajaanddavid/list/D5GVMCFY9TDS?tag=outdoorsavann-20",
+    "cat-wall": "https://amzn.to/4h95x3G",
+    "cat-wall_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/shop/rajaanddavid/list/3M3WUJCG1SKBV?tag=outdoorsavann-20",
+    "cat-wall_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/shop/rajaanddavid/list/3M3WUJCG1SKBV?tag=outdoorsavann-20"
   }
 }
