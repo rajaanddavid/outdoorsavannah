@@ -291,9 +291,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                         setTimeout(() => {
                             window.location.href = fallback;
                         }, 1200);
-                    } else {
-                        iframe.remove();
-                        // If user interacted with prompt, just wait - they'll handle it
                     }
                 }, 1200);
             } else {
