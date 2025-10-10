@@ -342,14 +342,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                         iframe2.style.display = 'none';
                         iframe2.src = normalizedDeeplink;
                         document.body.appendChild(iframe2);
-
-                        // Final fallback to web URL
-                        setTimeout(() => {
-                            iframe2.remove();
-                            if (!document.hidden) {
-                                window.location.href = fallback;
-                            }
-                        }, 1200);
                     }
                 }, 1200);
             } else {
