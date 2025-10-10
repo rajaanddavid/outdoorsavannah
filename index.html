@@ -240,19 +240,27 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                 };
                 document.addEventListener('visibilitychange', handleVisibilityChange);
 
-                window.location.href = deeplink;
+                const iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                iframe.src = deeplink;
+                document.body.appendChild(iframe);
+
 
                 setTimeout(() => {
                     document.removeEventListener('visibilitychange', handleVisibilityChange);
+                    const elapsed = Date.now() - now;
 
                     // Only fallback if user didn't leave page
-                    if (!hasLeftPage) {
+                    if (!hasLeftPage && elapsed < 1500) {
+                        document.body.removeChild(iframe);
                         const normalizedDeeplink = normalizeIntentLink(fallback);
                         window.location.href = normalizedDeeplink;
 
                         setTimeout(() => {
                             window.location.href = fallback;
                         }, 1200);
+                    } else {
+                        document.body.removeChild(iframe);
                     }
                 }, 1200);
             } else {
@@ -271,8 +279,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
                 setTimeout(() => {
                     document.removeEventListener('visibilitychange', handleVisibilityChange);
+                    const elapsed = Date.now() - now;
 
-                    if (!hasLeftPage) {
+                    if (!hasLeftPage && elapsed < 1500) {
                         window.location.href = fallback;
                     }
                 }, 1200);
@@ -287,37 +296,60 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
             if (isAppBrowser()) {
                 fallback = `x-safari-https://www.outdoorsavannah.com/redirect.html?product=${productName}&variant=${encodeURIComponent(targetKey)}&skipDeeplink=true#${encodeURIComponent(targetKey)}`;
+
+                // Try deeplink with iframe
+                const now = Date.now();
+                let hasLeftPage = false;
+
+                const handleVisibilityChange = () => {
+                    if (document.hidden) {
+                        hasLeftPage = true;
+                    }
+                };
+                document.addEventListener('visibilitychange', handleVisibilityChange);
+
+                const iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                iframe.src = deeplink;
+                document.body.appendChild(iframe);
+
+                setTimeout(() => {
+                    document.removeEventListener('visibilitychange', handleVisibilityChange);
+                    const elapsed = Date.now() - now;
+
+                    if (!hasLeftPage && elapsed < 1200) {
+                        window.location.href = fallback;
+                    }
+                    document.body.removeChild(iframe);
+                }, 1000);
+            } else {
+                // Not in app browser - direct navigation (no iframe)
+                const now = Date.now();
+                let hasLeftPage = false;
+
+                const handleVisibilityChange = () => {
+                    if (document.hidden) {
+                        hasLeftPage = true;
+                    }
+                };
+                document.addEventListener('visibilitychange', handleVisibilityChange);
+
+                window.location.href = deeplink;
+
+                setTimeout(() => {
+                    document.removeEventListener('visibilitychange', handleVisibilityChange);
+                    const elapsed = Date.now() - now;
+
+                    if (!hasLeftPage && elapsed < 1200) {
+                        window.location.href = fallback;
+                    }
+                }, 1000);
             }
-
-            // Try deeplink with iframe
-            let hasLeftPage = false;
-
-            const handleVisibilityChange = () => {
-                if (document.hidden) {
-                    hasLeftPage = true;
-                }
-            };
-            document.addEventListener('visibilitychange', handleVisibilityChange);
-
-            const iframe = document.createElement('iframe');
-            iframe.style.display = 'none';
-            iframe.src = deeplink;
-            document.body.appendChild(iframe);
-
-            setTimeout(() => {
-                document.removeEventListener('visibilitychange', handleVisibilityChange);
-
-                if (!hasLeftPage) {
-                    window.location.href = fallback;
-                }
-                document.body.removeChild(iframe);
-            }, 1000);
 
             return;
         }
-
-        // Desktop - go directly to target link (no deeplink needed)
-        window.location.href = fallback;
+    // Desktop - go directly to target link (no deeplink needed)
+    window.location.href = fallback;
     });
     });
 });
