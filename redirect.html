@@ -362,18 +362,16 @@
                             document.body.appendChild(iframe);
 
                             setTimeout(() => {
-                                iframe.remove();
-
                                 if (Date.now() - now < 1500) {
-                                    const normalizedIframe = document.createElement('iframe');
-                                    normalizedIframe.style.display = 'none';
-                                    normalizedIframe.src = normalizeIntentLink(primaryDeeplink);
-                                    document.body.appendChild(normalizedIframe);
+                                    iframe.remove();
+                                    const normalizedDeeplink = normalizeIntentLink(primaryDeeplink);
+                                    window.location.href = normalizedDeeplink;
 
                                     setTimeout(() => {
-                                        normalizedIframe.remove();
                                         window.location.href = targetLink;
                                     }, 1200);
+                                } else {
+                                    iframe.remove();
                                 }
                             }, 1200);
                         } else if (isIOS()) {
