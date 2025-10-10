@@ -24,10 +24,19 @@ document.addEventListener("DOMContentLoaded", function() {
     const url = new URL(window.location.href);
 
     // --- Extract slug from path ---
-    let slug = "cat-shelves";
+    let slug = "home"; // default
     const pathSegments = url.pathname.split("/").filter(Boolean);
     if (pathSegments[0] === "preview" && pathSegments[1]) {
-        slug = pathSegments[1].split("-")[0]; // remove variant suffix
+        slug = pathSegments[1];
+
+        // Remove variant suffix if it's a product (not a protected slug)
+        const protectedSlugs = ["home", "product", "cat-shelf-guide"];
+        if (!protectedSlugs.includes(slug)) {
+            const dashIndex = slug.indexOf("-");
+            if (dashIndex > 0) {
+                slug = slug.substring(0, dashIndex);
+            }
+        }
     }
 
     // --- Determine variant from query ---
@@ -40,8 +49,9 @@ document.addEventListener("DOMContentLoaded", function() {
     const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
     // --- Construct redirect URL ---
+    const protectedSlugs = ["home", "product", "cat-shelf-guide"];
     let redirectUrl;
-    if (slug === "home" || slug === "cat-shelf-guide" || slug === "product") {
+    if (protectedSlugs.includes(slug)) {
         redirectUrl = "/redirect.html?product=" + slug;
     } else {
         redirectUrl = "/redirect.html?product=product/" + slug;
