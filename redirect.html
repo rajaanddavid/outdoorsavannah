@@ -396,14 +396,16 @@
                                 document.removeEventListener('visibilitychange', handleVisibilityChange);
                                 const elapsed = Date.now() - now;
 
-                                if (!hasLeftPage && elapsed < 1500) {
+                                if (!hasLeftPage) {
                                     iframe.remove();
                                     const normalizedDeeplink = normalizeIntentLink(primaryDeeplink);
                                     window.location.href = normalizedDeeplink;
 
                                     setTimeout(() => {
-                                        window.location.href = targetLink;
-                                    }, 1200);
+                                        if (document.visibilityState === 'visible') {
+                                            window.location.href = targetLink;
+                                        }
+                                    }, 2500);
                                 }
                             }, 1200);
                             return;
