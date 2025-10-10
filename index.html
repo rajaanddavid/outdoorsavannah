@@ -260,12 +260,18 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                 // Only try normalized deeplink if user didn't interact with first prompt
                 if (!hasLeftPage && !userInteractedWithPrompt && elapsed < 1500) {
                     document.body.removeChild(iframe);
-                    const normalizedDeeplink = normalizeIntentLink(fallback);
-                    window.location.href = normalizedDeeplink;
 
+                    // Wait longer before normalized deeplink to let first popup fully resolve
                     setTimeout(() => {
-                        window.location.href = fallback;
-                    }, 1200);
+                        if (!hasLeftPage) { // Check again
+                            const normalizedDeeplink = normalizeIntentLink(fallback);
+                            window.location.href = normalizedDeeplink;
+
+                            setTimeout(() => {
+                                window.location.href = fallback;
+                            }, 1200);
+                        }
+                    }, 800); // Longer delay
                 } else {
                     document.body.removeChild(iframe);
                     // If user interacted with prompt, just wait - they'll handle it
