@@ -231,14 +231,21 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         if (isAppBrowser()) {
             const now = Date.now();
             let hasLeftPage = false;
-            let deeplinkAttempted = false;
+            let userInteractedWithPrompt = false;
 
             const handleVisibilityChange = () => {
                 if (document.hidden) {
                     hasLeftPage = true;
                 }
             };
+
+            // Detect if user is interacting with a system dialog
+            const handleBlur = () => {
+                userInteractedWithPrompt = true;
+            };
+
             document.addEventListener('visibilitychange', handleVisibilityChange);
+            window.addEventListener('blur', handleBlur);
 
             const iframe = document.createElement('iframe');
             iframe.style.display = 'none';
@@ -247,26 +254,21 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
             setTimeout(() => {
                 document.removeEventListener('visibilitychange', handleVisibilityChange);
+                window.removeEventListener('blur', handleBlur);
                 const elapsed = Date.now() - now;
 
-                // Only try normalized deeplink if user is still here AND deeplink failed quickly
-                if (!hasLeftPage && elapsed < 1500) {
+                // Only try normalized deeplink if user didn't interact with first prompt
+                if (!hasLeftPage && !userInteractedWithPrompt && elapsed < 1500) {
                     document.body.removeChild(iframe);
+                    const normalizedDeeplink = normalizeIntentLink(fallback);
+                    window.location.href = normalizedDeeplink;
 
-                    // Give a brief moment to see if the deeplink popup is still being interacted with
                     setTimeout(() => {
-                        // Check again if user left in the meantime
-                        if (!hasLeftPage) {
-                            const normalizedDeeplink = normalizeIntentLink(fallback);
-                            window.location.href = normalizedDeeplink;
-
-                            setTimeout(() => {
-                                window.location.href = fallback;
-                            }, 1200);
-                        }
-                    }, 300); // Short delay to see if first popup is still active
+                        window.location.href = fallback;
+                    }, 1200);
                 } else {
                     document.body.removeChild(iframe);
+                    // If user interacted with prompt, just wait - they'll handle it
                 }
             }, 1200);
         }
