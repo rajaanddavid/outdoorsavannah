@@ -232,18 +232,16 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 				let deeplink = null;
 				let fallback = targetLink;
 
-
         if (isAndroid()) {
             if (links[`${targetKey}_deeplink_android`]) {
                 deeplink = links[`${targetKey}_deeplink_android`];
             }
 
             if (isAppBrowser()) {
-                // Try deeplink first with iframe
+                // Try deeplink first - direct navigation
                 const now = Date.now();
                 let hasLeftPage = false;
 
-                // Detect if user leaves page (app opened)
                 const handleVisibilityChange = () => {
                     if (document.hidden) {
                         hasLeftPage = true;
@@ -251,30 +249,23 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                 };
                 document.addEventListener('visibilitychange', handleVisibilityChange);
 
-                const iframe = document.createElement('iframe');
-                iframe.style.display = 'none';
-                iframe.src = deeplink;
-                document.body.appendChild(iframe);
+                window.location.href = deeplink;
 
                 setTimeout(() => {
                     document.removeEventListener('visibilitychange', handleVisibilityChange);
-                    const elapsed = Date.now() - now;
 
                     // Only fallback if user didn't leave page
-                    if (!hasLeftPage && elapsed < 1500) {
-                        document.body.removeChild(iframe);
+                    if (!hasLeftPage) {
                         const normalizedDeeplink = normalizeIntentLink(fallback);
                         window.location.href = normalizedDeeplink;
 
                         setTimeout(() => {
                             window.location.href = fallback;
                         }, 1200);
-                    } else {
-                        document.body.removeChild(iframe);
                     }
                 }, 1200);
             } else {
-                // Not in app browser - try deeplink, fallback after 1200ms
+                // Not in app browser - try deeplink directly
                 const now = Date.now();
                 let hasLeftPage = false;
 
@@ -285,19 +276,14 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                 };
                 document.addEventListener('visibilitychange', handleVisibilityChange);
 
-                const iframe = document.createElement('iframe');
-                iframe.style.display = 'none';
-                iframe.src = deeplink;
-                document.body.appendChild(iframe);
+                window.location.href = deeplink;
 
                 setTimeout(() => {
                     document.removeEventListener('visibilitychange', handleVisibilityChange);
-                    const elapsed = Date.now() - now;
 
-                    if (!hasLeftPage && elapsed < 1500) {
+                    if (!hasLeftPage) {
                         window.location.href = fallback;
                     }
-                    document.body.removeChild(iframe);
                 }, 1200);
             }
             return;
@@ -313,7 +299,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             }
 
             // Try deeplink with iframe
-            const now = Date.now();
             let hasLeftPage = false;
 
             const handleVisibilityChange = () => {
@@ -330,9 +315,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
             setTimeout(() => {
                 document.removeEventListener('visibilitychange', handleVisibilityChange);
-                const elapsed = Date.now() - now;
 
-                if (!hasLeftPage && elapsed < 1200) {
+                if (!hasLeftPage) {
                     window.location.href = fallback;
                 }
                 document.body.removeChild(iframe);
