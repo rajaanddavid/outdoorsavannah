@@ -332,22 +332,30 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                 setTimeout(() => {
                     document.removeEventListener('visibilitychange', handleVisibilityChange);
                     window.removeEventListener('blur', handleBlur);
+                    iframe.remove();
+
                     const elapsed = Date.now() - now;
 
-                    // Only try normalized deeplink if user didn't interact with first prompt
-                    if (!hasLeftPage && !userInteractedWithPrompt && elapsed < 1500) {
-                        iframe.remove();
-                        // UPDATED: Pass the web fallback URL as second parameter
+                    // Always try normalized deeplink in app browser if original failed
+                    if (!hasLeftPage && !userInteractedWithPrompt) {
+                        // Pass the web fallback URL as second parameter
                         const normalizedDeeplink = normalizeIntentLink(deeplink, targetLink);
                         window.location.href = normalizedDeeplink;
 
+                        // Final fallback to web URL
                         setTimeout(() => {
-                            window.location.href = fallback;
+                            if (!document.hidden) {
+                                window.location.href = fallback;
+                            }
                         }, 1200);
+                    } else if (hasLeftPage || userInteractedWithPrompt) {
+                        // User successfully left - do nothing
+                        return;
                     }
                 }, 1200);
             } else {
-                // Not in app browser - direct navigation (no iframe)
+                // Not in app browser - use normalized deeplink with fallback
+                const normalizedDeeplink = normalizeIntentLink(deeplink, targetLink);
                 const now = Date.now();
                 let hasLeftPage = false;
 
@@ -358,12 +366,14 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                 };
                 document.addEventListener('visibilitychange', handleVisibilityChange);
 
-                window.location.href = deeplink;
+                // Use normalized deeplink which has built-in fallback
+                window.location.href = normalizedDeeplink;
 
                 setTimeout(() => {
                     document.removeEventListener('visibilitychange', handleVisibilityChange);
                     const elapsed = Date.now() - now;
 
+                    // Additional fallback if normalized deeplink didn't trigger
                     if (!hasLeftPage && elapsed < 1500) {
                         window.location.href = fallback;
                     }
@@ -406,7 +416,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                     iframe.remove();
                 }, 800);
             } else {
-                // Not in app browser - direct navigation (no iframe)
+                // Not in app browser - direct navigation with fallback
                 const now = Date.now();
                 let hasLeftPage = false;
 
