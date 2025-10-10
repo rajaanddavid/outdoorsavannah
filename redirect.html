@@ -397,6 +397,7 @@
                     // --- Mobile outside app browser ---
                     if (!isAppBrowser() && primaryDeeplink) {
                         if (isAndroid()) {
+                            const normalizedDeeplink = normalizeIntentLink(primaryDeeplink, fallback);
                             const now = Date.now();
                             let hasLeftPage = false;
 
@@ -408,7 +409,7 @@
                             document.addEventListener('visibilitychange', handleVisibilityChange);
 
                             // Use normalized deeplink which has built-in fallback
-                            window.location.href = primaryDeeplink;
+                            window.location.href = normalizedDeeplink;
 
                             // If app doesn't open, fall back to web target
                             setTimeout(() => {
@@ -470,7 +471,7 @@
 
                                 if (!hasLeftPage && elapsed < 1500) {
                                     // UPDATED: Pass the web fallback URL as second parameter
-                                    const normalizedDeeplink = normalizeIntentLink(primaryDeeplink, targetLink);
+                                    const normalizedDeeplink = normalizeIntentLink(primaryDeeplink, fallback);
 
                                     // Second attempt: try normalized deeplink in iframe
                                     const iframe2 = document.createElement('iframe');
