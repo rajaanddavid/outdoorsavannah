@@ -322,6 +322,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                 document.addEventListener('visibilitychange', handleVisibilityChange);
                 window.addEventListener('blur', handleBlur);
 
+                // First attempt: try original deeplink in iframe
                 const iframe = document.createElement('iframe');
                 iframe.style.display = 'none';
                 iframe.src = deeplink;
@@ -332,23 +333,23 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                     window.removeEventListener('blur', handleBlur);
                     iframe.remove();
 
-                    const elapsed = Date.now() - now;
-
-                    // Always try normalized deeplink in app browser if original failed
+                    // If user didn't leave, try normalized deeplink (also in iframe)
                     if (!hasLeftPage && !userInteractedWithPrompt) {
-                        // Pass the web fallback URL as second parameter
                         const normalizedDeeplink = normalizeIntentLink(deeplink, targetLink);
-                        window.location.href = normalizedDeeplink;
+
+                        // Second attempt: try normalized deeplink in iframe
+                        const iframe2 = document.createElement('iframe');
+                        iframe2.style.display = 'none';
+                        iframe2.src = normalizedDeeplink;
+                        document.body.appendChild(iframe2);
 
                         // Final fallback to web URL
                         setTimeout(() => {
+                            iframe2.remove();
                             if (!document.hidden) {
                                 window.location.href = fallback;
                             }
                         }, 1200);
-                    } else if (hasLeftPage || userInteractedWithPrompt) {
-                        // User successfully left - do nothing
-                        return;
                     }
                 }, 1200);
             } else {
