@@ -2,7 +2,7 @@
   "home": {
     "extralink1": "https://www.facebook.com/outdoorsavannah",
     "extralink1_deeplink_ios": "fb://profile/100083382630651",
-    "extralink1_deeplink_android": "intent://profile/100083382630651#Intent;scheme=https;package=com.facebook.katana;S.browser_fallback_url=https%3A%2F%2Fwww.facebook.com%2Foutdoorsavannah;end",
+    "extralink1_deeplink_android": "intent://profile/100083382630651#Intent;scheme=fb;package=com.facebook.katana;S.browser_fallback_url=https%3A%2F%2Fwww.facebook.com%2Foutdoorsavannah;end",
     "extralink2": "http://www.youtube.com/@outdoorsavannah",
     "extralink2_deeplink_ios": "vnd.youtube://www.youtube.com/@outdoorsavannah",
     "extralink2_deeplink_android": "intent://www.youtube.com/@outdoorsavannah#Intent;package=com.google.android.youtube;scheme=https;end",
