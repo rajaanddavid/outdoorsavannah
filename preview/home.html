@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Links - Raja and David®</title>
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Links - Raja and David®">
+  <meta property="og:image" content="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/outdoorsavannah-logo-registered.webp">
+  <meta property="og:description" content="OutdoorSavannah social media links, products and cat shelf guide!">
+  <meta property="og:url" content="https://www.outdoorsavannah.com/">
+  <meta property="og:type" content="article">
+  <meta name="robots" content="noindex, nofollow">
+
+  <script>
+  document.addEventListener("DOMContentLoaded", function() {
+      const url = new URL(window.location.href);
+      const ua = navigator.userAgent || "";
+      const isIOS = /iPhone|iPad|iPod/i.test(ua);
+
+      let slug = "home";
+      const variant = url.searchParams.get('variant') || "";
+      const hash = url.hash || "";
+
+      let redirectUrl = "/redirect.html?product=product/" + slug + "&skipDeeplink=true";
+      if (variant) redirectUrl += "&variant=" + encodeURIComponent(variant);
+      if (hash) redirectUrl += hash;
+
+      if (isIOS) {
+          redirectUrl = "x-safari-https://www.outdoorsavannah.com" + redirectUrl;
+      } else {
+          redirectUrl = "https://www.outdoorsavannah.com" + redirectUrl;
+      }
+
+      window.location.replace(redirectUrl);
+  });
+  </script>
+</head>
+<body>
+  <p>Redirecting to product...</p>
+</body>
+</html>

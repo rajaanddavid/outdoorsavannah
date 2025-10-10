@@ -40,13 +40,18 @@ document.addEventListener("DOMContentLoaded", function() {
     const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
     // --- Construct redirect URL ---
-    let redirectUrl = "/redirect.html?product=product/" + slug;
-    if (variant) redirectUrl += "&variant=" + encodeURIComponent(variant);
-    if (hash) redirectUrl += hash;
+    let redirectUrl;
+    if (slug === "home" || slug === "cat-shelf-guide" || slug === "product") {
+        redirectUrl = "/redirect.html?product=" + slug;
+    } else {
+        redirectUrl = "/redirect.html?product=product/" + slug;
+    }
 
-    // --- Apply x-safari only for iOS ---
+    if (variant) redirectUrl += "&variant=" + encodeURIComponent(variant);
+
+    // --- Apply x-safari and skipDeeplink for iOS ---
     if (isIOS) {
-        redirectUrl = "x-safari-https://www.outdoorsavannah.com" + redirectUrl;
+        redirectUrl = "x-safari-https://www.outdoorsavannah.com" + redirectUrl + "&skipDeeplink=true" + hash;
     }
 
     // --- Redirect ---
