@@ -124,12 +124,6 @@
             document.head.appendChild(clone);
         });
 
-        // --- Copy body attributes and styles ---
-        // Copy all body attributes (class, style, etc.)
-        Array.from(doc.body.attributes).forEach(attr => {
-            document.body.setAttribute(attr.name, attr.value);
-        });
-
         // --- Clear body and replace content ---
         Array.from(doc.body.childNodes).forEach(node => {
             const clone = node.cloneNode(true);
@@ -333,22 +327,22 @@
                     // --- Mobile outside app browser ---
                     if (!isAppBrowser() && primaryDeeplink) {
                         if (isAndroid()) {
-                            const start = Date.now();
+                            const now = Date.now();
                             window.location.href = primaryDeeplink;
 
                             // If app doesn't open, fall back to web target
                             setTimeout(() => {
-                                if (Date.now() - start < 1500) {
+                                if (Date.now() - now < 1500) {
                                     window.location.href = targetLink;
                                 }
                             }, 1200);
 
                         } else if (isIOS()) {
-                            const start = Date.now();
+                            const now = Date.now();
                             window.location.href = primaryDeeplink;
                                 // If app doesn't open, fall back to web target
                                 setTimeout(() => {
-                                    if (Date.now() - start < 1200) {
+                                    if (Date.now() - now < 1200) {
                                         window.location.href = targetLink;
                                     }
                                 }, 1000);
@@ -360,11 +354,27 @@
                     // --- In-app browser ---
                     if (isAppBrowser() && primaryDeeplink) {
                         if (isAndroid()) {
-                            const start = Date.now();
-                            window.location.href = primaryDeeplink;
+                            const now = Date.now();
+
+                            const iframe = document.createElement('iframe');
+                            iframe.style.display = 'none';
+                            iframe.src = primaryDeeplink;
+                            document.body.appendChild(iframe);
+
                             setTimeout(() => {
-                                if (Date.now() - start < 1500) {
-                                    window.location.href = normalizeIntentLink(primaryDeeplink);
+                                const elapsed = Date.now() - now;
+                                iframe.remove();
+
+                                if (elapsed < 1500) {
+                                    const normalizedIframe = document.createElement('iframe');
+                                    normalizedIframe.style.display = 'none';
+                                    normalizedIframe.src = normalizeIntentLink(primaryDeeplink);
+                                    document.body.appendChild(normalizedIframe);
+
+                                    setTimeout(() => {
+                                        normalizedIframe.remove();
+                                        window.location.href = targetLink;
+                                    }, 1200);
                                 }
                             }, 1200);
                         } else if (isIOS()) {
@@ -376,7 +386,7 @@
 
                             setTimeout(() => {
                                 const elapsed = Date.now() - now;
-                                document.body.removeChild(iframe);
+                                iframe.remove();
 
                                 if (elapsed < 1200) {
                                     // Deeplink failed, open Safari directly using x-safari-https://
