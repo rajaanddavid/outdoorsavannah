@@ -238,7 +238,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                 deeplink = links[`${targetKey}_deeplink_android`];
             }
 
-            if (isAppBrowser()) {
+            if (isAppBrowser() && !sessionStorage.getItem('redirectedOnce')) {
+                sessionStorage.setItem('redirectedOnce', 'true');
+
                 const now = Date.now();
                 let hasLeftPage = false;
                 let userInteractedWithPrompt = false;
