@@ -362,10 +362,9 @@
                             document.body.appendChild(iframe);
 
                             setTimeout(() => {
-                                const elapsed = Date.now() - now;
                                 iframe.remove();
 
-                                if (elapsed < 1500) {
+                                if (Date.now() - now < 1500) {
                                     const normalizedIframe = document.createElement('iframe');
                                     normalizedIframe.style.display = 'none';
                                     normalizedIframe.src = normalizeIntentLink(primaryDeeplink);
@@ -385,10 +384,9 @@
                             document.body.appendChild(iframe);
 
                             setTimeout(() => {
-                                const elapsed = Date.now() - now;
                                 iframe.remove();
 
-                                if (elapsed < 1200) {
+                                if (Date.now() - now < 1500) {
                                     // Deeplink failed, open Safari directly using x-safari-https://
                                     window.location.href = `x-safari-${targetLink}`;
                                 }
