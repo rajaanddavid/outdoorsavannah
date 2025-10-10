@@ -348,7 +348,6 @@
                                     window.location.href = targetLink;
                                 }
                             }, 1200);
-                            }
                             return;
                         } else if (isIOS()) {
                             const now = Date.now();
@@ -371,11 +370,9 @@
                                         window.location.href = targetLink;
                                     }
                                 }, 800);
-                        }
-
                         return;
+                        }
                     }
-
                     // --- In-app browser ---
                     if (isAppBrowser() && primaryDeeplink) {
                         if (isAndroid()) {
@@ -397,10 +394,10 @@
 
                             setTimeout(() => {
                                 document.removeEventListener('visibilitychange', handleVisibilityChange);
-                                iframe.remove();
                                 const elapsed = Date.now() - now;
 
                                 if (!hasLeftPage && elapsed < 1500) {
+                                    iframe.remove();
                                     const normalizedDeeplink = normalizeIntentLink(primaryDeeplink);
                                     window.location.href = normalizedDeeplink;
 
@@ -409,6 +406,7 @@
                                     }, 1200);
                                 }
                             }, 1200);
+                            return;
                         } else if (isIOS()) {
                             const now = Date.now();
                             let hasLeftPage = false;
@@ -436,12 +434,13 @@
                                     window.location.href = `x-safari-${targetLink}`;
                                 }
                             }, 800);
+                            return;
                         }
-                        return;
                     }
                 }
                 // --- Fallback if no deeplink ---
                 window.location.href = targetLink;
+            }
         } catch(e) {
             document.body.innerHTML = '<p>Failed to load product page.</p>';
             console.error(e);

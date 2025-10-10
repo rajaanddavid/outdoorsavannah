@@ -284,7 +284,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                     // Only try normalized deeplink if user didn't interact with first prompt
                     if (!hasLeftPage && !userInteractedWithPrompt && elapsed < 1500) {
                         iframe.remove();
-                        const normalizedDeeplink = normalizeIntentLink(fallback);
+                        const normalizedDeeplink = normalizeIntentLink(deeplink);
                         window.location.href = normalizedDeeplink;
 
                         setTimeout(() => {
