@@ -328,24 +328,49 @@
                     if (!isAppBrowser() && primaryDeeplink) {
                         if (isAndroid()) {
                             const now = Date.now();
+                            let hasLeftPage = false;
+
+                            const handleVisibilityChange = () => {
+                                if (document.hidden) {
+                                    hasLeftPage = true;
+                                }
+                            };
+                            document.addEventListener('visibilitychange', handleVisibilityChange);
+
                             window.location.href = primaryDeeplink;
 
                             // If app doesn't open, fall back to web target
                             setTimeout(() => {
-                                if (Date.now() - now < 1500) {
+                                document.removeEventListener('visibilitychange', handleVisibilityChange);
+                                const elapsed = Date.now() - now;
+
+                                if (!hasLeftPage && elapsed < 1500) {
                                     window.location.href = targetLink;
                                 }
                             }, 1200);
-
+                            }
+                            return;
                         } else if (isIOS()) {
                             const now = Date.now();
+                            let hasLeftPage = false;
+
+                            const handleVisibilityChange = () => {
+                                if (document.hidden) {
+                                    hasLeftPage = true;
+                                }
+                            };
+                            document.addEventListener('visibilitychange', handleVisibilityChange);
+
                             window.location.href = primaryDeeplink;
                                 // If app doesn't open, fall back to web target
                                 setTimeout(() => {
-                                    if (Date.now() - now < 1200) {
+                                    document.removeEventListener('visibilitychange', handleVisibilityChange);
+                                    const elapsed = Date.now() - now;
+
+                                    if (!hasLeftPage && elapsed < 1000) {
                                         window.location.href = targetLink;
                                     }
-                                }, 1000);
+                                }, 800);
                         }
 
                         return;
@@ -355,6 +380,15 @@
                     if (isAppBrowser() && primaryDeeplink) {
                         if (isAndroid()) {
                             const now = Date.now();
+                            let hasLeftPage = false;
+
+                            const handleVisibilityChange = () => {
+                                if (document.hidden) {
+                                    hasLeftPage = true;
+                                }
+                            };
+
+                            document.addEventListener('visibilitychange', handleVisibilityChange);
 
                             const iframe = document.createElement('iframe');
                             iframe.style.display = 'none';
@@ -362,33 +396,46 @@
                             document.body.appendChild(iframe);
 
                             setTimeout(() => {
-                                if (Date.now() - now < 1500) {
-                                    iframe.remove();
+                                document.removeEventListener('visibilitychange', handleVisibilityChange);
+                                iframe.remove();
+                                const elapsed = Date.now() - now;
+
+                                if (!hasLeftPage && elapsed < 1500) {
                                     const normalizedDeeplink = normalizeIntentLink(primaryDeeplink);
                                     window.location.href = normalizedDeeplink;
 
                                     setTimeout(() => {
                                         window.location.href = targetLink;
                                     }, 1200);
-                                } else {
-                                    iframe.remove();
                                 }
                             }, 1200);
                         } else if (isIOS()) {
                             const now = Date.now();
+                            let hasLeftPage = false;
+
+                            const handleVisibilityChange = () => {
+                                if (document.hidden) {
+                                    hasLeftPage = true;
+                                }
+                            };
+                            document.addEventListener('visibilitychange', handleVisibilityChange);
+
                             const iframe = document.createElement('iframe');
                             iframe.style.display = 'none';
                             iframe.src = primaryDeeplink;
                             document.body.appendChild(iframe);
 
                             setTimeout(() => {
+                                document.removeEventListener('visibilitychange', handleVisibilityChange);
                                 iframe.remove();
+                                const elapsed = Date.now() - now;
 
-                                if (Date.now() - now < 1500) {
+
+                                if (!hasLeftPage && elapsed < 1000) {
                                     // Deeplink failed, open Safari directly using x-safari-https://
                                     window.location.href = `x-safari-${targetLink}`;
                                 }
-                            }, 1000);
+                            }, 800);
                         }
                         return;
                     }
