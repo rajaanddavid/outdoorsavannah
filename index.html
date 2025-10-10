@@ -107,49 +107,115 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 		const links = amazonLinks[pathParts[pathParts.length - 1]] || amazonLinks[productName];
 		if (!links) return;
 
-    function normalizeIntentLink(url) {
+    // --- Universal normalizeIntentLink for Android ---
+    function normalizeIntentLink(url, webFallbackUrl = null) {
       if (!url) return url;
       try {
+        // Handle existing intent:// links
         if (url.startsWith("intent://")) {
           const [prefix, intentPart] = url.split("#Intent;");
           if (!intentPart) return url;
 
-          // Detect the intended app scheme (fb, snapchat, etc.)
-          const matchScheme = intentPart.match(/scheme=([^;]+)/i);
-          const appScheme = matchScheme ? matchScheme[1] : null;
+          // Extract the original scheme from the intent parameters
+          const schemeMatch = intentPart.match(/scheme=([^;]+)/);
+          const originalScheme = schemeMatch ? schemeMatch[1] : "https";
 
-          // Extract base domain-like part for fallback
-          const pathPart = prefix.replace(/^intent:\/\//, "");
+          // Build fallback URL
+          let fallbackUrl;
 
-          // Construct a decent fallback URL
-          let fallback = "https://";
-          if (appScheme === "fb" || appScheme === "facebook") {
-            fallback += "www.facebook.com/" + pathPart.replace(/^profile\//, "");
-          } else if (appScheme === "snapchat") {
-            fallback += "www.snapchat.com/add/" + pathPart.replace(/^add\//, "");
-          } else {
-            fallback += pathPart;
+          // Priority 1: Use provided web fallback (from the corresponding non-deeplink URL)
+          if (webFallbackUrl) {
+            fallbackUrl = webFallbackUrl;
+          }
+          // Priority 2: For https/http schemes, construct from the intent path
+          else if (originalScheme === "https" || originalScheme === "http") {
+            fallbackUrl = `${originalScheme}://${prefix.replace(/^intent:\/\//, "")}`;
+          }
+          // Priority 3: Try to extract from existing S.browser_fallback_url
+          else {
+            const existingFallback = intentPart.match(/S\.browser_fallback_url=([^;]+)/);
+            if (existingFallback) {
+              fallbackUrl = decodeURIComponent(existingFallback[1]);
+            } else {
+              // Priority 4: Intelligent guess based on intent path
+              fallbackUrl = inferFallbackUrl(prefix, originalScheme);
+            }
           }
 
-          // Rebuild intent properly
+          // Clean up unwanted intent extras while preserving the scheme
           const cleaned = intentPart
             .split(";")
             .filter(part =>
+              !part.startsWith("package=") &&
+              !part.startsWith("component=") &&
               !part.startsWith("S.browser_fallback_url=") &&
-              !part.startsWith("action=")
+              !part.trim().startsWith("end")
             )
             .join(";");
 
-          return `${prefix}#Intent;${cleaned};action=android.intent.action.VIEW;S.browser_fallback_url=${encodeURIComponent(fallback)};end`
+          // Construct normalized intent with safe fallback
+          return `${prefix}#Intent;${cleaned};action=android.intent.action.VIEW;S.browser_fallback_url=${encodeURIComponent(fallbackUrl)};end`
             .replace(/;;+/g, ";");
         }
 
-        // For non-intent URLs, just return unchanged
+        // Handle plain https:// or app:// style links
+        if (/^[a-zA-Z0-9.]+:\/\//.test(url)) {
+          const httpsUrl = url.replace(/^[a-zA-Z0-9.]+:\/\//, "https://");
+          const fallback = encodeURIComponent(httpsUrl);
+          return `intent://${httpsUrl.replace(/^https?:\/\//, "")}#Intent;scheme=https;action=android.intent.action.VIEW;S.browser_fallback_url=${fallback};end`;
+        }
+
         return url;
       } catch (err) {
         console.error("normalizeIntentLink error:", err);
         return url;
       }
+    }
+
+    // Helper function to intelligently infer fallback URLs
+    function inferFallbackUrl(prefix, scheme) {
+      const path = prefix.replace(/^intent:\/\//, "");
+
+      // Check if the path already looks like a domain
+      if (path.includes('.com') || path.includes('.org') || path.includes('.net')) {
+        return `https://${path}`;
+      }
+
+      // Try to extract domain from common patterns
+      const domainPatterns = [
+        /([a-z0-9-]+\.[a-z]{2,})/i,  // matches domain.com
+        /(facebook|snapchat|instagram|youtube|tiktok|discord|amazon|aliexpress)/i  // known services
+      ];
+
+      for (const pattern of domainPatterns) {
+        const match = path.match(pattern);
+        if (match) {
+          const service = match[1].toLowerCase();
+          // Map known services to their domains
+          const serviceMap = {
+            'facebook': 'www.facebook.com',
+            'snapchat': 'www.snapchat.com',
+            'instagram': 'www.instagram.com',
+            'youtube': 'www.youtube.com',
+            'tiktok': 'www.tiktok.com',
+            'discord': 'discord.com',
+            'amazon': 'www.amazon.com',
+            'aliexpress': 'www.aliexpress.com'
+          };
+
+          if (serviceMap[service]) {
+            return `https://${serviceMap[service]}/${path}`;
+          }
+
+          // If it's already a domain, use it
+          if (service.includes('.')) {
+            return `https://${path}`;
+          }
+        }
+      }
+
+      // Last resort: just make it https
+      return `https://${path}`;
     }
 
 		// --- Update buy buttons hrefs immediately for desktop & all links ---
@@ -260,7 +326,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                     // Only try normalized deeplink if user didn't interact with first prompt
                     if (!hasLeftPage && !userInteractedWithPrompt && elapsed < 1500) {
                         iframe.remove();
-                        const normalizedDeeplink = normalizeIntentLink(deeplink);
+                        // UPDATED: Pass the web fallback URL as second parameter
+                        const normalizedDeeplink = normalizeIntentLink(deeplink, targetLink);
                         window.location.href = normalizedDeeplink;
 
                         setTimeout(() => {
