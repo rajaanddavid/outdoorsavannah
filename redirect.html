@@ -185,29 +185,43 @@
 
         // --- Android normalizeIntentLink ---
         function normalizeIntentLink(url) {
-            if (!url) return url;
-            try {
-                if (url.startsWith("intent://")) {
-                    const [prefix, intentPart] = url.split("#Intent;");
-                    if (!intentPart) return url;
-                    const cleaned = intentPart
-                        .split(";")
-                        .filter(part =>
-                            !part.startsWith("package=") &&
-                            !part.startsWith("component=") &&
-                            !part.startsWith("S.browser_fallback_url=")
-                        )
-                        .join(";");
-                    return `${prefix}#Intent;${cleaned};scheme=https;action=android.intent.action.VIEW;end`.replace(/;;+/g, ";");
-                }
-                if (/^[a-zA-Z0-9.]+:\/\//.test(url)) {
-                    const httpsUrl = url.replace(/^[a-zA-Z0-9.]+:\/\//, "https://");
-                    return `intent://${httpsUrl.replace(/^https?:\/\//, "")}#Intent;scheme=https;action=android.intent.action.VIEW;end`;
-                }
-                return url;
-            } catch {
-                return url;
+          if (!url) return url;
+          try {
+            // Handle existing intent:// links
+            if (url.startsWith("intent://")) {
+              const [prefix, intentPart] = url.split("#Intent;");
+              if (!intentPart) return url;
+
+              // Extract the base HTTPS fallback from the prefix
+              const httpsFallback = prefix.replace(/^intent:\/\//, "https://");
+
+              // Clean up unwanted intent extras
+              const cleaned = intentPart
+                .split(";")
+                .filter(part =>
+                  !part.startsWith("package=") &&
+                  !part.startsWith("component=") &&
+                  !part.startsWith("S.browser_fallback_url=")
+                )
+                .join(";");
+
+              // Construct normalized intent with safe fallback
+              return `${prefix}#Intent;${cleaned};scheme=https;action=android.intent.action.VIEW;S.browser_fallback_url=${encodeURIComponent(httpsFallback)};end`
+                .replace(/;;+/g, ";");
             }
+
+            // Handle plain https:// or app:// style links
+            if (/^[a-zA-Z0-9.]+:\/\//.test(url)) {
+              const httpsUrl = url.replace(/^[a-zA-Z0-9.]+:\/\//, "https://");
+              const fallback = encodeURIComponent(httpsUrl);
+              return `intent://${httpsUrl.replace(/^https?:\/\//, "")}#Intent;scheme=https;action=android.intent.action.VIEW;S.browser_fallback_url=${fallback};end`;
+            }
+
+            return url;
+          } catch (err) {
+            console.error("normalizeIntentLink error:", err);
+            return url;
+          }
         }
 
         try {
