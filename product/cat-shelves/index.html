@@ -243,14 +243,27 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             if (isAppBrowser()) {
                 // Try deeplink first with iframe
                 const now = Date.now();
+                let hasLeftPage = false;
+
+                // Detect if user leaves page (app opened)
+                const handleVisibilityChange = () => {
+                    if (document.hidden) {
+                        hasLeftPage = true;
+                    }
+                };
+                document.addEventListener('visibilitychange', handleVisibilityChange);
+
                 const iframe = document.createElement('iframe');
                 iframe.style.display = 'none';
                 iframe.src = deeplink;
                 document.body.appendChild(iframe);
 
                 setTimeout(() => {
+                    document.removeEventListener('visibilitychange', handleVisibilityChange);
                     const elapsed = Date.now() - now;
-                    if (elapsed < 1500) {
+
+                    // Only fallback if user didn't leave page
+                    if (!hasLeftPage && elapsed < 1500) {
                         document.body.removeChild(iframe);
                         const normalizedDeeplink = normalizeIntentLink(fallback);
                         window.location.href = normalizedDeeplink;
@@ -265,20 +278,31 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             } else {
                 // Not in app browser - try deeplink, fallback after 1200ms
                 const now = Date.now();
+                let hasLeftPage = false;
+
+                const handleVisibilityChange = () => {
+                    if (document.hidden) {
+                        hasLeftPage = true;
+                    }
+                };
+                document.addEventListener('visibilitychange', handleVisibilityChange);
+
                 const iframe = document.createElement('iframe');
                 iframe.style.display = 'none';
                 iframe.src = deeplink;
                 document.body.appendChild(iframe);
 
                 setTimeout(() => {
+                    document.removeEventListener('visibilitychange', handleVisibilityChange);
                     const elapsed = Date.now() - now;
-                    if (elapsed < 1500) {
+
+                    if (!hasLeftPage && elapsed < 1500) {
                         window.location.href = fallback;
                     }
                     document.body.removeChild(iframe);
                 }, 1200);
             }
-            return; // Stop here for Android
+            return;
         }
 
         if (isIOS()) {
@@ -290,26 +314,39 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                 fallback = `x-safari-https://www.outdoorsavannah.com/redirect.html?product=${productName}&variant=${encodeURIComponent(targetKey)}&skipDeeplink=true#${encodeURIComponent(targetKey)}`;
             }
 
-            // Try deeplink with iframe (inline tryDeeplink logic)
+            // Try deeplink with iframe
             const now = Date.now();
+            let hasLeftPage = false;
+
+            const handleVisibilityChange = () => {
+                if (document.hidden) {
+                    hasLeftPage = true;
+                }
+            };
+            document.addEventListener('visibilitychange', handleVisibilityChange);
+
             const iframe = document.createElement('iframe');
             iframe.style.display = 'none';
             iframe.src = deeplink;
             document.body.appendChild(iframe);
 
             setTimeout(() => {
+                document.removeEventListener('visibilitychange', handleVisibilityChange);
                 const elapsed = Date.now() - now;
-                if (elapsed < 1200) window.location.href = fallback;
+
+                if (!hasLeftPage && elapsed < 1200) {
+                    window.location.href = fallback;
+                }
                 document.body.removeChild(iframe);
             }, 1000);
 
-            return; // Stop here for iOS
+            return;
         }
 
         // Desktop - go directly to target link (no deeplink needed)
         window.location.href = fallback;
     });
-});
+    });
 });
 </script>
 <!-- END HEADER SNIPPET -->
