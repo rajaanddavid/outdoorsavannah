@@ -397,6 +397,7 @@
                     // --- Mobile outside app browser ---
                     if (!isAppBrowser() && primaryDeeplink) {
                         if (isAndroid()) {
+                            const normalizedDeeplink = normalizeIntentLink(primaryDeeplink, targetLink);
                             const now = Date.now();
                             let hasLeftPage = false;
 
@@ -407,7 +408,8 @@
                             };
                             document.addEventListener('visibilitychange', handleVisibilityChange);
 
-                            window.location.href = primaryDeeplink;
+                            // Use normalized deeplink which has built-in fallback
+                            window.location.href = normalizedDeeplink;
 
                             // If app doesn't open, fall back to web target
                             setTimeout(() => {
@@ -465,12 +467,25 @@
                             setTimeout(() => {
                                 document.removeEventListener('visibilitychange', handleVisibilityChange);
                                 const elapsed = Date.now() - now;
+                                iframe.remove();
 
-                                if (!hasLeftPage && elapsed < 1500) {
-                                    iframe.remove();
-                                    // UPDATED: Pass the web fallback URL as second parameter
+                                // If user didn't leave, try normalized deeplink (also in iframe)
+                                if (!hasLeftPage) {
                                     const normalizedDeeplink = normalizeIntentLink(primaryDeeplink, targetLink);
-                                    window.location.href = normalizedDeeplink;
+
+                                    // Second attempt: try normalized deeplink in iframe
+                                    const iframe2 = document.createElement('iframe');
+                                    iframe2.style.display = 'none';
+                                    iframe2.src = normalizedDeeplink;
+                                    document.body.appendChild(iframe2);
+
+                                    // Final fallback to web URL
+                                    setTimeout(() => {
+                                        iframe2.remove();
+                                        if (!document.hidden) {
+                                            window.location.href = targetLink;
+                                        }
+                                    }, 1200);
                                 }
                             }, 1200);
                             return;
