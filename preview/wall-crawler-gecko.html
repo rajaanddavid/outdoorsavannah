@@ -1,67 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wall Crawler Gecko - Raja and David®</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wall Crawler Gecko - Raja and David®</title>
 
-    <!-- Open Graph -->
-    <meta property="og:title" content="Wall Crawler Gecko - Raja and David®">
-    <meta property="og:image" content="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/gecko-toy-product_1.1.2-819x1024.webp">
-    <meta property="og:locale" content="en_US">
-    <meta property="og:site_name" content="Raja and David® - OutdoorSavannah®">
-    <meta property="og:type" content="article">
-    <meta property="og:description" content="Buy on Amazon Buy on Aliexpress The gecko toy I featured in Gecko Toy for a Cat Back to products I receive a small commission at no extra cost to you when making a purchase">
-    <meta property="og:url" content="https://www.outdoorsavannah.com/product/wall-crawler-gecko/">
-    <meta property="og:image:secure_url" content="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/gecko-toy-product_1.1.2-819x1024.webp">
-    <meta property="og:image:width" content="819">
-    <meta property="og:image:height" content="1024">
-    <meta property="og:image:alt" content="">
-    <meta property="og:updated_time" content="2025-10-08T01:06:53.974Z">
-    <meta property="fb:app_id" content="1234567890">
+<!-- Open Graph & Twitter meta -->
+<meta property="og:title" content="Wall Crawler Gecko - Raja and David®">
+<meta property="og:image" content="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/gecko-toy-product_1.1.2-819x1024.webp">
+<meta property="og:description" content="Buy on Amazon Buy on Aliexpress The gecko toy I featured in Gecko Toy for a Cat Back to products I receive a small commission at no extra cost to you when making a purchase">
+<meta property="og:url" content="https://www.outdoorsavannah.com/product/wall-crawler-gecko/">
+<meta property="fb:app_id" content="1234567890">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Wall Crawler Gecko - Raja and David®">
+<meta name="twitter:description" content="Buy on Amazon Buy on Aliexpress The gecko toy I featured in Gecko Toy for a Cat Back to products I receive a small commission at no extra cost to you when making a purchase">
+<meta name="twitter:image" content="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/gecko-toy-product_1.1.2-819x1024.webp">
+<meta name="twitter:site" content="@outdoorsavannah">
+<meta name="twitter:creator" content="@outdoorsavannah">
+<meta name="robots" content="noindex, nofollow">
 
-    <!-- Twitter -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Wall Crawler Gecko - Raja and David®">
-    <meta name="twitter:description" content="Buy on Amazon Buy on Aliexpress The gecko toy I featured in Gecko Toy for a Cat Back to products I receive a small commission at no extra cost to you when making a purchase">
-    <meta name="twitter:image" content="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/gecko-toy-product_1.1.2-819x1024.webp">
-    <meta name="twitter:site" content="@outdoorsavannah">
-    <meta name="twitter:creator" content="@outdoorsavannah">
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const url = new URL(window.location.href);
 
-    <meta name="robots" content="noindex, nofollow">
+    // --- Extract slug from path ---
+    let slug = "cat-shelves";
+    const pathSegments = url.pathname.split("/").filter(Boolean);
+    if (pathSegments[0] === "preview" && pathSegments[1]) {
+        slug = pathSegments[1].split("-")[0]; // remove variant suffix
+    }
 
-    <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const url = new URL(window.location.href);
+    // --- Determine variant from query ---
+    let variant = url.searchParams.get('variant') || "";
 
-        // Use slug from generator as fallback
-        let slug = "wall-crawler-gecko";
+    // --- Preserve hash ---
+    const hash = url.hash || "";
 
-        // Support extracting slug from the path
-        const pathSegments = url.pathname.split("/").filter(Boolean); // ["preview", "wall-crawler-gecko"]
-        if (pathSegments[0] === "preview" && pathSegments[1]) {
-            slug = pathSegments[1];
-        }
+    // --- Detect platform ---
+    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-        // Preserve variant and hash (also allow for &variant= and ?variant=
-        let variant = url.searchParams.get('variant');
+    // --- Construct redirect URL ---
+    let redirectUrl = "/redirect.html?product=product/" + slug;
+    if (variant) redirectUrl += "&variant=" + encodeURIComponent(variant);
+    if (hash) redirectUrl += hash;
 
-        // fallback if variant is in path like &variant=aliexpress
-        if (!variant && slug.includes("&variant=")) {
-            const parts = slug.split("&variant=");
-            slug = parts[0];
-            variant = parts[1];
-        }
-        let redirectUrl = "/redirect.html?product=product/" + slug;
-        if (variant) redirectUrl += "&variant=" + encodeURIComponent(variant);
-        if (url.hash) redirectUrl += url.hash;
+    // --- Apply x-safari only for iOS ---
+    if (isIOS) {
+        redirectUrl = "x-safari-https://www.outdoorsavannah.com" + redirectUrl;
+    }
 
-        // Redirect
-        window.location.replace(redirectUrl);
-    });
-    </script>
+    // --- Redirect ---
+    window.location.replace(redirectUrl);
+});
+</script>
 </head>
 <body>
-    <p>Redirecting to product...</p>
+<p>Redirecting to product...</p>
 </body>
 </html>
