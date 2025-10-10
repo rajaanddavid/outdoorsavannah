@@ -326,11 +326,11 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                     document.removeEventListener('visibilitychange', handleVisibilityChange);
                     const elapsed = Date.now() - now;
 
-                    if (!hasLeftPage && elapsed < 1200) {
+                    if (!hasLeftPage && elapsed < 1000) {
                         window.location.href = fallback;
                     }
                     document.body.removeChild(iframe);
-                }, 1000);
+                }, 800);
             } else {
                 // Not in app browser - direct navigation (no iframe)
                 const now = Date.now();
@@ -349,10 +349,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                     document.removeEventListener('visibilitychange', handleVisibilityChange);
                     const elapsed = Date.now() - now;
 
-                    if (!hasLeftPage && elapsed < 1200) {
+                    if (!hasLeftPage && elapsed < 1000) {
                         window.location.href = fallback;
                     }
-                }, 1000);
+                }, 800);
             }
 
             return;
