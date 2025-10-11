@@ -88,8 +88,206 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <link rel="me" href="https://www.threads.com/@outdoorsavannah">
 <link rel="me" href="https://www.threads.com/@rajaanddavid">
 
+<script>
+(async function handlePreviewAmzn() {
+    const pathname = window.location.pathname;
+    const params = new URLSearchParams(window.location.search);
 
-<script>document.addEventListener('DOMContentLoaded', async () => {
+    // Only run on /preview/amzn route with query params
+    if (pathname !== '/preview/amzn' || !params.has('product') || !params.has('variant')) {
+        return; // Not a preview route, exit early
+    }
+
+    const productPath = params.get('product'); // e.g., "product/wall-crawler-gecko" or "cat-shelf-guide"
+    const variant = params.get('variant')?.toLowerCase(); // e.g., "aliexpress" or "extralink7"
+
+    if (!productPath || !variant) return;
+
+    // Wait for amazonLinks to load (will be available from main script)
+    const waitForLinks = setInterval(async () => {
+        try {
+            const res = await fetch('/amazonLinks.json');
+            const amazonLinks = await res.json();
+            clearInterval(waitForLinks);
+
+            // Get the product links
+            const productLinks = amazonLinks[productPath];
+            if (!productLinks) return;
+
+            // Find target key (case-insensitive match)
+            const validKeys = Object.keys(productLinks).filter(
+                k => !k.endsWith('_deeplink_ios') && !k.endsWith('_deeplink_android')
+            );
+
+            const targetKey = validKeys.find(k => k.toLowerCase() === variant) || validKeys[0];
+            const targetLink = productLinks[targetKey];
+
+            if (!targetLink) return;
+
+            // Get deeplinks
+            const deeplink = {
+                android: productLinks[`${targetKey}_deeplink_android`],
+                ios: productLinks[`${targetKey}_deeplink_ios`]
+            };
+
+            // Trigger redirect immediately when page is ready
+            document.addEventListener('DOMContentLoaded', () => {
+                triggerRedirect(targetLink, deeplink);
+            });
+
+            // Also try immediately in case DOMContentLoaded already fired
+            if (document.readyState !== 'loading') {
+                triggerRedirect(targetLink, deeplink);
+            }
+
+        } catch (e) {
+            console.error('Preview AMZN error:', e);
+        }
+    }, 100);
+
+    function triggerRedirect(targetLink, deeplink) {
+        const ua = navigator.userAgent;
+        const isMobile = () => /iPhone|iPad|iPod|Android/i.test(ua);
+        const isAndroid = () => /Android/i.test(ua);
+        const isIOS = () => /iPhone|iPad|iPod/i.test(ua);
+        const isAppBrowser = () => /Instagram|FBAV|FBAN\/FBIOS|FB_IAB|FB4A|MetaIAB|Threads|Barcelona/i.test(ua);
+
+        // Desktop - go directly to target link
+        if (!isMobile()) {
+            window.location.href = targetLink;
+            return;
+        }
+
+        // Android
+        if (isAndroid()) {
+            if (isAppBrowser()) {
+                // Instagram/Facebook app browser - show button for user-triggered redirect
+                showRedirectButton(deeplink.android, targetLink);
+                return;
+            }
+
+            // Android outside app browser
+            if (deeplink.android) {
+                const normalizedDeeplink = normalizeIntentLink(deeplink.android, targetLink);
+                redirectWithFallback(normalizedDeeplink, targetLink, 1500);
+            } else {
+                window.location.href = targetLink;
+            }
+            return;
+        }
+
+        // iOS
+        if (isIOS()) {
+            if (isAppBrowser()) {
+                // iOS app browser - redirect to Safari with x-safari scheme
+                window.location.href = `x-safari-https://www.outdoorsavannah.com/redirect.html?product=${productPath}&variant=${encodeURIComponent(targetKey)}&skipDeeplink=true`;
+                return;
+            }
+
+            // iOS outside app browser
+            if (deeplink.ios) {
+                redirectWithFallback(deeplink.ios, targetLink, 1000);
+            } else {
+                window.location.href = targetLink;
+            }
+            return;
+        }
+    }
+
+    function redirectWithFallback(deeplinkUrl, fallbackUrl, timeout) {
+        let hasLeftPage = false;
+
+        const handleVisibilityChange = () => {
+            if (document.hidden) {
+                hasLeftPage = true;
+            }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        window.location.href = deeplinkUrl;
+
+        setTimeout(() => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            if (!hasLeftPage) {
+                window.location.href = fallbackUrl;
+            }
+        }, timeout);
+    }
+
+    function showRedirectButton(deeplinkUrl, fallbackUrl) {
+        const normalizedDeeplink = normalizeIntentLink(deeplinkUrl, fallbackUrl);
+
+        const button = document.createElement('a');
+        button.href = '#';
+        button.textContent = 'Continue to destination';
+        button.style.cssText = `
+            display: inline-block;
+            padding: 12px 24px;
+            background: #0073e6;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-top: 20px;
+        `;
+
+        button.addEventListener('click', (e) => {
+            e.preventDefault();
+
+            let hasLeftPage = false;
+            const handleVisibilityChange = () => {
+                if (document.hidden) {
+                    hasLeftPage = true;
+                }
+            };
+            document.addEventListener('visibilitychange', handleVisibilityChange);
+
+            // First attempt: try original deeplink in iframe
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = deeplinkUrl;
+            document.body.appendChild(iframe);
+
+            setTimeout(() => {
+                document.removeEventListener('visibilitychange', handleVisibilityChange);
+                iframe.remove();
+
+                // If user didn't leave, try normalized deeplink
+                if (!hasLeftPage) {
+                    const iframe2 = document.createElement('iframe');
+                    iframe2.style.display = 'none';
+                    iframe2.src = normalizedDeeplink;
+                    document.body.appendChild(iframe2);
+
+                    // Final fallback
+                    setTimeout(() => {
+                        iframe2.remove();
+                        if (!document.hidden) {
+                            window.location.href = fallbackUrl;
+                        }
+                    }, 1500);
+                }
+            }, 1200);
+        });
+
+        // Show message and button
+        const container = document.body;
+        const message = document.createElement('div');
+        message.style.cssText = `
+            padding: 40px 20px;
+            text-align: center;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        `;
+        message.innerHTML = `
+            <h2>Opening destination...</h2>
+            <p>If nothing opens, tap the button below</p>
+            ${button.outerHTML}
+        `;
+        container.insertBefore(message, container.firstChild);
+    }
+})();
+
+document.addEventListener('DOMContentLoaded', async () => {
 
 		const ua = navigator.userAgent;
 		const isMobile = () => /iPhone|iPad|iPod|Android/i.test(ua);
@@ -102,21 +300,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 		const amazonLinks = await res.json();
 
     const pathParts = location.pathname.split('/').filter(Boolean);
-    let productName;
 
     // Handle homepage
-    if (location.pathname === "/") {
-      productName = "home";
-    } else {
-      // --- Get product slug ---
-      productName = pathParts[pathParts.length - 1];
-      if (pathParts[0] === "product" && pathParts.length > 1) {
-        productName = `product/${productName}`;
-      }
-    }
+    let productName = location.pathname === "/" ? "home" : pathParts.join('/');
 
-		const links = amazonLinks[pathParts[pathParts.length - 1]] || amazonLinks[productName];
-		if (!links) return;
+    // Try exact match first, then fall back to last path part
+    let links = amazonLinks[productName] || amazonLinks[pathParts[pathParts.length - 1]];
+    if (!links) return;
 
     // --- Universal normalizeIntentLink for Android ---
     function normalizeIntentLink(url, webFallbackUrl = null) {

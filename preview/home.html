@@ -30,7 +30,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const hash = url.hash || "";
 
     // --- Protected slugs ---
-    const protectedSlugs = ["home", "product", "cat-shelf-guide"];
+    const protectedSlugs = ["home", "cat-shelf-guide"];
 
     // --- Detect platform ---
     const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
@@ -41,7 +41,7 @@ document.addEventListener("DOMContentLoaded", function() {
     if (pathSegments[0] === "preview" && slug === "amzn") {
         // --- amzn folder ---
         const amznVariant = variant || "index";
-        redirectUrl = "/redirect.html?product=amzn/" + amznVariant;
+        redirectUrl = "/redirect.html?product=product/amzn/" + amznVariant;
     } else if (protectedSlugs.includes(slug)) {
         redirectUrl = "/redirect.html?product=" + slug;
     } else {

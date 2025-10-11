@@ -86,9 +86,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <link rel="me" href="https://www.threads.com/@outdoorsavannah">
 <link rel="me" href="https://www.threads.com/@rajaanddavid">
 
-// Add this module to your header script BEFORE the DOMContentLoaded event listener
-
-// --- Preview AMZN Route Handler ---
+<script>
 (async function handlePreviewAmzn() {
     const pathname = window.location.pathname;
     const params = new URLSearchParams(window.location.search);
@@ -287,7 +285,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     }
 })();
 
-<script>document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', async () => {
 
 		const ua = navigator.userAgent;
 		const isMobile = () => /iPhone|iPad|iPod|Android/i.test(ua);
@@ -300,21 +298,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 		const amazonLinks = await res.json();
 
     const pathParts = location.pathname.split('/').filter(Boolean);
-    let productName;
 
     // Handle homepage
-    if (location.pathname === "/") {
-      productName = "home";
-    } else {
-      // --- Get product slug ---
-      productName = pathParts[pathParts.length - 1];
-      if (pathParts[0] === "product" && pathParts.length > 1) {
-        productName = `product/${productName}`;
-      }
-    }
+    let productName = location.pathname === "/" ? "home" : pathParts.join('/');
 
-		const links = amazonLinks[pathParts[pathParts.length - 1]] || amazonLinks[productName];
-		if (!links) return;
+    // Try exact match first, then fall back to last path part
+    let links = amazonLinks[productName] || amazonLinks[pathParts[pathParts.length - 1]];
+    if (!links) return;
 
     // --- Universal normalizeIntentLink for Android ---
     function normalizeIntentLink(url, webFallbackUrl = null) {

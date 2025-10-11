@@ -171,10 +171,8 @@
             document.body.classList.add('page-id-5');
         }
 
-        function getProductName() {
-            const segments = productPath.split('/').filter(Boolean);
-            if (segments[0] === 'product') segments.shift();
-            return segments.join('/');
+        function getProductName(productPath) {
+            return productPath;
         }
 
         // --- Universal normalizeIntentLink for Android ---
