@@ -27,8 +27,10 @@
 
         // --- Query string to get product path ---
         const params = new URLSearchParams(window.location.search);
+        // --- If user is returning from Meta app, skip deeplink ---
+        // --- Check skipDeeplink param instead of fbclid ---
         const skipDeeplink = params.get('skipDeeplink') === 'true';
-        const productPath = params.get('product');
+        const productPath = params.get('product'); // e.g., "product/leash"
         if (!productPath) {
             document.body.innerHTML = '<p>Error: No product specified.</p>';
             return;
@@ -36,7 +38,7 @@
 
         // --- Fetch original product page HTML ---
         let fetchPath = '/' + productPath + '/';
-        if (productPath === 'home' || productPath === 'amzn') fetchPath = '/';
+        if (productPath === 'home' || productPath === 'amzn') fetchPath = '/'; // homepage or amazon storefront
         const res = await fetch(fetchPath);
         const html = await res.text();
         const parser = new DOMParser();
@@ -50,6 +52,7 @@
             if (url.startsWith('/')) {
                 return window.location.origin + url;
             }
+            // Handle relative paths like '../' or 'assets/'
             const base = window.location.origin + fetchPath.replace(/[^/]*$/, '');
             return new URL(url, base).href;
         }
@@ -63,6 +66,7 @@
             link.href = fixUrl(ogImage.content);
             document.head.appendChild(link);
 
+            // Optional hidden image for faster load
             const img = new Image();
             img.src = fixUrl(ogImage.content);
         }
@@ -78,14 +82,17 @@
         Array.from(doc.head.children).forEach(node => {
             const clone = node.cloneNode(true);
 
+            // Fix link href
             if (clone.tagName === 'LINK' && clone.href) {
                 clone.href = fixUrl(clone.getAttribute('href'));
             }
 
+            // Fix script src
             if (clone.tagName === 'SCRIPT' && clone.src) {
                 clone.src = fixUrl(clone.getAttribute('src'));
             }
 
+            // Fix style URLs (background images, etc.)
             if (clone.tagName === 'STYLE' && clone.textContent) {
                 clone.textContent = clone.textContent.replace(
                     /url\(['"]?([^'"()]+)['"]?\)/g,
@@ -121,7 +128,8 @@
         Array.from(doc.body.childNodes).forEach(node => {
             const clone = node.cloneNode(true);
 
-            if (clone.nodeType === 1) {
+            // Fix image sources
+            if (clone.nodeType === 1) { // Element node
                 clone.querySelectorAll?.('img[src], source[srcset], img[srcset]').forEach(img => {
                     if (img.src) img.src = fixUrl(img.getAttribute('src'));
                     if (img.srcset) {
@@ -143,6 +151,7 @@
             const s = document.createElement('script');
             if (script.src) {
                 s.src = fixUrl(script.getAttribute('src'));
+                // Wait for external scripts to load
                 if (script.src) {
                     await new Promise((resolve) => {
                         s.onload = resolve;
@@ -157,6 +166,7 @@
             document.body.appendChild(s);
         }
 
+        // Check if we're on the homepage path
         if (productPath === 'home') {
             document.body.classList.add('page-id-5');
         }
@@ -171,30 +181,38 @@
         function normalizeIntentLink(url, webFallbackUrl = null) {
           if (!url) return url;
           try {
+            // Handle existing intent:// links
             if (url.startsWith("intent://")) {
               const [prefix, intentPart] = url.split("#Intent;");
               if (!intentPart) return url;
 
+              // Extract the original scheme from the intent parameters
               const schemeMatch = intentPart.match(/scheme=([^;]+)/);
               const originalScheme = schemeMatch ? schemeMatch[1] : "https";
 
+              // Build fallback URL
               let fallbackUrl;
 
+              // Priority 1: Use provided web fallback (from the corresponding non-deeplink URL)
               if (webFallbackUrl) {
                 fallbackUrl = webFallbackUrl;
               }
+              // Priority 2: For https/http schemes, construct from the intent path
               else if (originalScheme === "https" || originalScheme === "http") {
                 fallbackUrl = `${originalScheme}://${prefix.replace(/^intent:\/\//, "")}`;
               }
+              // Priority 3: Try to extract from existing S.browser_fallback_url
               else {
                 const existingFallback = intentPart.match(/S\.browser_fallback_url=([^;]+)/);
                 if (existingFallback) {
                   fallbackUrl = decodeURIComponent(existingFallback[1]);
                 } else {
+                  // Priority 4: Intelligent guess based on intent path
                   fallbackUrl = inferFallbackUrl(prefix, originalScheme);
                 }
               }
 
+              // Clean up unwanted intent extras while preserving the scheme
               const cleaned = intentPart
                 .split(";")
                 .filter(part =>
@@ -205,10 +223,12 @@
                 )
                 .join(";");
 
+              // Construct normalized intent with safe fallback
               return `${prefix}#Intent;${cleaned};action=android.intent.action.VIEW;S.browser_fallback_url=${encodeURIComponent(fallbackUrl)};end`
                 .replace(/;;+/g, ";");
             }
 
+            // Handle plain https:// or app:// style links
             if (/^[a-zA-Z0-9.]+:\/\//.test(url)) {
               const httpsUrl = url.replace(/^[a-zA-Z0-9.]+:\/\//, "https://");
               const fallback = encodeURIComponent(httpsUrl);
@@ -222,22 +242,26 @@
           }
         }
 
+        // Helper function to intelligently infer fallback URLs
         function inferFallbackUrl(prefix, scheme) {
           const path = prefix.replace(/^intent:\/\//, "");
 
+          // Check if the path already looks like a domain
           if (path.includes('.com') || path.includes('.org') || path.includes('.net')) {
             return `https://${path}`;
           }
 
+          // Try to extract domain from common patterns
           const domainPatterns = [
-            /([a-z0-9-]+\.[a-z]{2,})/i,
-            /(facebook|snapchat|instagram|youtube|tiktok|discord|amazon|aliexpress)/i
+            /([a-z0-9-]+\.[a-z]{2,})/i,  // matches domain.com
+            /(facebook|snapchat|instagram|youtube|tiktok|discord|amazon|aliexpress)/i  // known services
           ];
 
           for (const pattern of domainPatterns) {
             const match = path.match(pattern);
             if (match) {
               const service = match[1].toLowerCase();
+              // Map known services to their domains
               const serviceMap = {
                 'facebook': 'www.facebook.com',
                 'snapchat': 'www.snapchat.com',
@@ -253,12 +277,14 @@
                 return `https://${serviceMap[service]}/${path}`;
               }
 
+              // If it's already a domain, use it
               if (service.includes('.')) {
                 return `https://${path}`;
               }
             }
           }
 
+          // Last resort: just make it https
           return `https://${path}`;
         }
 
@@ -293,6 +319,7 @@
                 const links = amazonLinks[productName];
                 if (!links) return;
 
+                // Select all relevant links
                 const allLinks = document.querySelectorAll(
                     '.wp-block-button.buy-button .wp-block-button__link, a[title^="extralink"], li[id^="extralink"] a'
                 );
@@ -300,23 +327,28 @@
                 allLinks.forEach(linkEl => {
                     let key = null;
 
+                    // Buy button: last word in text
                     if (linkEl.classList.contains('wp-block-button__link')) {
                         const text = linkEl.textContent.trim();
                         const match = text.match(/Buy on\s+([\w-]+)/i);
                         if (match) key = match[1].toLowerCase();
                     }
 
+
+                    // Title starts with extralink
                     if (!key && linkEl.hasAttribute('title')) {
                         const title = linkEl.getAttribute('title').trim().toLowerCase();
-                        if (title.startsWith('extralink')) key = title;
+                        if (title.startsWith('extralink')) key = title; // use full title as key
                     }
 
+                    // li[id^="extralink"] a
                     if (!key && linkEl.closest('li[id^="extralink"]')) {
                         const li = linkEl.closest('li[id^="extralink"]');
                         const liId = li.id.trim().toLowerCase();
-                        if (liId.startsWith('extralink')) key = liId;
+                        if (liId.startsWith('extralink')) key = liId; // use full ID as key
                     }
 
+                    // Fallback: infer from URL
                     if (!key && linkEl.href) {
                         if (linkEl.href.includes('amazon')) key = 'amazon';
                         else if (linkEl.href.includes('aliexpress')) key = 'aliexpress';
@@ -324,6 +356,7 @@
 
                     if (!key) return;
 
+                    // Set link to web target from amazonLinks.json
                     const newHref = links[key] || Object.values(links).find(v => typeof v === 'string');
                     if (newHref) {
                         linkEl.href = newHref;
@@ -355,6 +388,7 @@
             }
 
             if (isMobile() && !sessionStorage.getItem('redirectedOnce')) {
+                // Only set redirectedOnce for non-home pages
                 if (fetchPath !== '/') {
                     sessionStorage.setItem('redirectedOnce', 'true');
                 }
@@ -386,8 +420,10 @@
                             };
                             document.addEventListener('visibilitychange', handleVisibilityChange);
 
+                            // Use normalized deeplink which has built-in fallback
                             window.location.href = normalizedDeeplink;
 
+                            // If app doesn't open, fall back to web target
                             setTimeout(() => {
                                 document.removeEventListener('visibilitychange', handleVisibilityChange);
                                 const elapsed = Date.now() - now;
@@ -409,66 +445,53 @@
                             document.addEventListener('visibilitychange', handleVisibilityChange);
 
                             window.location.href = primaryDeeplink;
+                                // If app doesn't open, fall back to web target
+                                setTimeout(() => {
+                                    document.removeEventListener('visibilitychange', handleVisibilityChange);
+                                    const elapsed = Date.now() - now;
 
-                            setTimeout(() => {
-                                document.removeEventListener('visibilitychange', handleVisibilityChange);
-                                const elapsed = Date.now() - now;
-
-                                if (!hasLeftPage && elapsed < 1000) {
-                                    window.location.href = targetLink;
-                                }
-                            }, 800);
-                            return;
+                                    if (!hasLeftPage && elapsed < 1000) {
+                                        window.location.href = targetLink;
+                                    }
+                                }, 800);
+                        return;
                         }
                     }
                     // --- In-app browser ---
                     if (isAppBrowser() && primaryDeeplink) {
                         if (isAndroid()) {
-                            // Show a clickable button instead of auto-redirect
-                            // This allows the intent URL to work since it's user-triggered
-                            const normalizedDeeplink = normalizeIntentLink(primaryDeeplink, targetLink);
+                            const now = Date.now();
+                            let hasLeftPage = false;
 
-                            const button = document.createElement('a');
-                            button.href = '#';
-                            button.textContent = 'Continue to destination';
-                            button.style.cssText = 'display: inline-block; padding: 12px 24px; background: #0073e6; color: white; text-decoration: none; border-radius: 4px; font-weight: bold; margin-top: 20px;';
+                            const handleVisibilityChange = () => {
+                                if (document.hidden) {
+                                    hasLeftPage = true;
+                                }
+                            };
 
-                            button.addEventListener('click', (e) => {
-                                e.preventDefault();
+                            document.addEventListener('visibilitychange', handleVisibilityChange);
 
-                                let hasLeftPage = false;
-                                const handleVisibilityChange = () => {
-                                    if (document.hidden) {
-                                        hasLeftPage = true;
-                                    }
-                                };
-                                document.addEventListener('visibilitychange', handleVisibilityChange);
+                            const iframe = document.createElement('iframe');
+                            iframe.style.display = 'none';
+                            iframe.src = primaryDeeplink;
+                            document.body.appendChild(iframe);
 
-                                // Use intent URL directly in iframe (user-triggered)
-                                const iframe = document.createElement('iframe');
-                                iframe.style.display = 'none';
-                                iframe.src = normalizedDeeplink;
-                                document.body.appendChild(iframe);
+                            setTimeout(() => {
+                                document.removeEventListener('visibilitychange', handleVisibilityChange);
+                                const elapsed = Date.now() - now;
+                                iframe.remove();
 
-                                setTimeout(() => {
-                                    document.removeEventListener('visibilitychange', handleVisibilityChange);
-                                    iframe.remove();
+                                if (!hasLeftPage && elapsed < 1500) {
+                                    // UPDATED: Pass the web fallback URL as second parameter
+                                    const normalizedDeeplink = normalizeIntentLink(primaryDeeplink, targetLink);
 
-                                    if (!hasLeftPage) {
-                                        window.location.href = targetLink;
-                                    }
-                                }, 1500);
-                            });
-
-                            // Replace header text and add button
-                            if (entryHeader) {
-                                entryHeader.textContent = "Tap the button below to continue";
-                                entryHeader.style.marginBottom = '20px';
-                            }
-
-                            // Find a place to insert the button (after header or in body)
-                            const container = document.querySelector('.entry-content') || document.querySelector('main') || document.body;
-                            container.insertBefore(button, container.firstChild);
+                                    // Second attempt: try normalized deeplink in iframe
+                                    const iframe2 = document.createElement('iframe');
+                                    iframe2.style.display = 'none';
+                                    iframe2.src = normalizedDeeplink;
+                                    document.body.appendChild(iframe2);
+                                }
+                            }, 1200);
                             return;
                         } else if (isIOS()) {
                             const now = Date.now();
@@ -491,7 +514,9 @@
                                 iframe.remove();
                                 const elapsed = Date.now() - now;
 
+
                                 if (!hasLeftPage && elapsed < 1000) {
+                                    // Deeplink failed, open Safari directly using x-safari-https://
                                     window.location.href = `x-safari-${targetLink}`;
                                 }
                             }, 800);
