@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cat Carrier for Car - Raja and David®</title>
+<title>Cat Carrier for Car - Raja and David® - amazon</title>
 
 <!-- Open Graph & Twitter meta -->
 <meta property="og:title" content="Cat Carrier for Car - Raja and David®">
@@ -21,47 +21,61 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
-    const url = new URL(window.location.href);
-    const pathSegments = url.pathname.split("/").filter(Boolean);
+    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+    const isAndroid = /Android/i.test(navigator.userAgent);
+    const isAppBrowser = /Instagram|FBAV|FBAN\/FBIOS|FB_IAB|FB4A|MetaIAB|Threads|Barcelona/i.test(navigator.userAgent);
 
-    // --- Extract slug ---
-    let slug = pathSegments[1] || "home"; // default slug
-    let variant = url.searchParams.get('variant') || "";
+    const url = new URL(window.location.href);
+    const variant = url.searchParams.get('variant') || "";
     const hash = url.hash || "";
 
-    // --- Protected slugs ---
-    const protectedSlugs = ["home", "cat-shelf-guide"];
-
-    // --- Detect platform ---
-    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-
-    // --- Construct redirectUrl ---
-    let redirectUrl;
-
-    if (pathSegments[0] === "preview" && slug === "amzn") {
-        // --- amzn folder ---
-        const amznVariant = variant || "index";
-        redirectUrl = "/redirect.html?product=product/amzn/" + amznVariant;
-    } else if (protectedSlugs.includes(slug)) {
-        redirectUrl = "/redirect.html?product=" + slug;
-    } else {
-        redirectUrl = "/redirect.html?product=product/" + slug;
+    // --- Android users ---
+    if (isAndroid) {
+        // Extract slug from productKey
+        const slug = "product/sleepypod-mobile-cat-bed".includes('/') ? "product/sleepypod-mobile-cat-bed".split('/')[1] : "product/sleepypod-mobile-cat-bed";
+        window.location.replace("/preview/" + slug + "?product=product/sleepypod-mobile-cat-bed" + (variant ? "&variant=" + encodeURIComponent(variant) : "") + hash);
+        return;
     }
 
-    if (variant && slug !== "amzn") {
-        redirectUrl += "&variant=" + encodeURIComponent(variant);
-    }
-
-    // --- Apply x-safari for iOS ---
+    // --- iOS users ---
     if (isIOS) {
-        redirectUrl = "x-safari-https://www.outdoorsavannah.com" + redirectUrl + hash;
-    } else {
-        // --- Android: keep redirect structure but without x-safari ---
-        redirectUrl = "/preview/amzn" + "?product=" + redirectUrl.split("?product=")[1] + hash;
-    }
+        // Try to get the iOS deeplink from amazonLinks
+        const deeplink = "com.amazon.mobile.shopping.web://amazon.com/Sleepypod-Mobile-Pet-Robin-Blue/dp/B08JQPQM8J?tag=outdoorsavann-20";
 
-    // --- Redirect ---
-    window.location.replace(redirectUrl);
+        if (deeplink && deeplink !== "") {
+            // Try deeplink in iframe first
+            let hasLeftPage = false;
+
+            const handleVisibilityChange = () => {
+                if (document.hidden) {
+                    hasLeftPage = true;
+                }
+            };
+
+            document.addEventListener('visibilitychange', handleVisibilityChange);
+
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = deeplink;
+            document.body.appendChild(iframe);
+
+            // If deeplink fails, fall back to x-safari redirect
+            setTimeout(() => {
+                document.removeEventListener('visibilitychange', handleVisibilityChange);
+                iframe.remove();
+
+                if (!hasLeftPage) {
+                    // Deeplink failed, use x-safari redirect
+                    const redirectUrl = "/redirect.html?product=product/sleepypod-mobile-cat-bed" + (variant ? "&variant=" + encodeURIComponent(variant) : "");
+                    window.location.replace("x-safari-https://www.outdoorsavannah.com" + redirectUrl + hash);
+                }
+            }, 1000);
+        } else {
+            // No deeplink available, go straight to x-safari redirect
+            const redirectUrl = "/redirect.html?product=product/sleepypod-mobile-cat-bed" + (variant ? "&variant=" + encodeURIComponent(variant) : "");
+            window.location.replace("x-safari-https://www.outdoorsavannah.com" + redirectUrl + hash);
+        }
+    }
 });
 </script>
 
