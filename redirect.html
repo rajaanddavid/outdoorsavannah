@@ -145,25 +145,34 @@
             document.body.appendChild(clone);
         });
 
-        // --- Re-execute scripts ---
+        // --- Re-execute scripts safely ---
         const scripts = Array.from(doc.body.querySelectorAll('script'));
-        for (const script of scripts) {
-            const s = document.createElement('script');
-            if (script.src) {
-                s.src = fixUrl(script.getAttribute('src'));
-                // Wait for external scripts to load
-                if (script.src) {
-                    await new Promise((resolve) => {
-                        s.onload = resolve;
-                        s.onerror = resolve;
-                        document.body.appendChild(s);
-                    });
-                    continue;
-                }
+        for (const oldScript of scripts) {
+            const newScript = document.createElement('script');
+
+            // Preserve the script type (e.g. application/ld+json)
+            if (oldScript.type) newScript.type = oldScript.type;
+
+            const src = oldScript.getAttribute('src');
+
+            if (src) {
+                newScript.src = fixUrl(src);
+                await new Promise((resolve) => {
+                    newScript.onload = resolve;
+                    newScript.onerror = resolve;
+                    document.body.appendChild(newScript);
+                });
             } else {
-                s.textContent = script.textContent;
+                // Only run inline JS if it's regular JavaScript
+                if (!oldScript.type || oldScript.type === 'text/javascript') {
+                    newScript.textContent = oldScript.textContent;
+                    document.body.appendChild(newScript);
+                } else {
+                    // For JSON or other types, just copy directly (no exec)
+                    const clone = oldScript.cloneNode(true);
+                    document.body.appendChild(clone);
+                }
             }
-            document.body.appendChild(s);
         }
 
         // Check if we're on the homepage path
@@ -515,7 +524,7 @@
 
                                 if (!hasLeftPage && elapsed < 1000) {
                                     // Deeplink failed, open Safari directly using x-safari-https://
-                                    window.location.href = `x-safari-${targetLink}`;
+                                    window.location.href = "x-safari-" + targetLink;
                                 }
                             }, 800);
                             return;
