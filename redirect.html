@@ -145,27 +145,6 @@
             document.body.appendChild(clone);
         });
 
-        // --- Re-execute scripts ---
-        const scripts = Array.from(doc.body.querySelectorAll('script'));
-        for (const script of scripts) {
-            const s = document.createElement('script');
-            if (script.src) {
-                s.src = fixUrl(script.getAttribute('src'));
-                // Wait for external scripts to load
-                if (script.src) {
-                    await new Promise((resolve) => {
-                        s.onload = resolve;
-                        s.onerror = resolve;
-                        document.body.appendChild(s);
-                    });
-                    continue;
-                }
-            } else {
-                s.textContent = script.textContent;
-            }
-            document.body.appendChild(s);
-        }
-
         // Check if we're on the homepage path
         if (productPath === 'home') {
             document.body.classList.add('page-id-5');
@@ -393,10 +372,10 @@
 
                 // --- Determine primary deeplink ---
                 let primaryDeeplink = null;
-                if (isAndroid() && productLinks[`${variant}_deeplink_android`]) {
-                    primaryDeeplink = productLinks[`${variant}_deeplink_android`];
-                } else if (isIOS() && productLinks[`${variant}_deeplink_ios`]) {
-                    primaryDeeplink = productLinks[`${variant}_deeplink_ios`];
+                if (isAndroid() && productLinks[`${targetKey}_deeplink_android`]) {
+                    primaryDeeplink = productLinks[`${targetKey}_deeplink_android`];
+                } else if (isIOS() && productLinks[`${targetKey}_deeplink_ios`]) {
+                    primaryDeeplink = productLinks[`${targetKey}_deeplink_ios`];
                 } else {
                     if (isAndroid()) primaryDeeplink = productLinks["amazon_deeplink_android"];
                     else if (isIOS()) primaryDeeplink = productLinks["amazon_deeplink_ios"];
