@@ -424,48 +424,51 @@
                     // --- In-app browser ---
                     if (isAppBrowser() && primaryDeeplink) {
                         if (isAndroid()) {
+                            // Show a clickable button instead of auto-redirect
+                            // This allows the intent URL to work since it's user-triggered
                             const normalizedDeeplink = normalizeIntentLink(primaryDeeplink, targetLink);
 
-                            let hasLeftPage = false;
-                            const handleVisibilityChange = () => {
-                                if (document.hidden) {
-                                    hasLeftPage = true;
-                                }
-                            };
-                            document.addEventListener('visibilitychange', handleVisibilityChange);
+                            const button = document.createElement('a');
+                            button.href = '#';
+                            button.textContent = 'Continue to destination';
+                            button.style.cssText = 'display: inline-block; padding: 12px 24px; background: #0073e6; color: white; text-decoration: none; border-radius: 4px; font-weight: bold; margin-top: 20px;';
 
-                            // Try window.open first (often works better in app browsers)
-                            const opened = window.open(normalizedDeeplink, '_blank');
+                            button.addEventListener('click', (e) => {
+                                e.preventDefault();
 
-                            // If window.open doesn't trigger app/browser, try iframe
-                            setTimeout(() => {
-                                if (!hasLeftPage && opened) {
-                                    try {
-                                        opened.close();
-                                    } catch (e) {}
+                                let hasLeftPage = false;
+                                const handleVisibilityChange = () => {
+                                    if (document.hidden) {
+                                        hasLeftPage = true;
+                                    }
+                                };
+                                document.addEventListener('visibilitychange', handleVisibilityChange);
 
-                                    // Fallback to iframe approach
-                                    const iframe = document.createElement('iframe');
-                                    iframe.style.display = 'none';
-                                    iframe.src = normalizedDeeplink;
-                                    document.body.appendChild(iframe);
+                                // Use intent URL directly in iframe (user-triggered)
+                                const iframe = document.createElement('iframe');
+                                iframe.style.display = 'none';
+                                iframe.src = normalizedDeeplink;
+                                document.body.appendChild(iframe);
 
-                                    setTimeout(() => {
-                                        iframe.remove();
-                                        if (!hasLeftPage) {
-                                            window.location.href = targetLink;
-                                        }
-                                    }, 1500);
-                                }
-                            }, 800);
+                                setTimeout(() => {
+                                    document.removeEventListener('visibilitychange', handleVisibilityChange);
+                                    iframe.remove();
 
-                            // Final safety net
-                            setTimeout(() => {
-                                document.removeEventListener('visibilitychange', handleVisibilityChange);
-                                if (!hasLeftPage) {
-                                    window.location.href = targetLink;
-                                }
-                            }, 3000);
+                                    if (!hasLeftPage) {
+                                        window.location.href = targetLink;
+                                    }
+                                }, 1500);
+                            });
+
+                            // Replace header text and add button
+                            if (entryHeader) {
+                                entryHeader.textContent = "Tap the button below to continue";
+                                entryHeader.style.marginBottom = '20px';
+                            }
+
+                            // Find a place to insert the button (after header or in body)
+                            const container = document.querySelector('.entry-content') || document.querySelector('main') || document.body;
+                            container.insertBefore(button, container.firstChild);
                             return;
                         } else if (isIOS()) {
                             const now = Date.now();
