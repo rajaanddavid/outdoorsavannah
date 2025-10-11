@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Amazon Preview - store</title>
+<meta name="robots" content="noindex, nofollow">
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const url = new URL(window.location.href);
+    const variant = url.searchParams.get('variant') || "store";
+    const hash = url.hash || "";
+    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+    let targetUrl;
+    if (isIOS) {
+        targetUrl = "x-safari-https://www.outdoorsavannah.com/redirect.html?product=home";
+        if (variant) targetUrl += "&variant=" + encodeURIComponent(variant);
+        if (hash) targetUrl += hash;
+    } else {
+        targetUrl = "/preview/index.html?product=amzn";
+        if (variant) targetUrl += "&variant=" + encodeURIComponent(variant);
+        if (hash) targetUrl += hash;
+    }
+
+    window.location.replace(targetUrl);
+});
+</script>
+</head>
+<body>
+<p>Redirecting...</p>
+</body>
+</html>

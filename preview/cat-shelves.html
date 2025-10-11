@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Premade Cat Wall - Raja and David®</title>
+<title>Premade Cat Wall - Raja and David® - amazon</title>
 
 <!-- Open Graph & Twitter meta -->
 <meta property="og:title" content="Premade Cat Wall - Raja and David®">
@@ -24,18 +24,16 @@ document.addEventListener("DOMContentLoaded", function() {
     const url = new URL(window.location.href);
 
     // --- Extract slug from path ---
-    let slug = "home"; // default
+    let slug = "cat-shelves";
     const pathSegments = url.pathname.split("/").filter(Boolean);
     if (pathSegments[0] === "preview" && pathSegments[1]) {
         slug = pathSegments[1];
 
-        // Remove variant suffix if it's a product (not a protected slug)
-        const protectedSlugs = ["home", "product", "cat-shelf-guide"];
+        // Remove variant suffix for normal products
+        const protectedSlugs = ["home", "product", "cat-shelf-guide", "amzn"];
         if (!protectedSlugs.includes(slug)) {
             const dashIndex = slug.indexOf("-");
-            if (dashIndex > 0) {
-                slug = slug.substring(0, dashIndex);
-            }
+            if (dashIndex > 0) slug = slug.substring(0, dashIndex);
         }
     }
 
@@ -49,9 +47,16 @@ document.addEventListener("DOMContentLoaded", function() {
     const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
     // --- Construct redirect URL ---
-    const protectedSlugs = ["home", "product", "cat-shelf-guide"];
     let redirectUrl;
-    if (protectedSlugs.includes(slug)) {
+    const protectedSlugs = ["home", "product", "cat-shelf-guide", "amzn"];
+    if (slug === "amzn" && isAmzn) {
+        // amzn special: iOS to redirect.html, Android to /preview/amzn.html
+        if (isIOS) {
+            redirectUrl = "/redirect.html?product=amzn";
+        } else {
+            redirectUrl = "/preview/amzn.html";
+        }
+    } else if (protectedSlugs.includes(slug)) {
         redirectUrl = "/redirect.html?product=" + slug;
     } else {
         redirectUrl = "/redirect.html?product=product/" + slug;
@@ -60,7 +65,7 @@ document.addEventListener("DOMContentLoaded", function() {
     if (variant) redirectUrl += "&variant=" + encodeURIComponent(variant);
 
     // --- Apply x-safari and skipDeeplink for iOS ---
-    if (isIOS) {
+    if (isIOS && slug !== "amzn") {
         redirectUrl = "x-safari-https://www.outdoorsavannah.com" + redirectUrl + hash;
     }
 
@@ -70,6 +75,6 @@ document.addEventListener("DOMContentLoaded", function() {
 </script>
 </head>
 <body>
-<p>Redirecting to product...</p>
+<p>Redirecting...</p>
 </body>
 </html>
