@@ -300,7 +300,18 @@
             const validKeys = Object.keys(productLinks).filter(
                 k => !k.endsWith('_deeplink_ios') && !k.endsWith('_deeplink_android')
             );
-            const targetKey = validKeys.includes(variant) ? variant : validKeys[0];
+
+            // Match variant to correct key (handle case sensitivity)
+            let targetKey = null;
+            if (variant) {
+                targetKey = validKeys.find(k => k.toLowerCase() === variant);
+            }
+
+            // Fallback to first valid key if variant not found
+            if (!targetKey) {
+                targetKey = validKeys[0];
+            }
+
             const targetLink = targetKey ? productLinks[targetKey] : null;
             if (!targetLink) return;
 
@@ -397,7 +408,8 @@
                     // --- Mobile outside app browser ---
                     if (!isAppBrowser() && primaryDeeplink) {
                         if (isAndroid()) {
-                            const normalizedDeeplink = normalizeIntentLink(primaryDeeplink, fallback);
+                            // Use normalized deeplink with fallback
+                            const normalizedDeeplink = normalizeIntentLink(primaryDeeplink, targetLink);
                             const now = Date.now();
                             let hasLeftPage = false;
 
@@ -448,6 +460,9 @@
                     // --- In-app browser ---
                     if (isAppBrowser() && primaryDeeplink) {
                         if (isAndroid()) {
+                            // In app browser, go directly to normalized deeplink
+                            // which has the web fallback URL embedded
+
                             const now = Date.now();
                             let hasLeftPage = false;
 
@@ -459,6 +474,7 @@
 
                             document.addEventListener('visibilitychange', handleVisibilityChange);
 
+                            // First attempt: try original deeplink in iframe
                             const iframe = document.createElement('iframe');
                             iframe.style.display = 'none';
                             iframe.src = primaryDeeplink;
@@ -466,18 +482,25 @@
 
                             setTimeout(() => {
                                 document.removeEventListener('visibilitychange', handleVisibilityChange);
-                                const elapsed = Date.now() - now;
                                 iframe.remove();
 
-                                if (!hasLeftPage && elapsed < 1500) {
-                                    // UPDATED: Pass the web fallback URL as second parameter
-                                    const normalizedDeeplink = normalizeIntentLink(primaryDeeplink, fallback);
+                                // If user didn't leave, try normalized deeplink (also in iframe)
+                                if (!hasLeftPage) {
+                                    const normalizedDeeplink = normalizeIntentLink(primaryDeeplink, targetLink);
 
                                     // Second attempt: try normalized deeplink in iframe
                                     const iframe2 = document.createElement('iframe');
                                     iframe2.style.display = 'none';
                                     iframe2.src = normalizedDeeplink;
                                     document.body.appendChild(iframe2);
+
+                                    // Final fallback to web URL
+                                    setTimeout(() => {
+                                        iframe2.remove();
+                                        if (!document.hidden) {
+                                            window.location.href = targetLink;
+                                        }
+                                    }, 1200);
                                 }
                             }, 1200);
                             return;
