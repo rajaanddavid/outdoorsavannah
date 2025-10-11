@@ -3,27 +3,74 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Amazon Preview - outdoor-adventures</title>
+<title>Amazon Wall Crawler Gecko - outdoor-adventures</title>
+
+<!-- Open Graph & Twitter meta -->
+<meta property="og:title" content="Amazon Wall Crawler Gecko">
+<meta property="og:image" content="https://www.outdoorsavannah.com/default-og-image.webp">
+<meta property="og:description" content="Buy the Wall Crawler Gecko on Amazon.">
+<meta property="og:url" content="https://www.outdoorsavannah.com/preview/amzn.html">
+<meta property="fb:app_id" content="1234567890">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Amazon Wall Crawler Gecko">
+<meta name="twitter:description" content="Buy the Wall Crawler Gecko on Amazon.">
+<meta name="twitter:image" content="https://www.outdoorsavannah.com/default-og-image.webp">
+<meta name="twitter:site" content="@outdoorsavannah">
+<meta name="twitter:creator" content="@outdoorsavannah">
 <meta name="robots" content="noindex, nofollow">
+
 <script>
 document.addEventListener("DOMContentLoaded", function() {
     const url = new URL(window.location.href);
-    const variant = url.searchParams.get('variant') || "outdoor-adventures";
-    const hash = url.hash || "";
-    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-    let targetUrl;
-    if (isIOS) {
-        targetUrl = "x-safari-https://www.outdoorsavannah.com/redirect.html?product=home";
-        if (variant) targetUrl += "&variant=" + encodeURIComponent(variant);
-        if (hash) targetUrl += hash;
-    } else {
-        targetUrl = "/preview/index.html?product=amzn";
-        if (variant) targetUrl += "&variant=" + encodeURIComponent(variant);
-        if (hash) targetUrl += hash;
+    // --- Extract slug from path ---
+    let slug = "amzn";
+    const pathSegments = url.pathname.split("/").filter(Boolean);
+    if (pathSegments[0] === "preview" && pathSegments[1]) {
+        slug = pathSegments[1];
+
+        // Remove variant suffix for normal products
+        const protectedSlugs = ["home", "product", "cat-shelf-guide", "amzn"];
+        if (!protectedSlugs.includes(slug)) {
+            const dashIndex = slug.indexOf("-");
+            if (dashIndex > 0) slug = slug.substring(0, dashIndex);
+        }
     }
 
-    window.location.replace(targetUrl);
+    // --- Determine variant from query ---
+    let variant = url.searchParams.get('variant') || "";
+
+    // --- Preserve hash ---
+    const hash = url.hash || "";
+
+    // --- Detect platform ---
+    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+    // --- Construct redirect URL ---
+    let redirectUrl;
+    const protectedSlugs = ["home", "product", "cat-shelf-guide", "amzn"];
+    if (slug === "amzn" && isAmzn) {
+        // amzn special: iOS to redirect.html, Android to /preview/amzn/index.html
+        if (isIOS) {
+            redirectUrl = "/redirect.html?product=amzn";
+        } else {
+            redirectUrl = "/preview/amzn/index.html";
+        }
+    } else if (protectedSlugs.includes(slug)) {
+        redirectUrl = "/redirect.html?product=" + slug;
+    } else {
+        redirectUrl = "/redirect.html?product=product/" + slug;
+    }
+
+    if (variant) redirectUrl += "&variant=" + encodeURIComponent(variant);
+
+    // --- Apply x-safari and skipDeeplink for iOS ---
+    if (isIOS && slug !== "amzn") {
+        redirectUrl = "x-safari-https://www.outdoorsavannah.com" + redirectUrl + hash;
+    }
+
+    // --- Redirect ---
+    window.location.replace(redirectUrl);
 });
 </script>
 </head>

@@ -50,11 +50,11 @@ document.addEventListener("DOMContentLoaded", function() {
     let redirectUrl;
     const protectedSlugs = ["home", "product", "cat-shelf-guide", "amzn"];
     if (slug === "amzn" && isAmzn) {
-        // amzn special: iOS to redirect.html, Android to /preview/amzn.html
+        // amzn special: iOS to redirect.html, Android to /preview/amzn/index.html
         if (isIOS) {
             redirectUrl = "/redirect.html?product=amzn";
         } else {
-            redirectUrl = "/preview/amzn.html";
+            redirectUrl = "/preview/amzn/index.html";
         }
     } else if (protectedSlugs.includes(slug)) {
         redirectUrl = "/redirect.html?product=" + slug;

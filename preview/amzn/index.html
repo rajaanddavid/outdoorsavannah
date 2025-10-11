@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amazon Wall Crawler Gecko</title>
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Amazon Wall Crawler Gecko">
+    <meta property="og:description" content="Buy the Wall Crawler Gecko on Amazon.">
+    <meta property="og:image" content="https://www.outdoorsavannah.com/default-og-image.webp">
+    <meta property="og:url" content="https://www.outdoorsavannah.com/preview/amzn.html">
+    <meta property="fb:app_id" content="1234567890">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Amazon Wall Crawler Gecko">
+    <meta name="twitter:description" content="Buy the Wall Crawler Gecko on Amazon.">
+    <meta name="twitter:image" content="https://www.outdoorsavannah.com/default-og-image.webp">
+    <meta name="twitter:site" content="@outdoorsavannah">
+    <meta name="twitter:creator" content="@outdoorsavannah">
+
+    <meta name="robots" content="noindex, nofollow">
+<!-- START HEADER SNIPPET -->
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-NBJRDCGV');</script>
+<!-- End Google Tag Manager -->
+
+<!-- Google tag (gtag.js) for GA4 (Analytics)-->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-0Q38LVTQS4"></script>
+<script>window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-0Q38LVTQS4');</script>
+
+<!-- Grow Mediavine -->
+<script data-grow-initializer="">!(function(){window.growMe||((window.growMe=function(e){window.growMe._.push(e);}),(window.growMe._=[]));var e=document.createElement("script");(e.type="text/javascript"),(e.src="https://faves.grow.me/main.js"),(e.defer=!0),e.setAttribute("data-grow-faves-site-id","U2l0ZTozMzJlNDE3NS1hMWI2LTRkYmEtYTgxZC0xOTcyODhhZjE3MmM=");var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t);})();</script>
+
+<!-- Adsense code -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9198690736221954" crossorigin="anonymous"></script>
+
+<link rel="preload" as="image" href="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/outdoorsavannah-logo-registered-links.webp" fetchpriority="high">
+<link rel="preload" href="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/Easy-Cat-Shelves-1187x1536.webp" as="image" fetchpriority="high">
+<link rel="preload" href="https://www.outdoorsavannah.com/amazonLinks.json" as="fetch" type="application/json" crossorigin="anonymous">
+
+<link rel="me" href="https://www.threads.com/@outdoorsavannah">
+<link rel="me" href="https://www.threads.com/@rajaanddavid">
+
+
+<script>document.addEventListener('DOMContentLoaded', async () => {
+
+		const ua = navigator.userAgent;
+		const isMobile = () => /iPhone|iPad|iPod|Android/i.test(ua);
+		const isAndroid = () => /Android/i.test(ua);
+		const isIOS = () => /iPhone|iPad|iPod/i.test(ua);
+		const isAppBrowser = () => /Instagram|FBAV|FBAN\/FBIOS|FB_IAB|FB4A|MetaIAB|Threads|Barcelona/i.test(ua);
+
+		// --- Load Amazon Links ---
+		const res = await fetch('/amazonLinks.json');
+		const amazonLinks = await res.json();
+
+    const pathParts = location.pathname.split('/').filter(Boolean);
+    let productName;
+
+    // Handle homepage
+    if (location.pathname === "/") {
+      productName = "home";
+    } else {
+      // --- Get product slug ---
+      productName = pathParts[pathParts.length - 1];
+      if (pathParts[0] === "product" && pathParts.length > 1) {
+        productName = `product/${productName}`;
+      }
+    }
+
+		const links = amazonLinks[pathParts[pathParts.length - 1]] || amazonLinks[productName];
+		if (!links) return;
+
+    // --- Universal normalizeIntentLink for Android ---
+    function normalizeIntentLink(url, webFallbackUrl = null) {
+      if (!url) return url;
+      try {
+        // Handle existing intent:// links
+        if (url.startsWith("intent://")) {
+          const [prefix, intentPart] = url.split("#Intent;");
+          if (!intentPart) return url;
+
+          // Extract the original scheme from the intent parameters
+          const schemeMatch = intentPart.match(/scheme=([^;]+)/);
+          const originalScheme = schemeMatch ? schemeMatch[1] : "https";
+
+          // Build fallback URL
+          let fallbackUrl;
+
+          // Priority 1: Use provided web fallback (from the corresponding non-deeplink URL)
+          if (webFallbackUrl) {
+            fallbackUrl = webFallbackUrl;
+          }
+          // Priority 2: For https/http schemes, construct from the intent path
+          else if (originalScheme === "https" || originalScheme === "http") {
+            fallbackUrl = `${originalScheme}://${prefix.replace(/^intent:\/\//, "")}`;
+          }
+          // Priority 3: Try to extract from existing S.browser_fallback_url
+          else {
+            const existingFallback = intentPart.match(/S\.browser_fallback_url=([^;]+)/);
+            if (existingFallback) {
+              fallbackUrl = decodeURIComponent(existingFallback[1]);
+            } else {
+              // Priority 4: Intelligent guess based on intent path
+              fallbackUrl = inferFallbackUrl(prefix, originalScheme);
+            }
+          }
+
+          // Clean up unwanted intent extras while preserving the scheme
+          const cleaned = intentPart
+            .split(";")
+            .filter(part =>
+              !part.startsWith("package=") &&
+              !part.startsWith("component=") &&
+              !part.startsWith("S.browser_fallback_url=") &&
+              !part.trim().startsWith("end")
+            )
+            .join(";");
+
+          // Construct normalized intent with safe fallback
+          return `${prefix}#Intent;${cleaned};action=android.intent.action.VIEW;S.browser_fallback_url=${encodeURIComponent(fallbackUrl)};end`
+            .replace(/;;+/g, ";");
+        }
+
+        // Handle plain https:// or app:// style links
+        if (/^[a-zA-Z0-9.]+:\/\//.test(url)) {
+          const httpsUrl = url.replace(/^[a-zA-Z0-9.]+:\/\//, "https://");
+          const fallback = encodeURIComponent(httpsUrl);
+          return `intent://${httpsUrl.replace(/^https?:\/\//, "")}#Intent;scheme=https;action=android.intent.action.VIEW;S.browser_fallback_url=${fallback};end`;
+        }
+
+        return url;
+      } catch (err) {
+        console.error("normalizeIntentLink error:", err);
+        return url;
+      }
+    }
+
+    // Helper function to intelligently infer fallback URLs
+    function inferFallbackUrl(prefix, scheme) {
+      const path = prefix.replace(/^intent:\/\//, "");
+
+      // Check if the path already looks like a domain
+      if (path.includes('.com') || path.includes('.org') || path.includes('.net')) {
+        return `https://${path}`;
+      }
+
+      // Try to extract domain from common patterns
+      const domainPatterns = [
+        /([a-z0-9-]+\.[a-z]{2,})/i,  // matches domain.com
+        /(facebook|snapchat|instagram|youtube|tiktok|discord|amazon|aliexpress)/i  // known services
+      ];
+
+      for (const pattern of domainPatterns) {
+        const match = path.match(pattern);
+        if (match) {
+          const service = match[1].toLowerCase();
+          // Map known services to their domains
+          const serviceMap = {
+            'facebook': 'www.facebook.com',
+            'snapchat': 'www.snapchat.com',
+            'instagram': 'www.instagram.com',
+            'youtube': 'www.youtube.com',
+            'tiktok': 'www.tiktok.com',
+            'discord': 'discord.com',
+            'amazon': 'www.amazon.com',
+            'aliexpress': 'www.aliexpress.com'
+          };
+
+          if (serviceMap[service]) {
+            return `https://${serviceMap[service]}/${path}`;
+          }
+
+          // If it's already a domain, use it
+          if (service.includes('.')) {
+            return `https://${path}`;
+          }
+        }
+      }
+
+      // Last resort: just make it https
+      return `https://${path}`;
+    }
+
+		// --- Update buy buttons hrefs immediately for desktop & all links ---
+		document.querySelectorAll('.buy-button a.wp-block-button__link').forEach(button => {
+			const titleAttr = button.getAttribute('title');
+			let targetKey = null;
+
+			// Try 1: explicit extralink title
+			if (titleAttr && titleAttr.toLowerCase().startsWith('extralink')) {
+				targetKey = titleAttr.toLowerCase();
+			} else {
+				// Try 2: detect brand from "Buy on XXXXX"
+				const match = button.textContent.match(/buy on\s+([a-z0-9\s]+)/i);
+				if (match && match[1]) {
+					const brand = match[1].trim().toLowerCase();
+					targetKey = Object.keys(links).find(k => k.toLowerCase() === brand);
+				}
+
+				// Try 3: fallback – first non-deeplink key
+				if (!targetKey) {
+					targetKey = Object.keys(links).find(k => !k.startsWith('deeplink'));
+				}
+			}
+
+			if (!targetKey || !links[targetKey]) return;
+			button.href = links[targetKey];
+		});
+
+		document.querySelectorAll('a[title^="extralink"]').forEach(link => {
+			try {
+				const linkKey = link.getAttribute('title').toLowerCase();
+				if (links && links[linkKey]) link.href = links[linkKey];
+			} catch (e) {
+				console.warn('Invalid extralink', link);
+			}
+		});
+
+		// --- Attach click handlers for app/mobile ---
+		const allLinks = [
+			...document.querySelectorAll('.buy-button a.wp-block-button__link'),
+			...document.querySelectorAll('a[title^="extralink"]')
+		];
+
+		allLinks.forEach(el => {
+			el.addEventListener('click', e => {
+				e.preventDefault();
+
+				let targetKey = null;
+				const titleAttr = el.getAttribute('title');
+
+				// Try 1: explicit extralink
+				if (titleAttr && titleAttr.toLowerCase().startsWith('extralink')) {
+					targetKey = titleAttr.toLowerCase();
+				} else {
+					// Try 2: detect brand from button text
+					const match = el.textContent.match(/buy on\s+([a-z0-9\s]+)/i);
+					if (match && match[1]) {
+						const brand = match[1].trim().toLowerCase();
+						targetKey = Object.keys(links).find(k => k.toLowerCase() === brand);
+					}
+
+					// Try 3: fallback
+					if (!targetKey) {
+						targetKey = Object.keys(links).find(k => !k.startsWith('deeplink'));
+					}
+				}
+
+				const targetLink = links[targetKey];
+				if (!targetLink) return;
+
+				let deeplink = null;
+				let fallback = targetLink;
+
+        if (isAndroid()) {
+            if (links[`${targetKey}_deeplink_android`]) {
+                deeplink = links[`${targetKey}_deeplink_android`];
+            }
+
+            if (isAppBrowser()) {
+                const now = Date.now();
+                let hasLeftPage = false;
+                let userInteractedWithPrompt = false;
+
+                const handleVisibilityChange = () => {
+                    if (document.hidden) {
+                        hasLeftPage = true;
+                    }
+                };
+
+                // Detect if user is interacting with a system dialog
+                const handleBlur = () => {
+                    userInteractedWithPrompt = true;
+                };
+
+                document.addEventListener('visibilitychange', handleVisibilityChange);
+                window.addEventListener('blur', handleBlur);
+
+                // First attempt: try original deeplink in iframe
+                const iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                iframe.src = deeplink;
+                document.body.appendChild(iframe);
+
+                setTimeout(() => {
+                    document.removeEventListener('visibilitychange', handleVisibilityChange);
+                    window.removeEventListener('blur', handleBlur);
+                    iframe.remove();
+
+                    // If user didn't leave, try normalized deeplink (also in iframe)
+                    if (!hasLeftPage && !userInteractedWithPrompt) {
+                        const normalizedDeeplink = normalizeIntentLink(deeplink, targetLink);
+
+                        // Second attempt: try normalized deeplink in iframe
+                        const iframe2 = document.createElement('iframe');
+                        iframe2.style.display = 'none';
+                        iframe2.src = normalizedDeeplink;
+                        document.body.appendChild(iframe2);
+                    }
+                }, 1200);
+            } else {
+                // Not in app browser - use normalized deeplink with fallback
+                const normalizedDeeplink = normalizeIntentLink(deeplink, targetLink);
+                const now = Date.now();
+                let hasLeftPage = false;
+
+                const handleVisibilityChange = () => {
+                    if (document.hidden) {
+                        hasLeftPage = true;
+                    }
+                };
+                document.addEventListener('visibilitychange', handleVisibilityChange);
+
+                // Use normalized deeplink which has built-in fallback
+                window.location.href = normalizedDeeplink;
+
+                setTimeout(() => {
+                    document.removeEventListener('visibilitychange', handleVisibilityChange);
+                    const elapsed = Date.now() - now;
+
+                    // Additional fallback if normalized deeplink didn't trigger
+                    if (!hasLeftPage && elapsed < 1500) {
+                        window.location.href = fallback;
+                    }
+                }, 1200);
+            }
+            return;
+        }
+
+        if (isIOS()) {
+            if (links[`${targetKey}_deeplink_ios`]) {
+                deeplink = links[`${targetKey}_deeplink_ios`];
+            }
+
+            if (isAppBrowser()) {
+                fallback = `x-safari-https://www.outdoorsavannah.com/redirect.html?product=${productName}&variant=${encodeURIComponent(targetKey)}&skipDeeplink=true#${encodeURIComponent(targetKey)}`;
+
+                // Try deeplink with iframe
+                const now = Date.now();
+                let hasLeftPage = false;
+
+                const handleVisibilityChange = () => {
+                    if (document.hidden) {
+                        hasLeftPage = true;
+                    }
+                };
+                document.addEventListener('visibilitychange', handleVisibilityChange);
+
+                const iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                iframe.src = deeplink;
+                document.body.appendChild(iframe);
+
+                setTimeout(() => {
+                    document.removeEventListener('visibilitychange', handleVisibilityChange);
+                    const elapsed = Date.now() - now;
+
+                    if (!hasLeftPage && elapsed < 1000) {
+                        window.location.href = fallback;
+                    }
+                    iframe.remove();
+                }, 800);
+            } else {
+                // Not in app browser - direct navigation with fallback
+                const now = Date.now();
+                let hasLeftPage = false;
+
+                const handleVisibilityChange = () => {
+                    if (document.hidden) {
+                        hasLeftPage = true;
+                    }
+                };
+                document.addEventListener('visibilitychange', handleVisibilityChange);
+
+                window.location.href = deeplink;
+
+                setTimeout(() => {
+                    document.removeEventListener('visibilitychange', handleVisibilityChange);
+                    const elapsed = Date.now() - now;
+
+                    if (!hasLeftPage && elapsed < 1000) {
+                        window.location.href = fallback;
+                    }
+                }, 800);
+            }
+
+            return;
+        }
+    // Desktop - go directly to target link (no deeplink needed)
+    window.location.href = fallback;
+    });
+    });
+});
+</script>
+<!-- END HEADER SNIPPET -->
+</head>
+<body>
+<!-- START BODY SNIPPET -->
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NBJRDCGV"
+                  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+<script>
+    // Check if we're on the homepage path
+    if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
+      document.body.classList.add('page-id-5');
+    }
+</script>
+
+<!-- END BODY SNIPPET -->
+<div class="wp-block-column is-layout-flow wp-block-column-is-layout-flow">
+    <div class="wp-block-buttons is-layout-flex wp-block-buttons-is-layout-flex">
+        <div class="wp-block-button buy-button">
+            <a class="wp-block-button__link wp-element-button" href="https://links.outdoorsavannah.com/amazon-wallcrawlergecko" target="_blank" rel="noreferrer noopener nofollow">
+                Buy on Amazon
+            </a>
+        </div>
+    </div>
+</div>
+</body>
+</html>
