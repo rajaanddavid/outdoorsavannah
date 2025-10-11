@@ -175,6 +175,8 @@
             }
         }
 
+        updateAllLinksSimple(productName, amazonLinks);
+
         // Check if we're on the homepage path
         if (productPath === 'home') {
             document.body.classList.add('page-id-5');
@@ -372,8 +374,6 @@
                     }
                 });
             }
-
-            updateAllLinksSimple(productName, amazonLinks);
 
             // --- Update header ---
             const entryHeader = document.querySelector('.entry-title');
