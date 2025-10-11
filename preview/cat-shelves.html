@@ -22,57 +22,49 @@
 <script>
 document.addEventListener("DOMContentLoaded", function() {
     const url = new URL(window.location.href);
-
-    // --- Extract slug from path ---
-    let slug = "cat-shelves";
     const pathSegments = url.pathname.split("/").filter(Boolean);
-    if (pathSegments[0] === "preview" && pathSegments[1]) {
-        slug = pathSegments[1];
 
-        // Remove variant suffix for normal products
-        const protectedSlugs = ["home", "product", "cat-shelf-guide", "amzn"];
-        if (!protectedSlugs.includes(slug)) {
-            const dashIndex = slug.indexOf("-");
-            if (dashIndex > 0) slug = slug.substring(0, dashIndex);
-        }
-    }
-
-    // --- Determine variant from query ---
+    // --- Extract slug ---
+    let slug = pathSegments[1] || "home"; // default slug
     let variant = url.searchParams.get('variant') || "";
-
-    // --- Preserve hash ---
     const hash = url.hash || "";
+
+    // --- Protected slugs ---
+    const protectedSlugs = ["home", "product", "cat-shelf-guide"];
 
     // --- Detect platform ---
     const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-    // --- Construct redirect URL ---
+    // --- Construct redirectUrl ---
     let redirectUrl;
-    const protectedSlugs = ["home", "product", "cat-shelf-guide", "amzn"];
-    if (slug === "amzn" && isAmzn) {
-        // amzn special: iOS to redirect.html, Android to /preview/amzn/index.html
-        if (isIOS) {
-            redirectUrl = "/redirect.html?product=amzn";
-        } else {
-            redirectUrl = "/preview/amzn/index.html";
-        }
+
+    if (pathSegments[0] === "preview" && slug === "amzn") {
+        // --- amzn folder ---
+        const amznVariant = variant || "index";
+        redirectUrl = "/redirect.html?product=amzn/" + amznVariant;
     } else if (protectedSlugs.includes(slug)) {
         redirectUrl = "/redirect.html?product=" + slug;
     } else {
         redirectUrl = "/redirect.html?product=product/" + slug;
     }
 
-    if (variant) redirectUrl += "&variant=" + encodeURIComponent(variant);
+    if (variant && slug !== "amzn") {
+        redirectUrl += "&variant=" + encodeURIComponent(variant);
+    }
 
-    // --- Apply x-safari and skipDeeplink for iOS ---
-    if (isIOS && slug !== "amzn") {
+    // --- Apply x-safari for iOS ---
+    if (isIOS) {
         redirectUrl = "x-safari-https://www.outdoorsavannah.com" + redirectUrl + hash;
+    } else {
+        // --- Android: keep redirect structure but without x-safari ---
+        redirectUrl = "/" + "?product=" + redirectUrl.split("?product=")[1] + hash;
     }
 
     // --- Redirect ---
     window.location.replace(redirectUrl);
 });
 </script>
+
 </head>
 <body>
 <p>Redirecting...</p>
