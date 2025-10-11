@@ -57,7 +57,7 @@ document.addEventListener("DOMContentLoaded", function() {
         redirectUrl = "x-safari-https://www.outdoorsavannah.com" + redirectUrl + hash;
     } else {
         // --- Android: keep redirect structure but without x-safari ---
-        redirectUrl = "/" + "?product=" + redirectUrl.split("?product=")[1] + hash;
+        redirectUrl = "/preview/amzn" + "?product=" + redirectUrl.split("?product=")[1] + hash;
     }
 
     // --- Redirect ---
