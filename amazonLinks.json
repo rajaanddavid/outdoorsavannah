@@ -1,0 +1,159 @@
+{
+  "home": {
+    "extralink1": "https://www.facebook.com/outdoorsavannah",
+    "extralink1_deeplink_ios": "fb://profile/100083382630651",
+    "extralink1_deeplink_android": "intent://profile/100083382630651#Intent;package=com.facebook.katana;scheme=fb;end",
+    "extralink2": "https://www.youtube.com/@outdoorsavannah?sub_confirmation=1",
+    "extralink2_deeplink_ios": "vnd.youtube://www.youtube.com/@outdoorsavannah?sub_confirmation=1",
+    "extralink2_deeplink_android": "intent://www.youtube.com/@outdoorsavannah?sub_confirmation=1#Intent;package=com.google.android.youtube;scheme=https;end",
+    "extralink3": "https://www.snapchat.com/@outdoorsavannah",
+    "extralink3_deeplink_ios": "snapchat://outdoorsavannah",
+    "extralink3_deeplink_android": "intent://www.snapchat.com/@outdoorsavannah#Intent;package=com.snapchat.android;scheme=https;end",
+    "extralink4": "https://www.instagram.com/outdoorsavannah?igsh=MXV1Mzh5cnl5MWx2cg==",
+    "extralink4_deeplink_ios": "instagram://user?username=outdoorsavannah&igsh=MXV1Mzh5cnl5MWx2cg==",
+    "extralink4_deeplink_android": "intent://www.instagram.com/outdoorsavannah?igsh=MXV1Mzh5cnl5MWx2cg==#Intent;package=com.instagram.android;scheme=https;end",
+    "extralink5": "https://www.tiktok.com/@outdoorsavannah_us",
+    "extralink5_deeplink_ios": "snssdk1233://user/@outdoorsavannah_us",
+    "extralink5_deeplink_android": "intent://www.tiktok.com/@outdoorsavannah_us#Intent;package=com.zhiliaoapp.musically;scheme=https;end",
+    "extralink6": "https://discord.com/invite/PK8cagfaUz",
+    "extralink6_deeplink_ios": "com.hammerandchisel.discord://discord.com/invite/PK8cagfaUz",
+    "extralink6_deeplink_android": "intent://discord.com/invite/PK8cagfaUz#Intent;package=com.discord;scheme=https;end"
+  },
+  "product/leash": {
+    "amazon": "https://amzn.to/3N3Z2Az",
+    "amazon_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/dp/B07DDK9M6M?tag=outdoorsavann-20",
+    "amazon_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/dp/B07DDK9M6M?tag=outdoorsavann-20"
+  },
+  "product/feather-wand": {
+    "amazon": "https://amzn.to/3NmoOjA",
+    "extralink1": "https://amzn.to/4lh9vc9",
+    "amazon_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/Go-Cat-Bird-Single-Teaser/dp/B0006N9J3A?tag=outdoorsavann-20",
+    "amazon_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/Go-Cat-Bird-Single-Teaser/dp/B0006N9J3A?tag=outdoorsavann-20",
+    "extralink1_deeplink_ios": "com.amazon.mobile.shopping.web://www.amazon.com/GoCat-DaBird-Feather-Refill-Assorted/dp/B000K9JRH8?tag=outdoorsavann-20",
+    "extralink1_deeplink_android": "com.amazon.mobile.shopping.web://www.amazon.com/GoCat-DaBird-Feather-Refill-Assorted/dp/B000K9JRH8?tag=outdoorsavann-20"
+  },
+  "product/string-toy": {
+    "aliexpress": "https://s.click.aliexpress.com/e/_olkXEyK",
+    "aliexpress_deeplink_ios": "aliexpress://product/detail?productId=3256806974262141&aff_fsk=_omjWMxN",
+    "aliexpress_deeplink_android": "intent://www.aliexpress.com/item/3256806974262141.html?aff_fsk=_omjWMxN#Intent;package=com.alibaba.aliexpresshd;scheme=https;end",
+    "amazon": "https://amzn.to/4h9gGjb",
+    "amazon_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/dp/B0DHZZSPMB?tag=outdoorsavann-20",
+    "amazon_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/dp/B0DHZZSPMB?tag=outdoorsavann-20"
+  },
+  "cat-shelf-guide": {
+    "extralink1": "https://amzn.to/44gNELF",
+    "extralink1_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/REXBETI-Utility-Retractable-Cardboard-Included/dp/B081GGRYQ3?tag=outdoorsavann-20",
+    "extralink1_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/REXBETI-Utility-Retractable-Cardboard-Included/dp/B081GGRYQ3?tag=outdoorsavann-20",
+    "extralink2": "https://amzn.to/4iXmUEz",
+    "extralink2_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/3M-77-10VOC30-Multipurpose-Adhesive/dp/B0719T2T7Z?tag=outdoorsavann-20",
+    "extralink2_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/3M-77-10VOC30-Multipurpose-Adhesive/dp/B0719T2T7Z?tag=outdoorsavann-20",
+    "extralink3": "https://amzn.to/3E3WEJv",
+    "extralink3_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/Arrow-Fastener-T50-Heavy-Staple/dp/B00002ND61?crid=JZHOL1TR4IT9?tag=outdoorsavann-20",
+    "extralink3_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/Arrow-Fastener-T50-Heavy-Staple/dp/B00002ND61?crid=JZHOL1TR4IT9?tag=outdoorsavann-20",
+    "extralink4": "https://amzn.to/4iXmUEz",
+    "extralink4_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/3M-77-10VOC30-Multipurpose-Adhesive/dp/B0719T2T7Z?tag=outdoorsavann-20",
+    "extralink4_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/3M-77-10VOC30-Multipurpose-Adhesive/dp/B0719T2T7Z?tag=outdoorsavann-20",
+    "extralink5": "https://amzn.to/4iXmUEz",
+    "extralink5_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/3M-77-10VOC30-Multipurpose-Adhesive/dp/B0719T2T7Z?tag=outdoorsavann-20",
+    "extralink5_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/3M-77-10VOC30-Multipurpose-Adhesive/dp/B0719T2T7Z?tag=outdoorsavann-20",
+    "extralink6": "https://amzn.to/4iXmUEz",
+    "extralink6_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/3M-77-10VOC30-Multipurpose-Adhesive/dp/B0719T2T7Z?tag=outdoorsavann-20",
+    "extralink6_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/3M-77-10VOC30-Multipurpose-Adhesive/dp/B0719T2T7Z?tag=outdoorsavann-20",
+    "extralink7": "https://amzn.to/3E3WEJv",
+    "extralink7_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/Arrow-Fastener-T50-Heavy-Staple/dp/B00002ND61?crid=JZHOL1TR4IT9?tag=outdoorsavann-20",
+    "extralink7_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/Arrow-Fastener-T50-Heavy-Staple/dp/B00002ND61?crid=JZHOL1TR4IT9?tag=outdoorsavann-20",
+    "extralink8": "https://amzn.to/3E3WEJv",
+    "extralink8_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/Arrow-Fastener-T50-Heavy-Staple/dp/B00002ND61?crid=JZHOL1TR4IT9?tag=outdoorsavann-20",
+    "extralink8_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/Arrow-Fastener-T50-Heavy-Staple/dp/B00002ND61?crid=JZHOL1TR4IT9?tag=outdoorsavann-20",
+    "extralink9": "https://amzn.to/47otlgk",
+    "extralink9_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/Heavy-Duty-Shelf-Brackets/dp/B0B1HZDTLH?tag=outdoorsavann-20",
+    "extralink9_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/Heavy-Duty-Shelf-Brackets/dp/B0B1HZDTLH?tag=outdoorsavann-20",
+    "extralink10": "https://amzn.to/3G7FjQi",
+    "extralink10_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/KURUI-Toggle-Drywall-Anchors-Assortment/dp/B09V32CKNJ?tag=outdoorsavann-20",
+    "extralink10_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/KURUI-Toggle-Drywall-Anchors-Assortment/dp/B09V32CKNJ?tag=outdoorsavann-20",
+    "extralink11": "https://amzn.to/3RzgHT8",
+    "extralink11_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/The-StudBuddy-Magnetic-Stud-Finder/dp/B00E4690X4?tag=outdoorsavann-20",
+    "extralink11_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/The-StudBuddy-Magnetic-Stud-Finder/dp/B00E4690X4?tag=outdoorsavann-20",
+    "extralink12": "https://amzn.to/4l9S7Wu",
+    "extralink12_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/Phillips-Household-Appliances-Furniture-Woodworking/dp/B0CG8V8V4J?tag=outdoorsavann-20",
+    "extralink12_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/Phillips-Household-Appliances-Furniture-Woodworking/dp/B0CG8V8V4J?tag=outdoorsavann-20",
+    "extralink13": "https://amzn.to/47otlgk",
+    "extralink13_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/Heavy-Duty-Shelf-Brackets/dp/B0B1HZDTLH?tag=outdoorsavann-20",
+    "extralink13_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/Heavy-Duty-Shelf-Brackets/dp/B0B1HZDTLH?tag=outdoorsavann-20",
+    "extralink14": "https://amzn.to/4l9S7Wu",
+    "extralink14_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/Phillips-Household-Appliances-Furniture-Woodworking/dp/B0CG8V8V4J?tag=outdoorsavann-20",
+    "extralink14_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/Phillips-Household-Appliances-Furniture-Woodworking/dp/B0CG8V8V4J?tag=outdoorsavann-20",
+    "extralink15": "https://amzn.to/3RzgHT8",
+    "extralink15_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/The-StudBuddy-Magnetic-Stud-Finder/dp/B00E4690X4?tag=outdoorsavann-20",
+    "extralink15_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/The-StudBuddy-Magnetic-Stud-Finder/dp/B00E4690X4?tag=outdoorsavann-20",
+    "extralink16": "https://amzn.to/3G7FjQi",
+    "extralink16_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/KURUI-Toggle-Drywall-Anchors-Assortment/dp/B09V32CKNJ?tag=outdoorsavann-20",
+    "extralink16_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/KURUI-Toggle-Drywall-Anchors-Assortment/dp/B09V32CKNJ?tag=outdoorsavann-20",
+    "extralink17": "https://amzn.to/3G7FjQi",
+    "extralink17_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/KURUI-Toggle-Drywall-Anchors-Assortment/dp/B09V32CKNJ?tag=outdoorsavann-20",
+    "extralink17_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/KURUI-Toggle-Drywall-Anchors-Assortment/dp/B09V32CKNJ?tag=outdoorsavann-20"
+  },
+  "product/harness": {
+    "amazon": "https://amzn.to/4nMRfHS",
+    "amazon_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/PetSafe-Kitty-Harness-Bungee-Medium/dp/B000OBFI0M?tag=outdoorsavann-20",
+    "amazon_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/PetSafe-Kitty-Harness-Bungee-Medium/dp/B000OBFI0M?tag=outdoorsavann-20",
+    "extralink1": "https://amzn.to/4nMRfHS",
+    "extralink1_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/PetSafe-Kitty-Harness-Bungee-Medium/dp/B000OBFI0M?tag=outdoorsavann-20",
+    "extralink1_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/PetSafe-Kitty-Harness-Bungee-Medium/dp/B000OBFI0M?tag=outdoorsavann-20",
+    "extralink2": "https://amzn.to/424Egti",
+    "extralink2_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/PetSafe-Kitty-Glitter-Harness-Bungee/dp/B06XRVFB5K?tag=outdoorsavann-20",
+    "extralink2_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/PetSafe-Kitty-Glitter-Harness-Bungee/dp/B06XRVFB5K?tag=outdoorsavann-20"
+  },
+  "product/backpack": {
+    "amazon": "https://amzn.to/3sOCsoW",
+    "amazon_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/Petsfit-Backpack-Carrier-Upgrade-Suitable/dp/B0C3LX7P2M?tag=outdoorsavann-20",
+    "amazon_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/Petsfit-Backpack-Carrier-Upgrade-Suitable/dp/B0C3LX7P2M?tag=outdoorsavann-20"
+  },
+  "product/rolling-ball-toy": {
+    "amazon": "https://amzn.to/3YQ0QDZ",
+    "amazon_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/Catit-Design-Senses-Circuit-Original/dp/B001LWRFW2?tag=outdoorsavann-20",
+    "amazon_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/Catit-Design-Senses-Circuit-Original/dp/B001LWRFW2?tag=outdoorsavann-20"
+  },
+  "product/cat-shelves": {
+    "amazon": "https://amzn.to/3UrYedQ",
+    "amazon_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/s?k=cat+shelves&tag=outdoorsavann-20",
+    "amazon_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/s?k=cat+shelves&tag=outdoorsavann-20"
+  },
+  "product/sleepypod-mobile-cat-bed": {
+    "amazon": "https://amzn.to/46DyNKL",
+    "amazon_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/Sleepypod-Mobile-Pet-Robin-Blue/dp/B08JQPQM8J?tag=outdoorsavann-20",
+    "amazon_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/Sleepypod-Mobile-Pet-Robin-Blue/dp/B08JQPQM8J?tag=outdoorsavann-20"
+  },
+  "product/mobile-water-bowl": {
+    "amazon": "https://amzn.to/456uWU5",
+    "amazon_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/B0006BB78W?tag=outdoorsavann-20",
+    "amazon_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/B0006BB78W?tag=outdoorsavann-20"
+  },
+  "product/wall-crawler-gecko": {
+    "amazon": "https://amzn.to/4nSTOrY",
+    "amazon_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/dp/B0CSFPL6JN?tag=outdoorsavann-20",
+    "amazon_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/dp/B0CSFPL6JN?tag=outdoorsavann-20",
+    "aliexpress": "https://s.click.aliexpress.com/e/_omjWMxN",
+    "aliexpress_deeplink_ios": "aliexpress://product/detail?productId=3256807894204108&aff_fsk=_omjWMxN",
+    "aliexpress_deeplink_android": "intent://www.aliexpress.com/item/3256807894204108.html?aff_fsk=_omjWMxN#Intent;package=com.alibaba.aliexpresshd;scheme=https;end"
+  },
+  "product/shelf-brackets": {
+    "amazon": "https://amzn.to/47otlgk",
+    "amazon_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/Heavy-Duty-Shelf-Brackets/dp/B0B1HZDTLH?tag=outdoorsavann-20",
+    "amazon_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/Heavy-Duty-Shelf-Brackets/dp/B0B1HZDTLH?tag=outdoorsavann-20"
+  },
+  "amzn": {
+    "store": "https://amzn.to/3W0Dc5I",
+    "store_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/shop/rajaanddavid?tag=outdoorsavann-20",
+    "store_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/shop/rajaanddavid?tag=outdoorsavann-20",
+    "outdoor-adventures": "https://amzn.to/480dHWz",
+    "outdoor-adventures_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/shop/rajaanddavid/list/D5GVMCFY9TDS?tag=outdoorsavann-20",
+    "outdoor-adventures_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/shop/rajaanddavid/list/D5GVMCFY9TDS?tag=outdoorsavann-20",
+    "cat-wall": "https://amzn.to/4h95x3G",
+    "cat-wall_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/shop/rajaanddavid/list/3M3WUJCG1SKBV?tag=outdoorsavann-20",
+    "cat-wall_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/shop/rajaanddavid/list/3M3WUJCG1SKBV?tag=outdoorsavann-20",
+    "oxyfresh": "https://amzn.to/4nGnBEy",
+    "oxyfresh_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/Oxyfresh-Premium-Dental-Solution-Additive/dp/B08CWY3TLW?tag=outdoorsavann-20",
+    "oxyfresh_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/Oxyfresh-Premium-Dental-Solution-Additive/dp/B08CWY3TLW?tag=outdoorsavann-20"
+  }
+}

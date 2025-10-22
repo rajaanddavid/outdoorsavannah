@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Amazon Affiliate Link - Raja and David® - Raja and David®</title>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        width: 100%;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: #f5f5f5;
+    }
+
+    .profile-circle {
+        width: 90vw;
+        max-width: 400px;
+        aspect-ratio: 1;
+        border-radius: 50%;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .profile-circle img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+        /* Dark mode adjustments */
+    @media (prefers-color-scheme: dark) {
+        /* Background and text colors for Kadence theme */
+        body,
+        .site,
+        .site-content,
+        .content-bg,
+        article,
+        .entry-content {
+            background-color: #0d0d0d !important;
+            color: #f0f0f0 !important;
+        }
+
+    /* CookieYes Banner - try multiple selectors */
+    div[id*="cookie"],
+    div[class*="cookie"],
+    div[class*="cky"],
+    .cky-consent-container,
+    .cky-consent-bar,
+    [data-cky-tag="detail"],
+    [data-cky-tag="notice"] {
+        background-color: #1a1a1a !important;
+        color: #f0f0f0 !important;
+    }
+
+    /* CookieYes text */
+    div[id*="cookie"] span,
+    div[id*="cookie"] p,
+    div[id*="cookie"] div,
+    div[class*="cookie"] span,
+    div[class*="cookie"] p,
+    div[class*="cky"] span,
+    div[class*="cky"] p {
+        color: #f0f0f0 !important;
+    }
+
+    /* CookieYes buttons */
+    div[id*="cookie"] button,
+    div[class*="cookie"] button,
+    div[class*="cky"] button,
+    .cky-btn {
+        border-color: #ffffff !important;
+    }
+</style>
+
+<!-- Open Graph & Twitter meta -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Amazon Affiliate Link - Raja and David®">
+<meta property="og:image" content="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.webp">
+<meta property="og:description" content="Buy on Amazon I receive a small commission at no extra cost to you when making a purchase. Back to products">
+<meta property="og:url" content="https://www.outdoorsavannah.com/preview/amzn/">
+<meta property="fb:app_id" content="1234567890">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Amazon Affiliate Link - Raja and David®">
+<meta name="twitter:description" content="Buy on Amazon I receive a small commission at no extra cost to you when making a purchase. Back to products">
+<meta name="twitter:image" content="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.webp">
+<meta name="twitter:site" content="@outdoorsavannah">
+<meta name="twitter:creator" content="@outdoorsavannah">
+<meta name="robots" content="noindex, nofollow">
+
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-NBJRDCGV');</script>
+<!-- End Google Tag Manager -->
+
+<!-- Google tag (gtag.js) for GA4 (Analytics)-->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-0Q38LVTQS4"></script>
+<script>window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-0Q38LVTQS4');</script>
+
+<!-- Grow Mediavine -->
+<script data-grow-initializer="">!(function(){window.growMe||((window.growMe=function(e){window.growMe._.push(e);}),(window.growMe._=[]));var e=document.createElement("script");(e.type="text/javascript"),(e.src="https://faves.grow.me/main.js"),(e.defer=!0),e.setAttribute("data-grow-faves-site-id","U2l0ZTozMzJlNDE3NS1hMWI2LTRkYmEtYTgxZC0xOTcyODhhZjE3MmM=");var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t);})();</script>
+
+<script>
+// --- Extract product title from Amazon deeplink URL ---
+function extractProductTitle(deeplinkUrl) {
+    if (!deeplinkUrl) return null;
+
+    const startIdx = deeplinkUrl.indexOf('amazon.com/') + 11;
+    const endIdx = deeplinkUrl.indexOf('/dp/', startIdx);
+
+    if (startIdx > 10 && endIdx > startIdx) {
+        const productName = deeplinkUrl.substring(startIdx, endIdx);
+        if (productName) {
+            return productName
+                .split('-')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                .join(' ');
+        }
+    }
+    return null;
+}
+
+document.addEventListener("DOMContentLoaded", async function() {
+    console.log('🔍 DOMContentLoaded fired');
+    console.log('User Agent:', navigator.userAgent);
+
+    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+    const isAndroid = /Android/i.test(navigator.userAgent);
+    const isMobile = isIOS || isAndroid;
+
+    console.log('isIOS:', isIOS, 'isAndroid:', isAndroid, 'isMobile:', isMobile);
+
+    const url = new URL(window.location.href);
+    const productKey = "amzn";
+
+    console.log('Product Key:', productKey);
+    console.log('Current URL:', url.href);
+
+    // --- Support both ?variant= and #variant= ---
+    let variant = url.searchParams.get('variant');
+    if (!variant) {
+        const hashMatch = url.hash.match(/[?&]variant=([^&]*)/);
+        if (hashMatch) variant = hashMatch[1];
+    }
+    variant = variant || "";
+
+    // --- Check for skipredirect flag ---
+    const skipRedirect = url.searchParams.get('skipredirect') === 'true';
+
+    const hash = url.hash || "";
+
+    console.log('Variant:', variant);
+    console.log('Skip Redirect:', skipRedirect);
+    console.log('Hash:', hash);
+
+    // --- Update page title based on variant (for amzn pages only) ---
+    if (productKey === "amzn" && variant) {
+        try {
+            const res = await fetch('/amazonLinks.json');
+            const amazonLinks = await res.json();
+            const productLinks = amazonLinks[productKey];
+
+            console.log('🔗 Fetched amazonLinks for product:', productKey);
+            console.log('Available keys:', Object.keys(productLinks || {}));
+
+            if (productLinks) {
+                // Look for the deeplink key matching the variant
+                const deeplinkKey = variant.toLowerCase() + '_deeplink_ios';
+                const deeplinkUrl = productLinks[deeplinkKey];
+
+                console.log('Looking for key:', deeplinkKey);
+                console.log('Deeplink URL found:', deeplinkUrl);
+
+                if (deeplinkUrl) {
+                    const productTitle = extractProductTitle(deeplinkUrl);
+                    console.log('Extracted product title:', productTitle);
+
+                    if (productTitle) {
+                        const fullTitle = productTitle + " - Raja and David®";
+                        document.title = fullTitle;
+                        document.querySelector('meta[property="og:title"]').setAttribute('content', fullTitle);
+                        document.querySelector('meta[name="twitter:title"]').setAttribute('content', fullTitle);
+                        console.log('✅ Updated title for variant "' + variant + '": ' + fullTitle);
+                    } else {
+                        console.log('⚠️ Could not extract product title from deeplink URL for variant "' + variant + '"');
+                        console.log('Full URL was:', deeplinkUrl);
+                    }
+                } else {
+                    console.log('⚠️ No deeplink key found for variant "' + variant + '"');
+                }
+            }
+        } catch (e) {
+            console.error('Failed to load amazonLinks.json for variant title:', e);
+        }
+    }
+
+    // --- Load amazonLinks.json to validate product exists ---
+    let amazonLinks = {};
+    try {
+        const res = await fetch('/amazonLinks.json');
+        amazonLinks = await res.json();
+    } catch (e) {
+        console.error('Failed to load amazonLinks.json');
+        window.location.replace('/');
+        return;
+    }
+
+    const productLinks = amazonLinks[productKey];
+    if (!productLinks) {
+        console.error('Product not found in amazonLinks.json');
+        window.location.replace('/');
+        return;
+    }
+
+    // --- If skipRedirect is true, stop all routing ---
+    if (skipRedirect) {
+        return;
+    }
+
+    // --- If no variant is passed, show product page ---
+    if (!variant) {
+        let productPageUrl;
+        if (productKey === "home") {
+            productPageUrl = "/";
+        } else if (productKey === "amzn") {
+            return;
+        } else if (productKey.startsWith("product/")) {
+            productPageUrl = "/" + productKey + "/";
+        } else {
+            productPageUrl = "/" + productKey + "/";
+        }
+        window.location.replace(productPageUrl);
+        return;
+    }
+
+    // --- Desktop users ---
+    if (!isMobile) {
+        const validKeys = Object.keys(productLinks).filter(
+            k => !k.endsWith("_deeplink_ios") && !k.endsWith("_deeplink_android")
+        );
+        console.log('Desktop redirect - Valid keys available:', validKeys);
+        console.log('Desktop redirect - Requested variant:', variant);
+        const targetKey = variant && validKeys.find(k => k.toLowerCase() === variant.toLowerCase()) ? variant : validKeys[0];
+        console.log('Desktop redirect - Target key selected:', targetKey);
+        const targetLink = productLinks[targetKey] || '/';
+        console.log('Desktop redirect - Target link:', targetLink);
+        window.location.replace(targetLink);
+        return;
+    }
+
+    // --- Mobile users (iOS and Android) - route to redirect.html ---
+    if (isMobile) {
+        const redirectUrl = "/redirect.html?product=" + encodeURIComponent(productKey) + (variant ? "&variant=" + encodeURIComponent(variant) : "");
+        console.log('📱 Mobile detected - Redirecting to:', redirectUrl + hash);
+        window.location.replace(redirectUrl + hash);
+    }
+});
+</script>
+
+</head>
+<body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NBJRDCGV"
+                  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+    <div class="profile-circle">
+        <img src="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.webp" alt="Profile">
+    </div>
+</body>
+</html>
