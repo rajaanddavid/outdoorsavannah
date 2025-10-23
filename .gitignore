@@ -1,0 +1,19 @@
+# extensionless files
+*
+!/**/
+!*.*
+
+# folders
+.idea
+.wrangler
+engine
+node_modules
+
+#scripts and else
+*.mjs
+*.js
+outdoorsavannah.com.iml
+body.html
+header.html
+package-lock.json
+wrangler.toml
