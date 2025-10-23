@@ -12,6 +12,7 @@ node_modules
 #scripts and else
 *.mjs
 *.js
+!insertheaders.js
 outdoorsavannah.com.iml
 package-lock.json
 wrangler.toml
