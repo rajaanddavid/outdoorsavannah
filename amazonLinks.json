@@ -1,7 +1,7 @@
 {
   "home": {
     "extralink1": "https://www.facebook.com/outdoorsavannah",
-    "extralink1_deeplink_ios": "fb://profile/100083382630651",
+    "extralink1_deeplink_ios": "https://www.facebook.com/outdoorsavannah",
     "extralink1_deeplink_android": "intent://profile/100083382630651#Intent;package=com.facebook.katana;scheme=fb;end",
     "extralink2": "https://www.youtube.com/@outdoorsavannah?sub_confirmation=1",
     "extralink2_deeplink_ios": "vnd.youtube://www.youtube.com/@outdoorsavannah?sub_confirmation=1",
