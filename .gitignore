@@ -16,3 +16,4 @@ node_modules
 outdoorsavannah.com.iml
 package-lock.json
 wrangler.toml
+header.html
