@@ -1,0 +1,5 @@
+# Ensure all text files use LF in repo, CRLF on Windows checkout
+* text=auto
+
+# Force HTML to always use LF (prevents conversion warnings)
+*.html text eol=lf
