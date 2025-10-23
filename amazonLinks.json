@@ -35,7 +35,7 @@
   "product/string-toy": {
     "aliexpress": "https://s.click.aliexpress.com/e/_olkXEyK",
     "aliexpress_deeplink_ios": "aliexpress://product/detail?productId=3256806974262141&aff_fsk=_omjWMxN",
-    "aliexpress_deeplink_android": "com.alibaba.aliexpresshd://s.click.aliexpress.com/e/_olkXEyK",
+    "aliexpress_deeplink_android": "intent://www.aliexpress.com/item/3256806974262141.html?aff_fsk=_omjWMxN#Intent;package=com.alibaba.aliexpresshd;scheme=https;end",
     "amazon": "https://amzn.to/4h9gGjb",
     "amazon_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/dp/B0DHZZSPMB?tag=outdoorsavann-20",
     "amazon_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/dp/B0DHZZSPMB?tag=outdoorsavann-20"
