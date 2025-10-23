@@ -13,7 +13,5 @@ node_modules
 *.mjs
 *.js
 outdoorsavannah.com.iml
-body.html
-header.html
 package-lock.json
 wrangler.toml
