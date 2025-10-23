@@ -1,9 +1,8 @@
 User-agent: *
 Disallow: /redirect.html
+Disallow: /affiliate
 Disallow: /header.html
 Disallow: /body.html
-Disallow: /affiliate
-Disallow: /*.json
-Disallow: /*.js
-Disallow: /*.mjs
+Disallow: /insertheaders.js
+Disallow: /amazonLinks.json
 Sitemap: http://outdoorsavannah.com/sitemap_index.xml

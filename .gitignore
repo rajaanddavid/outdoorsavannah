@@ -1,19 +1,23 @@
-# extensionless files
+# Ignore everything by default
 *
 !/**/
-!*.*
 
-# folders
+# Allow all JS files in wp-content and wp-includes recursively
+*.js
+!/wp-content/**/*.js
+!/wp-includes/**/*.js
+
+# Other JS exceptions
+*.mjs
+!insertheaders.js
+
+# Folders
 .idea
 .wrangler
 engine
 node_modules
 
-#scripts and else
-*.mjs
-*.js
-!insertheaders.js
+# Specific files
 outdoorsavannah.com.iml
 package-lock.json
 wrangler.toml
-header.html
