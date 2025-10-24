@@ -44,7 +44,7 @@ Proposed Fee: ${fee}
     });
 
     // Generate signed headers using AWS Signature v4
-    const signedHeaders = signAWSv4({
+    const signedHeaders = await signAWSv4({
       method: "POST",
       url: endpoint,
       region,
@@ -90,7 +90,53 @@ Proposed Fee: ${fee}
 // --------------------
 // AWS Signature v4 helper
 // --------------------
-function signAWSv4({ method, url, region, service, body, accessKeyId, secretKey }) {
+// Hash a string using SHA-256
+async function hash(str) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(str);
+  const digest = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(digest))
+              .map(b => b.toString(16).padStart(2, "0"))
+              .join("");
+}
+
+// HMAC with SHA-256
+async function hmac(key, str) {
+  const encoder = new TextEncoder();
+  const cryptoKey = await crypto.subtle.importKey(
+    "raw",
+    key,
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+  const signature = await crypto.subtle.sign(
+    "HMAC",
+    cryptoKey,
+    encoder.encode(str)
+  );
+  return new Uint8Array(signature);
+}
+
+// Convert ArrayBuffer/Uint8Array to hex string
+function toHex(arrayBuffer) {
+  return Array.from(arrayBuffer)
+              .map(b => b.toString(16).padStart(2, "0"))
+              .join("");
+}
+
+// Generate signing key for AWS Signature v4
+async function getSignatureKey(key, dateStamp, regionName, serviceName) {
+  const encoder = new TextEncoder();
+  let kDate = await hmac(encoder.encode("AWS4" + key), dateStamp);
+  let kRegion = await hmac(kDate, regionName);
+  let kService = await hmac(kRegion, serviceName);
+  let kSigning = await hmac(kService, "aws4_request");
+  return kSigning;
+}
+
+// Sign request using AWS Signature v4
+export async function signAWSv4({ method, url, region, service, body, accessKeyId, secretKey }) {
   const now = new Date();
   const amzDate = now.toISOString().replace(/[:-]|\.\d{3}/g, '');
   const dateStamp = amzDate.slice(0, 8);
@@ -98,21 +144,20 @@ function signAWSv4({ method, url, region, service, body, accessKeyId, secretKey 
   const parsedUrl = new URL(url);
   const host = parsedUrl.host;
   const canonicalUri = parsedUrl.pathname;
-
   const canonicalQuerystring = "";
 
   const canonicalHeaders = `content-type:application/x-www-form-urlencoded\nhost:${host}\nx-amz-date:${amzDate}\n`;
   const signedHeaders = "content-type;host;x-amz-date";
 
-  const payloadHash = hash(body);
+  const payloadHash = await hash(body);
   const canonicalRequest = `${method}\n${canonicalUri}\n${canonicalQuerystring}\n${canonicalHeaders}\n${signedHeaders}\n${payloadHash}`;
 
   const algorithm = "AWS4-HMAC-SHA256";
   const credentialScope = `${dateStamp}/${region}/${service}/aws4_request`;
-  const stringToSign = `${algorithm}\n${amzDate}\n${credentialScope}\n${hash(canonicalRequest)}`;
+  const stringToSign = `${algorithm}\n${amzDate}\n${credentialScope}\n${await hash(canonicalRequest)}`;
 
-  const signingKey = getSignatureKey(secretKey, dateStamp, region, service);
-  const signature = hmac(signingKey, stringToSign, "hex");
+  const signingKey = await getSignatureKey(secretKey, dateStamp, region, service);
+  const signature = toHex(await hmac(signingKey, stringToSign));
 
   const authorizationHeader = `${algorithm} Credential=${accessKeyId}/${credentialScope}, SignedHeaders=${signedHeaders}, Signature=${signature}`;
 
@@ -120,20 +165,4 @@ function signAWSv4({ method, url, region, service, body, accessKeyId, secretKey 
     "Authorization": authorizationHeader,
     "X-Amz-Date": amzDate
   };
-}
-
-function hash(str) {
-  return crypto.createHash("sha256").update(str, "utf8").digest("hex");
-}
-
-function hmac(key, str, encoding) {
-  return crypto.createHmac("sha256", key).update(str, "utf8").digest(encoding);
-}
-
-function getSignatureKey(key, dateStamp, regionName, serviceName) {
-  const kDate = crypto.createHmac("sha256", "AWS4" + key).update(dateStamp).digest();
-  const kRegion = crypto.createHmac("sha256", kDate).update(regionName).digest();
-  const kService = crypto.createHmac("sha256", kRegion).update(serviceName).digest();
-  const kSigning = crypto.createHmac("sha256", kService).update("aws4_request").digest();
-  return kSigning;
 }
