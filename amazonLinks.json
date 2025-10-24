@@ -19,6 +19,17 @@
     "extralink6_deeplink_ios": "com.hammerandchisel.discord://discord.com/invite/PK8cagfaUz",
     "extralink6_deeplink_android": "intent://discord.com/invite/PK8cagfaUz#Intent;package=com.discord;scheme=https;end"
   },
+    "about": {
+    "extralink1": "https://www.tiktok.com/@outdoorsavannah/video/7180062210599767338",
+    "extralink1_deeplink_ios": "snssdk1233://user/@outdoorsavannah_us/video/7180062210599767338",
+    "extralink1_deeplink_android": "intent://www.tiktok.com/@outdoorsavannah/video/7180062210599767338#Intent;package=com.zhiliaoapp.musically;scheme=https;end",
+    "extralink2": "https://www.tiktok.com/@outdoorsavannah/video/7191970449482353963?lang=en",
+    "extralink2_deeplink_ios": "snssdk1233://user/@outdoorsavannah_us/video/7180062210599767338",
+    "extralink2_deeplink_android": "intent://www.tiktok.com/@outdoorsavannah/video/7180062210599767338#Intent;package=com.zhiliaoapp.musically;scheme=https;end",
+    "extralink3": "https://youtube.com/shorts/bg4I_NtOshE",
+    "extralink3_deeplink_ios": "vnd.youtube://www.youtube.com/shorts/bg4I_NtOshE",
+    "extralink3_deeplink_android": "intent://www.youtube.com/shorts/bg4I_NtOshE#Intent;package=com.google.android.youtube;scheme=https;end"
+  },
   "product/leash": {
     "amazon": "https://amzn.to/3N3Z2Az",
     "amazon_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/dp/B07DDK9M6M?tag=outdoorsavann-20",
@@ -91,7 +102,16 @@
     "extralink16_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/KURUI-Toggle-Drywall-Anchors-Assortment/dp/B09V32CKNJ?tag=outdoorsavann-20",
     "extralink17": "https://amzn.to/3G7FjQi",
     "extralink17_deeplink_ios": "com.amazon.mobile.shopping.web://amazon.com/KURUI-Toggle-Drywall-Anchors-Assortment/dp/B09V32CKNJ?tag=outdoorsavann-20",
-    "extralink17_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/KURUI-Toggle-Drywall-Anchors-Assortment/dp/B09V32CKNJ?tag=outdoorsavann-20"
+    "extralink17_deeplink_android": "com.amazon.mobile.shopping.web://amazon.com/KURUI-Toggle-Drywall-Anchors-Assortment/dp/B09V32CKNJ?tag=outdoorsavann-20",
+    "extralink18": "https://www.youtube.com/watch?v=p7E8tCFFeWE",
+    "extralink18_deeplink_ios": "vnd.youtube://www.youtube.com/watch?v=p7E8tCFFeWE",
+    "extralink18_deeplink_android": "intent://www.youtube.com/watch?v=p7E8tCFFeWE#Intent;package=com.google.android.youtube;scheme=https;end",
+    "extralink19": "https://www.youtube.com/watch?v=hwc_FfsPkb0",
+    "extralink19_deeplink_ios": "vnd.youtube://www.youtube.com/watch?v=hwc_FfsPkb0",
+    "extralink19_deeplink_android": "intent://www.youtube.com/watch?v=hwc_FfsPkb0#Intent;package=com.google.android.youtube;scheme=https;end",
+    "extralink20": "https://www.youtube.com/watch?v=bg4I_NtOshE&list=PLxHAyyFAN5emqe7wlsZcflboX9lGNeFsN",
+    "extralink20_deeplink_ios": "vnd.youtube://www.youtube.com/watch?v=bg4I_NtOshE&list=PLxHAyyFAN5emqe7wlsZcflboX9lGNeFsN",
+    "extralink20_deeplink_android": "intent://www.youtube.com/watch?v=bg4I_NtOshE&list=PLxHAyyFAN5emqe7wlsZcflboX9lGNeFsN#Intent;package=com.google.android.youtube;scheme=https;end"
   },
   "product/harness": {
     "amazon": "https://amzn.to/4nMRfHS",

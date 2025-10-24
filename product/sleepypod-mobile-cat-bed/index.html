@@ -6,11 +6,11 @@
 	<title>Cat Carrier for Car - Raja and David&reg;</title>
 	<style>img:is([sizes="auto" i], [sizes^="auto," i]) { contain-intrinsic-size: 3000px 1500px }</style>
 	
-		<!-- All in One SEO 4.8.8 - aioseo.com -->
+		<!-- All in One SEO 4.8.9 - aioseo.com -->
 	<meta name="description" content="Buy on Amazon This is the cat bed we use in the car! Back to products I receive a small commission at no extra cost to you when making a purchase">
 	<meta name="robots" content="max-image-preview:large">
 	<link rel="canonical" href="https://www.outdoorsavannah.com/product/sleepypod-mobile-cat-bed/">
-	<meta name="generator" content="All in One SEO (AIOSEO) 4.8.8">
+	<meta name="generator" content="All in One SEO (AIOSEO) 4.8.9">
 		<meta property="og:locale" content="en_US">
 		<meta property="og:site_name" content="Raja and David&reg; - OutdoorSavannah&reg;">
 		<meta property="og:type" content="article">
@@ -146,6 +146,34 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     }    
 }
 
+
+/* Center all thumbnails on cat-shelf-guide */
+.page-id-145 .center-thumbnails {
+  display: flex;
+  flex-direction: column; /* stack vertically */
+  justify-content: center; /* vertical centering if container height allows */
+  align-items: center;     /* horizontal centering */
+  gap: 1.5rem;            /* spacing between thumbnails */
+  min-height: 30vh;       /* optional: makes it roughly centered vertically */
+}
+
+/* Horizontal video thumbnails */
+.page-id-145 .youtube-thumb {
+  width: 100%;
+  max-width: 560px;
+  height: auto;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+/* Vertical Shorts thumbnails */
+.page-id-145 .youtube-short {
+  width: 178px;
+  height: 320px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
 /* Dark mode adjustments */
 @media (prefers-color-scheme: dark) {
     /* Background and text colors for Kadence theme */
@@ -274,6 +302,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     // Check if we're on the homepage path
     if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
       document.body.classList.add('page-id-5');
+    }
+    // Check if we're on the cat-shelf-guide path
+    if (window.location.pathname === '/cat-shelf-guide') {
+      document.body.classList.add('page-id-145');
     }
 </script>
 <!-- END BODY SNIPPET -->

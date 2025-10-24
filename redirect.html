@@ -41,11 +41,15 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <script>
     // Check if we're on the homepage path
     if (
-      window.location.pathname === '/' ||
-      window.location.pathname === '/index.html' ||
       window.location.href.includes('/redirect.html?product=home')
     ) {
       document.body.classList.add('page-id-5');
+    }
+    // Check if we're on the cat-shelf-guide path
+    if (
+      window.location.href.includes('/redirect.html?product=cat-shelf-guide')
+    ) {
+      document.body.classList.add('page-id-145');
     }
 </script>
 <script src="https://engine.outdoorsavannah.com/redirect-engine.v21.min.js" defer></script>
