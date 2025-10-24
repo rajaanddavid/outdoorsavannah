@@ -1,6 +1,4 @@
 // license-request.js
-import crypto from "crypto";
-
 export async function onRequestPost({ request }) {
   try {
     const formData = await request.formData();
