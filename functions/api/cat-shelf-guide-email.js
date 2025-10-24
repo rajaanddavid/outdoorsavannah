@@ -89,9 +89,9 @@ export async function onRequestPost({ request, env }) {
     const { email } = await request.json();
 
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      return new Response(JSON.stringify({ success: false, error: 'Invalid email address' }), {
+      return new Response(JSON.stringify({ success: false, error: "Invalid email address" }), {
         status: 400,
-        headers: { 'Content-Type': 'application/json' }
+        headers: { "Content-Type": "application/json" }
       });
     }
 
@@ -105,27 +105,29 @@ export async function onRequestPost({ request, env }) {
                     .bind(email)
                     .run();
       } catch (dbErr) {
-        console.error('Database error:', dbErr);
+        console.error("Database error:", dbErr);
       }
     }
 
     // --- 2. Send email using SES ---
-    const region = 'us-east-2'; // SES region
+    const region = "us-east-2"; // SES region
     const accessKeyId = env.AWS_ACCESS_KEY_ID;
     const secretKey = env.AWS_SECRET_ACCESS_KEY;
-    const from = 'david@outdoorsavannah.com';
+    const from = "david@outdoorsavannah.com";
     const to = email;
 
     const endpoint = `https://email.${region}.amazonaws.com/`;
 
-    const body = new URLSearchParams({
-      Action: 'SendEmail',
-      'Source': from,
-      'Destination.ToAddresses.member.1': to,
-      'Message.Subject.Data': 'Your Cat Shelf Guide',
+    // Construct SES API parameters
+    const params = new URLSearchParams({
+      Action: "SendEmail",
+      Source: from,
+      "Destination.ToAddresses.member.1": to,
+      "Message.Subject.Data": "Your Cat Shelf Guide",
       "Message.Body.Text.Data": `Hi! Thanks for requesting the Cat Shelf Guide. Here it is:\n\n[Insert guide link or text here]`
     });
 
+    // Generate signed headers
     const signedHeaders = await signAWSv4({
       method: "POST",
       url: endpoint,
@@ -136,6 +138,7 @@ export async function onRequestPost({ request, env }) {
       secretKey
     });
 
+    // Send the request
     const response = await fetch(endpoint, {
       method: "POST",
       headers: {
