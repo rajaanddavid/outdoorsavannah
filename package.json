@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@aws-sdk/client-ses": "^3.917.0"
+  }
+}

@@ -13,6 +13,8 @@
 # Other JS exceptions
 *.mjs
 !insertheaders.js
+!package.json
+!amazonLinks.json
 
 # Folders
 .idea

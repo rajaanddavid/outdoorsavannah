@@ -1,8 +1,7 @@
-import AWS from 'aws-sdk';
+import { SESClient, SendEmailCommand } from "@aws-sdk/client-ses";
 
 export async function onRequestPost({ request }) {
   try {
-    // Parse form data
     const formData = await request.formData();
 
     const company    = formData.get('company') || '';
@@ -13,7 +12,6 @@ export async function onRequestPost({ request }) {
     const duration   = formData.get('duration') || '';
     const fee        = formData.get('fee') || '';
 
-    // Compose email body
     const emailBody = `
 Company: ${company}
 Name: ${name}
@@ -25,27 +23,25 @@ Duration of Use: ${duration}
 Proposed Fee: ${fee}
 `;
 
-    // Configure AWS SES
-    const ses = new AWS.SES({
-      region: 'us-east-2', // change to your SES region
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    // Create SES client
+    const client = new SESClient({
+      region: 'us-east-2', // your SES region
+      credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+      }
     });
 
-    const params = {
-      Destination: {
-        ToAddresses: ['david@outdoorsavannah.com'] // change to your receiving email
-      },
+    const command = new SendEmailCommand({
+      Destination: { ToAddresses: ['david@outdoorsavannah.com'] },
       Message: {
-        Body: {
-          Text: { Data: emailBody }
-        },
+        Body: { Text: { Data: emailBody } },
         Subject: { Data: 'New License Request' }
       },
-      Source: 'david@outdoorsavannah.com' // must be a verified SES sender
-    };
+      Source: 'david@outdoorsavannah.com'
+    });
 
-    await ses.sendEmail(params).promise();
+    await client.send(command);
 
     return new Response(JSON.stringify({ success: true }), {
       status: 200,
