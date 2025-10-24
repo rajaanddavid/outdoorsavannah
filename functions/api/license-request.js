@@ -108,8 +108,8 @@ Proposed Fee: ${fee}
 `;
 
     const region = "us-east-2"; // your SES region
-    const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
-    const secretKey = process.env.AWS_SECRET_ACCESS_KEY;
+    const accessKeyId = AWS_ACCESS_KEY_ID;
+    const secretKey = AWS_SECRET_ACCESS_KEY;
     const from = "david@outdoorsavannah.com";   // verified SES sender
     const to = "david@outdoorsavannah.com";     // recipient
 
