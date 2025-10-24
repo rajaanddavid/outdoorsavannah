@@ -84,7 +84,7 @@ async function signAWSv4({ method, url, region, service, body, accessKeyId, secr
 // --------------------
 // Main function
 // --------------------
-export async function onRequestPost({ request }) {
+export async function onRequestPost({ request, env }) {
   try {
     const formData = await request.formData();
 
