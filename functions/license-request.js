@@ -1,4 +1,89 @@
 // license-request.js
+// Cloudflare Pages Function to send license request via AWS SES
+
+// --------------------
+// Helper functions
+// --------------------
+
+// Hash a string using SHA-256
+async function hash(str) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(str);
+  const digest = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(digest))
+              .map(b => b.toString(16).padStart(2, "0"))
+              .join("");
+}
+
+// HMAC with SHA-256
+async function hmac(key, str) {
+  const cryptoKey = await crypto.subtle.importKey(
+    "raw",
+    key,
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+  const signature = await crypto.subtle.sign(
+    "HMAC",
+    cryptoKey,
+    new TextEncoder().encode(str)
+  );
+  return new Uint8Array(signature);
+}
+
+// Convert ArrayBuffer/Uint8Array to hex string
+function toHex(arrayBuffer) {
+  return Array.from(arrayBuffer)
+              .map(b => b.toString(16).padStart(2, "0"))
+              .join("");
+}
+
+// Generate signing key for AWS Signature v4
+async function getSignatureKey(key, dateStamp, regionName, serviceName) {
+  const encoder = new TextEncoder();
+  let kDate = await hmac(encoder.encode("AWS4" + key), dateStamp);
+  let kRegion = await hmac(kDate, regionName);
+  let kService = await hmac(kRegion, serviceName);
+  let kSigning = await hmac(kService, "aws4_request");
+  return kSigning;
+}
+
+// Sign request using AWS Signature v4
+async function signAWSv4({ method, url, region, service, body, accessKeyId, secretKey }) {
+  const now = new Date();
+  const amzDate = now.toISOString().replace(/[:-]|\.\d{3}/g, '');
+  const dateStamp = amzDate.slice(0, 8);
+
+  const parsedUrl = new URL(url);
+  const host = parsedUrl.host;
+  const canonicalUri = parsedUrl.pathname;
+  const canonicalQuerystring = "";
+
+  const canonicalHeaders = `content-type:application/x-www-form-urlencoded\nhost:${host}\nx-amz-date:${amzDate}\n`;
+  const signedHeaders = "content-type;host;x-amz-date";
+
+  const payloadHash = await hash(body);
+  const canonicalRequest = `${method}\n${canonicalUri}\n${canonicalQuerystring}\n${canonicalHeaders}\n${signedHeaders}\n${payloadHash}`;
+
+  const algorithm = "AWS4-HMAC-SHA256";
+  const credentialScope = `${dateStamp}/${region}/${service}/aws4_request`;
+  const stringToSign = `${algorithm}\n${amzDate}\n${credentialScope}\n${await hash(canonicalRequest)}`;
+
+  const signingKey = await getSignatureKey(secretKey, dateStamp, region, service);
+  const signature = toHex(await hmac(signingKey, stringToSign));
+
+  const authorizationHeader = `${algorithm} Credential=${accessKeyId}/${credentialScope}, SignedHeaders=${signedHeaders}, Signature=${signature}`;
+
+  return {
+    "Authorization": authorizationHeader,
+    "X-Amz-Date": amzDate
+  };
+}
+
+// --------------------
+// Main function
+// --------------------
 export async function onRequestPost({ request }) {
   try {
     const formData = await request.formData();
@@ -22,17 +107,14 @@ Duration of Use: ${duration}
 Proposed Fee: ${fee}
 `;
 
-    // AWS SES settings
-    const region = "us-east-2"; // change to your region
+    const region = "us-east-2"; // your SES region
     const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
     const secretKey = process.env.AWS_SECRET_ACCESS_KEY;
     const from = "david@outdoorsavannah.com";   // verified SES sender
     const to = "david@outdoorsavannah.com";     // recipient
 
-    // SES endpoint
     const endpoint = `https://email.${region}.amazonaws.com/`;
 
-    // Construct SES API parameters
     const params = new URLSearchParams({
       Action: "SendEmail",
       "Source": from,
@@ -41,7 +123,6 @@ Proposed Fee: ${fee}
       "Message.Body.Text.Data": emailBody,
     });
 
-    // Generate signed headers using AWS Signature v4
     const signedHeaders = await signAWSv4({
       method: "POST",
       url: endpoint,
@@ -52,7 +133,6 @@ Proposed Fee: ${fee}
       secretKey
     });
 
-    // Send the request
     const response = await fetch(endpoint, {
       method: "POST",
       headers: {
@@ -83,84 +163,4 @@ Proposed Fee: ${fee}
       headers: { "Content-Type": "application/json" }
     });
   }
-}
-
-// --------------------
-// AWS Signature v4 helper
-// --------------------
-// Hash a string using SHA-256
-async function hash(str) {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(str);
-  const digest = await crypto.subtle.digest("SHA-256", data);
-  return Array.from(new Uint8Array(digest))
-              .map(b => b.toString(16).padStart(2, "0"))
-              .join("");
-}
-
-// HMAC with SHA-256
-async function hmac(key, str) {
-  const encoder = new TextEncoder();
-  const cryptoKey = await crypto.subtle.importKey(
-    "raw",
-    key,
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign"]
-  );
-  const signature = await crypto.subtle.sign(
-    "HMAC",
-    cryptoKey,
-    encoder.encode(str)
-  );
-  return new Uint8Array(signature);
-}
-
-// Convert ArrayBuffer/Uint8Array to hex string
-function toHex(arrayBuffer) {
-  return Array.from(arrayBuffer)
-              .map(b => b.toString(16).padStart(2, "0"))
-              .join("");
-}
-
-// Generate signing key for AWS Signature v4
-async function getSignatureKey(key, dateStamp, regionName, serviceName) {
-  const encoder = new TextEncoder();
-  let kDate = await hmac(encoder.encode("AWS4" + key), dateStamp);
-  let kRegion = await hmac(kDate, regionName);
-  let kService = await hmac(kRegion, serviceName);
-  let kSigning = await hmac(kService, "aws4_request");
-  return kSigning;
-}
-
-// Sign request using AWS Signature v4
-export async function signAWSv4({ method, url, region, service, body, accessKeyId, secretKey }) {
-  const now = new Date();
-  const amzDate = now.toISOString().replace(/[:-]|\.\d{3}/g, '');
-  const dateStamp = amzDate.slice(0, 8);
-
-  const parsedUrl = new URL(url);
-  const host = parsedUrl.host;
-  const canonicalUri = parsedUrl.pathname;
-  const canonicalQuerystring = "";
-
-  const canonicalHeaders = `content-type:application/x-www-form-urlencoded\nhost:${host}\nx-amz-date:${amzDate}\n`;
-  const signedHeaders = "content-type;host;x-amz-date";
-
-  const payloadHash = await hash(body);
-  const canonicalRequest = `${method}\n${canonicalUri}\n${canonicalQuerystring}\n${canonicalHeaders}\n${signedHeaders}\n${payloadHash}`;
-
-  const algorithm = "AWS4-HMAC-SHA256";
-  const credentialScope = `${dateStamp}/${region}/${service}/aws4_request`;
-  const stringToSign = `${algorithm}\n${amzDate}\n${credentialScope}\n${await hash(canonicalRequest)}`;
-
-  const signingKey = await getSignatureKey(secretKey, dateStamp, region, service);
-  const signature = toHex(await hmac(signingKey, stringToSign));
-
-  const authorizationHeader = `${algorithm} Credential=${accessKeyId}/${credentialScope}, SignedHeaders=${signedHeaders}, Signature=${signature}`;
-
-  return {
-    "Authorization": authorizationHeader,
-    "X-Amz-Date": amzDate
-  };
 }

@@ -503,6 +503,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 document.getElementById('licenseForm').addEventListener('submit', async function(e) {
   e.preventDefault();
   const form = e.target;
+  const submitButton = form.querySelector('button[type="submit"]');
 
   let hasError = false;
   const fields = ['company', 'name', 'email', 'typeOfUse', 'works', 'duration'];
@@ -532,11 +533,14 @@ document.getElementById('licenseForm').addEventListener('submit', async function
   if (hasError) return;
 
   try {
+    submitButton.disabled = true;
     const formData = new FormData(form);
     const response = await fetch('/api/license-request', {
       method: 'POST',
       body: formData
     });
+
+    const result = await response.json().catch(() => ({}));
 
     if (response.ok) {
       document.getElementById('successMessage').style.display = 'block';
@@ -545,11 +549,17 @@ document.getElementById('licenseForm').addEventListener('submit', async function
     } else {
       document.getElementById('successMessage').style.display = 'none';
       document.getElementById('errorMessage').style.display = 'block';
+      if (result.error) {
+        document.getElementById('errorMessage').textContent = `Error: ${result.error}`;
+      }
     }
   } catch (err) {
     console.error(err);
     document.getElementById('successMessage').style.display = 'none';
     document.getElementById('errorMessage').style.display = 'block';
+    document.getElementById('errorMessage').textContent = `Network or server error: ${err.message}`;
+  } finally {
+    submitButton.disabled = false;
   }
 });
 </script>
