@@ -7,6 +7,9 @@
 !/wp-content/**/*.js
 !/wp-includes/**/*.js
 
+# ALLOW all JS files in functions folder
+!/functions/**/*.js
+
 # Other JS exceptions
 *.mjs
 !insertheaders.js
