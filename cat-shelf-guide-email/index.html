@@ -63,13 +63,21 @@
 <link rel="alternate" title="oEmbed (JSON)" type="application/json+oembed" href="https://www.outdoorsavannah.com/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fhttps%3A%2F%2Fwww.outdoorsavannah.com%2Fcat-shelf-guide-email%2F">
 <link rel="alternate" title="oEmbed (XML)" type="text/xml+oembed" href="https://www.outdoorsavannah.com/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fhttps%3A%2F%2Fwww.outdoorsavannah.com%2Fcat-shelf-guide-email%2F&amp;format=xml">
 <!-- START HEADER SNIPPET -->
-<!-- Google tag (gtag.js) for GA4 (Analytics)-->
+<!-- Google tag (gtag.js) for GA4 (Analytics) - anonymized, non-personalized -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-0Q38LVTQS4"></script>
-<script>window.dataLayer = window.dataLayer || [];
+<script>
+  window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
 
-  gtag('config', 'G-0Q38LVTQS4');</script>
+  // GA4 configuration: anonymized IP, no ads or personalization
+  gtag('config', 'G-0Q38LVTQS4', {
+    'anonymize_ip': true,       // anonymize visitor IPs
+    'allow_google_signals': false, // disable Google Signals
+    'allow_ad_personalization_signals': false // disable ads personalization
+  });
+</script>
+
 
 <link rel="preload" as="image" href="/wp-content/uploads/2025/04/outdoorsavannah-logo-registered-links.webp" fetchpriority="high">
 <link rel="preload" href="/wp-content/uploads/2025/04/Easy-Cat-Shelves-1187x1536.webp" as="image" fetchpriority="high">
@@ -245,37 +253,6 @@
         color: #99ccff !important;
     }
     
-    /* CookieYes Banner - try multiple selectors */
-    div[id*="cookie"],
-    div[class*="cookie"],
-    div[class*="cky"],
-    .cky-consent-container,
-    .cky-consent-bar,
-    [data-cky-tag="detail"],
-    [data-cky-tag="notice"] {
-        background-color: #1a1a1a !important;
-        color: #f0f0f0 !important;
-    }
-    
-    /* CookieYes text */
-    div[id*="cookie"] span,
-    div[id*="cookie"] p,
-    div[id*="cookie"] div,
-    div[class*="cookie"] span,
-    div[class*="cookie"] p,
-    div[class*="cky"] span,
-    div[class*="cky"] p {
-        color: #f0f0f0 !important;
-    }
-    
-    /* CookieYes buttons */
-    div[id*="cookie"] button,
-    div[class*="cookie"] button,
-    div[class*="cky"] button,
-    .cky-btn {
-        border-color: #ffffff !important;
-    }
-    
     /* BACK TO PRODUCTS BUTTON - Keep original theme colors */
     a.wp-block-button__link.has-theme-palette-3-color.has-theme-palette-9-background-color {
         /* Let WordPress theme colors handle it naturally */
@@ -376,7 +353,7 @@
 	<h1 class="entry-title">Cat Shelf Guide Email</h1></header><!-- .entry-header -->
 
 <div class="entry-content single-content">
-	<div id="cat-guide-signup" style="max-width: 420px; margin: 0 auto; padding: 24px 20px; text-align: center; font-family: Arial,sans-serif; color: #2d3149;"><img decoding="async" style="width: 100%; max-width: 400px; border-radius: 8px; margin-bottom: 24px; height: auto; display: block; margin-left: auto; margin-right: auto;" src="wp-content/uploads/2025/04/Easy-Cat-Shelves-791x1024.webp" alt="Easy Cat Shelves">
+	<div id="cat-guide-signup" style="max-width: 420px; margin: 0 auto; padding: 24px 20px; text-align: center; font-family: Arial,sans-serif; color: #2d3149;"><img decoding="async" style="width: 100%; max-width: 400px; border-radius: 8px; margin-bottom: 24px; height: auto; display: block; margin-left: auto; margin-right: auto;" src="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/Easy-Cat-Shelves-791x1024.webp" alt="Easy Cat Shelves">
 <h2 style="color: #2d3149; font-size: 1.6rem; font-weight: bold; margin-bottom: 24px;">I am excited to share my guide to building cat shelves with you!</h2>
 <form id="signupForm" style="display: flex; flex-direction: column; gap: 12px; align-items: stretch;"><input id="email" style="background-color: #fff; color: #7a8b9a; font-size: 14px; border-radius: 8px; padding: 12px 14px; border: 1px solid #e2e2e2; width: 100%; box-sizing: border-box;" name="email" required="" type="email" placeholder="Email"> <button id="submitBtn" style="background-color: #6e42d3; color: #fff; border-radius: 8px; padding: 15px 20px; border: none; font-weight: 600; font-size: 20px; cursor: pointer; transition: background 0.2s;" type="submit">Subscribe</button>
 <div id="successMessage" style="display: none; color: green; margin-top: 12px;">Check your email for the guide!</div>

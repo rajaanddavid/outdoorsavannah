@@ -54,13 +54,21 @@
 <link rel="alternate" title="oEmbed (JSON)" type="application/json+oembed" href="https://www.outdoorsavannah.com/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fhttps%3A%2F%2Fwww.outdoorsavannah.com%2F">
 <link rel="alternate" title="oEmbed (XML)" type="text/xml+oembed" href="https://www.outdoorsavannah.com/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fhttps%3A%2F%2Fwww.outdoorsavannah.com%2F&amp;format=xml">
 <!-- START HEADER SNIPPET -->
-<!-- Google tag (gtag.js) for GA4 (Analytics)-->
+<!-- Google tag (gtag.js) for GA4 (Analytics) - anonymized, non-personalized -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-0Q38LVTQS4"></script>
-<script>window.dataLayer = window.dataLayer || [];
+<script>
+  window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
 
-  gtag('config', 'G-0Q38LVTQS4');</script>
+  // GA4 configuration: anonymized IP, no ads or personalization
+  gtag('config', 'G-0Q38LVTQS4', {
+    'anonymize_ip': true,       // anonymize visitor IPs
+    'allow_google_signals': false, // disable Google Signals
+    'allow_ad_personalization_signals': false // disable ads personalization
+  });
+</script>
+
 
 <link rel="preload" as="image" href="/wp-content/uploads/2025/04/outdoorsavannah-logo-registered-links.webp" fetchpriority="high">
 <link rel="preload" href="/wp-content/uploads/2025/04/Easy-Cat-Shelves-1187x1536.webp" as="image" fetchpriority="high">
@@ -234,37 +242,6 @@
     .entry-content > a:not(.wp-block-button__link):hover,
     .has-text-align-center > a:not(.wp-block-button__link):not([class*="wp-block-social"]):hover {
         color: #99ccff !important;
-    }
-    
-    /* CookieYes Banner - try multiple selectors */
-    div[id*="cookie"],
-    div[class*="cookie"],
-    div[class*="cky"],
-    .cky-consent-container,
-    .cky-consent-bar,
-    [data-cky-tag="detail"],
-    [data-cky-tag="notice"] {
-        background-color: #1a1a1a !important;
-        color: #f0f0f0 !important;
-    }
-    
-    /* CookieYes text */
-    div[id*="cookie"] span,
-    div[id*="cookie"] p,
-    div[id*="cookie"] div,
-    div[class*="cookie"] span,
-    div[class*="cookie"] p,
-    div[class*="cky"] span,
-    div[class*="cky"] p {
-        color: #f0f0f0 !important;
-    }
-    
-    /* CookieYes buttons */
-    div[id*="cookie"] button,
-    div[class*="cookie"] button,
-    div[class*="cky"] button,
-    .cky-btn {
-        border-color: #ffffff !important;
     }
     
     /* BACK TO PRODUCTS BUTTON - Keep original theme colors */
