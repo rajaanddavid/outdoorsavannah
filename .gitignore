@@ -2,6 +2,9 @@
 *
 !/**/
 
+# Allow all HTML files
+!*.html
+
 # Allow all JS files in wp-content and wp-includes recursively
 *.js
 !/wp-content/**/*.js
