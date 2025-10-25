@@ -23,7 +23,7 @@ const SITE_DOMAIN = 'https://www.outdoorsavannah.com';
 // 1.0 = use declared width as-is
 // 0.5 = assume images display at 50% of declared width (more conservative)
 // 0.75 = assume images display at 75% of declared width (balanced)
-const SIZE_MULTIPLIER = 0.5; // Conservative default for content-constrained layouts
+const SIZE_MULTIPLIER = 0.75; // Conservative default for content-constrained layouts
 
 /**
  * Parse WordPress image filename to extract base name and dimensions
