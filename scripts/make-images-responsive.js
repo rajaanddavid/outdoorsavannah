@@ -19,6 +19,12 @@ const { glob } = require('glob');
 const UPLOADS_DIR = 'wp-content/uploads';
 const SITE_DOMAIN = 'https://www.outdoorsavannah.com';
 
+// Size multiplier - adjust this if PageSpeed complains images are too large
+// 1.0 = use declared width as-is
+// 0.5 = assume images display at 50% of declared width (more conservative)
+// 0.75 = assume images display at 75% of declared width (balanced)
+const SIZE_MULTIPLIER = 0.5; // Conservative default for content-constrained layouts
+
 /**
  * Parse WordPress image filename to extract base name and dimensions
  * Examples:
@@ -143,6 +149,10 @@ function extractImagePath(url) {
     imagePath = imagePath.substring(1);
   }
 
+  // Handle relative paths (./path or ../path or ../../path)
+  // Remove any leading ./ or ../ segments to get to wp-content/uploads
+  imagePath = imagePath.replace(/^(\.\.\/)+/, '').replace(/^\.\//, '');
+
   return imagePath;
 }
 
@@ -248,18 +258,55 @@ async function processHtmlFile(htmlFilePath, imageMap) {
       newImgTag = newImgTag.replace(/>$/, ` srcset="${srcset}">`);
     }
 
-    // Add or update sizes attribute if not present
-    // Default to responsive: (max-width: [width]px) 100vw, [width]px
-    if (!/sizes=/i.test(newImgTag)) {
-      // Extract width from existing attributes or use a sensible default
-      const widthMatch = newImgTag.match(/width=["']?(\d+)["']?/i);
-      if (widthMatch) {
-        const width = widthMatch[1];
-        newImgTag = newImgTag.replace(/>$/, ` sizes="(max-width: ${width}px) 100vw, ${width}px">`);
-      } else {
-        // Generic responsive sizes
-        newImgTag = newImgTag.replace(/>$/, ` sizes="(max-width: 768px) 100vw, 768px">`);
+    // Add or update sizes attribute for better responsiveness
+    // Strategy: Assume images are constrained by CSS to ~50% of viewport on desktop,
+    // full width on mobile (common WordPress/responsive theme pattern)
+    const widthMatch = newImgTag.match(/width=["']?(\d+)["']?/i);
+    const declaredWidth = widthMatch ? parseInt(widthMatch[1]) : null;
+
+    // Check if image has size-* class (WordPress size classes)
+    const sizeClasses = {
+      'size-thumbnail': 150,
+      'size-medium': 300,
+      'size-medium_large': 768,
+      'size-large': 1024,
+      'size-full': null
+    };
+
+    let estimatedMaxWidth = declaredWidth;
+    for (const [className, maxSize] of Object.entries(sizeClasses)) {
+      if (newImgTag.includes(className) && maxSize) {
+        estimatedMaxWidth = Math.min(estimatedMaxWidth || maxSize, maxSize);
       }
+    }
+
+    // Generate realistic sizes attribute
+    // Most WordPress themes constrain content width, so images rarely display at full declared size
+    // Apply size multiplier to be more conservative
+    let sizesAttr;
+    if (estimatedMaxWidth && estimatedMaxWidth <= 300) {
+      // Thumbnail/small images
+      const adjustedWidth = Math.round(estimatedMaxWidth * SIZE_MULTIPLIER);
+      sizesAttr = `(max-width: 600px) 50vw, ${adjustedWidth}px`;
+    } else if (estimatedMaxWidth && estimatedMaxWidth <= 600) {
+      // Medium images - likely in content, constrained by content width
+      const adjustedWidth = Math.round(Math.min(estimatedMaxWidth, 600) * SIZE_MULTIPLIER);
+      sizesAttr = `(max-width: 600px) 90vw, (max-width: 1200px) 50vw, ${adjustedWidth}px`;
+    } else if (estimatedMaxWidth) {
+      // Large images - still constrained by content width (typically max 800-1000px)
+      const maxContentWidth = Math.round(Math.min(estimatedMaxWidth, 800) * SIZE_MULTIPLIER);
+      sizesAttr = `(max-width: 600px) 100vw, (max-width: 1200px) 80vw, ${maxContentWidth}px`;
+    } else {
+      // No width attribute: conservative estimate
+      const defaultWidth = Math.round(800 * SIZE_MULTIPLIER);
+      sizesAttr = `(max-width: 600px) 100vw, (max-width: 1200px) 80vw, ${defaultWidth}px`;
+    }
+
+    // Replace or add sizes
+    if (/sizes=/i.test(newImgTag)) {
+      newImgTag = newImgTag.replace(/sizes=["'][^"']*["']/i, `sizes="${sizesAttr}"`);
+    } else {
+      newImgTag = newImgTag.replace(/>$/, ` sizes="${sizesAttr}">`);
     }
 
     // Replace in content
