@@ -125,9 +125,19 @@ async function buildImageMap() {
 }
 
 /**
- * Convert absolute URL to relative path from HTML file location
+ * Convert absolute path to root-relative path
  */
 function makeRelativePath(htmlFilePath, imagePath) {
+  // Extract the path starting from wp-content
+  const normalizedPath = imagePath.replace(/\\/g, '/');
+  const wpContentIndex = normalizedPath.indexOf('wp-content/');
+
+  if (wpContentIndex !== -1) {
+    // Return root-relative path: /wp-content/...
+    return '/' + normalizedPath.substring(wpContentIndex);
+  }
+
+  // Fallback to old relative path behavior if wp-content not found
   const htmlDir = path.dirname(htmlFilePath);
   const relativePath = path.relative(htmlDir, imagePath).replace(/\\/g, '/');
 
