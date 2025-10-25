@@ -21,9 +21,10 @@ const SITE_DOMAIN = 'https://www.outdoorsavannah.com';
 
 // Size multiplier - adjust this if PageSpeed complains images are too large
 // 1.0 = use declared width as-is
-// 0.5 = assume images display at 50% of declared width (more conservative)
-// 0.75 = assume images display at 75% of declared width (balanced)
-const SIZE_MULTIPLIER = 0.25; // Conservative default for content-constrained layouts
+// 0.5 = assume images display at 50% of declared width
+// 0.35 = assume images display at 35% of declared width (very conservative)
+// For most WordPress themes with constrained content width, 0.35-0.4 is realistic
+const SIZE_MULTIPLIER = 0.35; // Very conservative for content-constrained layouts
 
 /**
  * Parse WordPress image filename to extract base name and dimensions
@@ -206,6 +207,49 @@ function generateSrcset(htmlFilePath, imageEntry) {
 async function processHtmlFile(htmlFilePath, imageMap) {
   let content = fs.readFileSync(htmlFilePath, 'utf8');
   let modified = false;
+
+  // Process <link rel="preload"> tags for images
+  const preloadRegex = /<link\s+[^>]*rel=["']preload["'][^>]*as=["']image["'][^>]*>/gi;
+  const preloadMatches = content.match(preloadRegex) || [];
+
+  for (const preloadTag of preloadMatches) {
+    const hrefMatch = preloadTag.match(/href=["']([^"']+)["']/i);
+    if (!hrefMatch) continue;
+
+    const originalHref = hrefMatch[1];
+
+    // Skip if not a WordPress upload
+    if (!originalHref.includes('wp-content/uploads')) continue;
+
+    // Find the image in our map
+    const imageKey = findImageKey(imageMap, originalHref);
+    if (!imageKey) continue;
+
+    const imageEntry = imageMap.get(imageKey);
+
+    // For preload, use a smaller variant instead of the original
+    // Choose the first variant larger than 400px, or the largest if all are smaller
+    let preloadSrc;
+    const variant400Plus = imageEntry.variants.find(v => v.width >= 400);
+    if (variant400Plus) {
+      preloadSrc = makeRelativePath(htmlFilePath, variant400Plus.path);
+    } else if (imageEntry.variants.length > 0) {
+      const largest = imageEntry.variants[imageEntry.variants.length - 1];
+      preloadSrc = makeRelativePath(htmlFilePath, largest.path);
+    } else if (imageEntry.original) {
+      preloadSrc = makeRelativePath(htmlFilePath, imageEntry.original);
+    } else {
+      continue;
+    }
+
+    // Build new preload tag with relative path
+    let newPreloadTag = preloadTag.replace(/href=["'][^"']+["']/i, `href="${preloadSrc}"`);
+
+    if (newPreloadTag !== preloadTag) {
+      content = content.replace(preloadTag, newPreloadTag);
+      modified = true;
+    }
+  }
 
   // Match <img> tags (handles multiline)
   const imgRegex = /<img\s+[^>]*>/gi;
