@@ -265,6 +265,12 @@ async function processHtmlFile(htmlFilePath, imageMap) {
     // Skip if not a WordPress upload
     if (!originalSrc.includes('wp-content/uploads')) continue;
 
+    // Try to find parent figure tag to get size class (WordPress often puts size class on figure)
+    const imgIndex = content.indexOf(imgTag);
+    const precedingContent = content.substring(Math.max(0, imgIndex - 200), imgIndex);
+    const parentFigureMatch = precedingContent.match(/<figure[^>]*class="[^"]*\b(size-\w+)\b[^"]*"[^>]*>$/);
+    const figureClass = parentFigureMatch ? parentFigureMatch[1] : null;
+
     // Find the image in our map
     const imageKey = findImageKey(imageMap, originalSrc);
     if (!imageKey) {
@@ -308,43 +314,44 @@ async function processHtmlFile(htmlFilePath, imageMap) {
     const widthMatch = newImgTag.match(/width=["']?(\d+)["']?/i);
     const declaredWidth = widthMatch ? parseInt(widthMatch[1]) : null;
 
-    // Check if image has size-* class (WordPress size classes)
-    const sizeClasses = {
+    // Map WordPress size classes to ACTUAL displayed widths
+    // Based on typical WordPress theme content constraints (~400-600px content width)
+    const sizeClassActualWidths = {
       'size-thumbnail': 150,
       'size-medium': 300,
-      'size-medium_large': 768,
-      'size-large': 1024,
-      'size-full': null
+      'size-medium_large': 350, // Actually constrained by content width
+      'size-large': 350,          // Actually constrained by content width
+      'size-full': 400            // Actually constrained by content width
     };
 
-    let estimatedMaxWidth = declaredWidth;
-    for (const [className, maxSize] of Object.entries(sizeClasses)) {
-      if (newImgTag.includes(className) && maxSize) {
-        estimatedMaxWidth = Math.min(estimatedMaxWidth || maxSize, maxSize);
+    // Determine actual displayed width
+    let actualDisplayWidth = null;
+
+    // Priority 1: Use WordPress size class from parent figure or img tag (most reliable)
+    if (figureClass && sizeClassActualWidths[figureClass]) {
+      actualDisplayWidth = sizeClassActualWidths[figureClass];
+    } else {
+      for (const [className, width] of Object.entries(sizeClassActualWidths)) {
+        if (newImgTag.includes(className)) {
+          actualDisplayWidth = width;
+          break;
+        }
       }
     }
 
-    // Generate realistic sizes attribute
-    // Most WordPress themes constrain content width, so images rarely display at full declared size
-    // Apply size multiplier to be more conservative
-    let sizesAttr;
-    if (estimatedMaxWidth && estimatedMaxWidth <= 300) {
-      // Thumbnail/small images
-      const adjustedWidth = Math.round(estimatedMaxWidth * SIZE_MULTIPLIER);
-      sizesAttr = `(max-width: 600px) 50vw, ${adjustedWidth}px`;
-    } else if (estimatedMaxWidth && estimatedMaxWidth <= 600) {
-      // Medium images - likely in content, constrained by content width
-      const adjustedWidth = Math.round(Math.min(estimatedMaxWidth, 600) * SIZE_MULTIPLIER);
-      sizesAttr = `(max-width: 600px) 90vw, (max-width: 1200px) 50vw, ${adjustedWidth}px`;
-    } else if (estimatedMaxWidth) {
-      // Large images - still constrained by content width (typically max 800-1000px)
-      const maxContentWidth = Math.round(Math.min(estimatedMaxWidth, 800) * SIZE_MULTIPLIER);
-      sizesAttr = `(max-width: 600px) 100vw, (max-width: 1200px) 80vw, ${maxContentWidth}px`;
-    } else {
-      // No width attribute: conservative estimate
-      const defaultWidth = Math.round(800 * SIZE_MULTIPLIER);
-      sizesAttr = `(max-width: 600px) 100vw, (max-width: 1200px) 80vw, ${defaultWidth}px`;
+    // Priority 2: If no size class, use declared width * multiplier
+    if (!actualDisplayWidth && declaredWidth) {
+      actualDisplayWidth = Math.min(Math.round(declaredWidth * SIZE_MULTIPLIER), 400);
     }
+
+    // Priority 3: Default conservative estimate
+    if (!actualDisplayWidth) {
+      actualDisplayWidth = 350;
+    }
+
+    // Generate sizes attribute using the actual display width
+    // Use simple, accurate sizes since we know the actual rendered size
+    const sizesAttr = `(max-width: 600px) 100vw, ${actualDisplayWidth}px`;
 
     // Replace or add sizes
     if (/sizes=/i.test(newImgTag)) {
