@@ -9,6 +9,8 @@
 *.js
 !/wp-content/**/*.js
 !/wp-includes/**/*.js
+!/wp-content/**/*.css
+!/wp-includes/**/*.css
 !/scripts/**/*.js
 
 # ALLOW all JS files in functions folder

@@ -283,6 +283,11 @@ function generatePictureElement(htmlFilePath, imageEntry, imgAttributes) {
  * Process a single HTML file
  */
 async function processHtmlFile(htmlFilePath, imageMap) {
+  // Skip header.html - it's a template file used for insertion
+  if (htmlFilePath.includes('header.html')) {
+    return false;
+  }
+
   let content = fs.readFileSync(htmlFilePath, 'utf8');
   let modified = false;
 
