@@ -235,9 +235,15 @@ function generatePictureElement(htmlFilePath, imageEntry, imgAttributes) {
   // Generate <source> tags for each breakpoint
   for (const breakpoint of breakpoints) {
     // WebP source - filter by size range
-    const webpForBreakpoint = webpVariants.filter(v =>
+    let webpForBreakpoint = webpVariants.filter(v =>
       v.width >= breakpoint.minWidth && v.width <= breakpoint.maxWidth
     );
+
+    // For small images: if no variants in this breakpoint range, use all available variants
+    // This ensures small images still get WebP on all screen sizes
+    if (webpForBreakpoint.length === 0 && breakpoint.name !== 'mobile') {
+      webpForBreakpoint = webpVariants;
+    }
 
     if (webpForBreakpoint.length > 0) {
       const srcsetParts = webpForBreakpoint
