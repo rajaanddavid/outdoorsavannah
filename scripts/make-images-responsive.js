@@ -345,9 +345,24 @@ async function processHtmlFile(htmlFilePath, imageMap) {
 
     // Try to find parent figure tag and check if image is in a column
     const imgIndex = content.indexOf(imgTag);
-    const precedingContent = content.substring(Math.max(0, imgIndex - 500), imgIndex);
+    const precedingContent = content.substring(Math.max(0, imgIndex - 1000), imgIndex);
     const parentFigureMatch = precedingContent.match(/<figure[^>]*class="[^"]*\b(size-\w+)\b[^"]*"[^>]*>$/);
     const figureClass = parentFigureMatch ? parentFigureMatch[1] : null;
+
+    // Skip images in excluded contexts (logos, social media icons, etc.)
+    const excludedPatterns = [
+      /site-branding.*?brand.*?has-logo-image/s,  // Site logo
+      /mobile-site-branding.*?brand.*?has-logo-image/s,  // Mobile logo
+      /footer-social-wrap/s,  // Footer social media icons
+      /social-button.*?footer-social-item/s,  // Social media buttons
+      /header-social/s,  // Header social media
+      /custom-logo/  // WordPress custom logo class
+    ];
+
+    const shouldExclude = excludedPatterns.some(pattern => pattern.test(precedingContent));
+    if (shouldExclude) {
+      continue; // Skip logos and social media icons
+    }
 
     // Check if image is inside wp-block-column (WordPress columns)
     const isInColumn = /<div[^>]*class="[^"]*wp-block-column[^"]*"[^>]*>(?:(?!<\/div>).)*$/s.test(precedingContent);
