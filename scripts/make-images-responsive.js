@@ -93,7 +93,10 @@ async function buildImageMap() {
 
     const dir = path.dirname(normalizedPath).replace(/\\/g, '/');
     const relativeDir = dir.replace(`${UPLOADS_DIR}/`, '');
-    const key = `${relativeDir}/${parsed.base}.${parsed.ext}`;
+
+    // Normalize key to always use .webp extension so JPEG and WebP variants map to same image
+    const normalizedExt = 'webp';
+    const key = `${relativeDir}/${parsed.base}.${normalizedExt}`;
 
     if (!imageMap.has(key)) {
       imageMap.set(key, {
@@ -105,7 +108,10 @@ async function buildImageMap() {
     const entry = imageMap.get(key);
 
     if (!parsed.isVariant) {
-      entry.original = normalizedPath;
+      // Prefer webp original over jpeg
+      if (!entry.original || parsed.ext === 'webp') {
+        entry.original = normalizedPath;
+      }
     } else {
       entry.variants.push({
         path: normalizedPath,
@@ -189,7 +195,7 @@ function findImageKey(imageMap, url) {
 }
 
 /**
- * Generate srcset attribute for an image
+ * Generate srcset attribute for an image (used for legacy code path)
  */
 function generateSrcset(htmlFilePath, imageEntry) {
   const srcsetParts = [];
@@ -203,12 +209,74 @@ function generateSrcset(htmlFilePath, imageEntry) {
   // Add original if it exists
   if (imageEntry.original) {
     const relativePath = makeRelativePath(htmlFilePath, imageEntry.original);
-    // For original, we don't know the exact width, so put it last without width descriptor
-    // or we can just use it as the largest size
     srcsetParts.push(relativePath);
   }
 
   return srcsetParts.join(', ');
+}
+
+/**
+ * Generate <picture> element with <source> tags for responsive images
+ */
+function generatePictureElement(htmlFilePath, imageEntry, imgAttributes) {
+  // Group variants by format (webp vs jpeg)
+  const webpVariants = imageEntry.variants.filter(v => v.path.endsWith('.webp'));
+  const jpegVariants = imageEntry.variants.filter(v => v.path.match(/\.(jpe?g)$/i));
+
+  // Breakpoints: mobile (≤480px), tablet (≤768px), desktop (>768px)
+  const breakpoints = [
+    { name: 'mobile', maxWidth: 480, sizes: [300, 400, 450, 500] },
+    { name: 'tablet', maxWidth: 768, sizes: [450, 500, 768] },
+    { name: 'desktop', maxWidth: null, sizes: [768, 1024, 1536] }
+  ];
+
+  let pictureHtml = '  <picture>\n';
+
+  // Generate <source> tags for each breakpoint
+  for (const breakpoint of breakpoints) {
+    // WebP source
+    const webpForBreakpoint = webpVariants.filter(v => {
+      if (breakpoint.name === 'mobile') return v.width <= 500;
+      if (breakpoint.name === 'tablet') return v.width > 500 && v.width <= 768;
+      return v.width > 768;
+    });
+
+    if (webpForBreakpoint.length > 0) {
+      const mediaQuery = breakpoint.maxWidth ? `(max-width: ${breakpoint.maxWidth}px)` : '(min-width: 769px)';
+      const srcsetParts = webpForBreakpoint
+        .map(v => `${makeRelativePath(htmlFilePath, v.path)} ${v.width}w`)
+        .join(',\n        ');
+
+      pictureHtml += `    <!-- ${breakpoint.name.charAt(0).toUpperCase() + breakpoint.name.slice(1)}: ${breakpoint.maxWidth ? `up to ${breakpoint.maxWidth}px` : 'larger screens'} -->\n`;
+      pictureHtml += `    <source\n`;
+      pictureHtml += `      media="${mediaQuery}"\n`;
+      pictureHtml += `      srcset="\n        ${srcsetParts}\n      "\n`;
+      pictureHtml += `      type="image/webp">\n\n`;
+    }
+  }
+
+  // JPEG fallback (for legacy browsers) - use a single reasonable size
+  // Prefer 500px width, fall back to largest available
+  const jpegFallback = jpegVariants.find(v => v.width === 500) ||
+                       jpegVariants.find(v => v.width >= 450 && v.width <= 768) ||
+                       jpegVariants[jpegVariants.length - 1];
+
+  if (jpegFallback) {
+    pictureHtml += `    <!-- Legacy browser fallback (JPEG) -->\n`;
+    pictureHtml += `    <source\n`;
+    pictureHtml += `      srcset="${makeRelativePath(htmlFilePath, jpegFallback.path)}"\n`;
+    pictureHtml += `      type="image/jpeg">\n\n`;
+  }
+
+  // Fallback <img> tag
+  const fallbackSrc = imageEntry.original ||
+                      webpVariants[Math.floor(webpVariants.length / 2)]?.path ||
+                      imageEntry.variants[0]?.path;
+
+  pictureHtml += `    <img ${imgAttributes} src="${makeRelativePath(htmlFilePath, fallbackSrc)}">\n`;
+  pictureHtml += `  </picture>`;
+
+  return pictureHtml;
 }
 
 /**
@@ -293,104 +361,40 @@ async function processHtmlFile(htmlFilePath, imageMap) {
 
     const imageEntry = imageMap.get(imageKey);
 
-    // Determine the best src (prefer original, fallback to largest variant)
-    let newSrc;
-    if (imageEntry.original) {
-      newSrc = makeRelativePath(htmlFilePath, imageEntry.original);
-    } else if (imageEntry.variants.length > 0) {
-      const largest = imageEntry.variants[imageEntry.variants.length - 1];
-      newSrc = makeRelativePath(htmlFilePath, largest.path);
+    // Check if this image is already inside a <picture> element
+    const alreadyInPicture = /<picture[^>]*>(?:[^<]|<(?!\/picture>))*$/s.test(precedingContent);
+    if (alreadyInPicture) {
+      continue; // Skip if already wrapped in <picture>
+    }
+
+    // Extract all img attributes (except src, srcset, sizes - we'll regenerate those)
+    let imgAttributes = imgTag
+      .replace(/<img\s+/i, '')
+      .replace(/>/i, '')
+      .replace(/\s*src=["'][^"']*["']/gi, '')
+      .replace(/\s*srcset=["'][^"']*["']/gi, '')
+      .replace(/\s*sizes=["'][^"']*["']/gi, '')
+      .trim();
+
+    // Generate <picture> element
+    const pictureElement = generatePictureElement(htmlFilePath, imageEntry, imgAttributes);
+
+    // Check if img is inside a <figure> - if so, replace just the img, not the figure
+    const figureMatch = precedingContent.match(/<figure[^>]*>(?:(?!<img).)*$/s);
+
+    let replacement;
+    if (figureMatch) {
+      // Just replace the <img> with <picture>
+      replacement = pictureElement;
     } else {
-      continue;
+      // Wrap in a figure
+      const sizeClass = figureClass || 'size-large';
+      replacement = `<figure class="wp-block-image aligncenter ${sizeClass}">\n${pictureElement}\n</figure>`;
     }
 
-    // Generate srcset
-    const srcset = generateSrcset(htmlFilePath, imageEntry);
-
-    // Build new img tag
-    let newImgTag = imgTag;
-
-    // Replace src with relative path
-    newImgTag = newImgTag.replace(/src=["'][^"']+["']/i, `src="${newSrc}"`);
-
-    // Replace or add srcset
-    if (/srcset=/i.test(newImgTag)) {
-      newImgTag = newImgTag.replace(/srcset=["'][^"']*["']/i, `srcset="${srcset}"`);
-    } else {
-      // Add srcset before the closing >
-      newImgTag = newImgTag.replace(/>$/, ` srcset="${srcset}">`);
-    }
-
-    // Add or update sizes attribute for better responsiveness
-    // Strategy: Assume images are constrained by CSS to ~50% of viewport on desktop,
-    // full width on mobile (common WordPress/responsive theme pattern)
-    const widthMatch = newImgTag.match(/width=["']?(\d+)["']?/i);
-    const declaredWidth = widthMatch ? parseInt(widthMatch[1]) : null;
-
-    // Map WordPress size classes to ACTUAL displayed widths
-    // Based on typical WordPress theme content constraints (~400-600px content width)
-    const sizeClassActualWidths = {
-      'size-thumbnail': 150,
-      'size-medium': 300,
-      'size-medium_large': 350, // Actually constrained by content width
-      'size-large': 350,          // Actually constrained by content width
-      'size-full': 400            // Actually constrained by content width
-    };
-
-    // Determine actual displayed width
-    let actualDisplayWidth = null;
-
-    // Priority 1: Use WordPress size class from parent figure or img tag (most reliable)
-    if (figureClass && sizeClassActualWidths[figureClass]) {
-      actualDisplayWidth = sizeClassActualWidths[figureClass];
-    } else {
-      for (const [className, width] of Object.entries(sizeClassActualWidths)) {
-        if (newImgTag.includes(className)) {
-          actualDisplayWidth = width;
-          break;
-        }
-      }
-    }
-
-    // Priority 2: If no size class, use declared width * multiplier
-    if (!actualDisplayWidth && declaredWidth) {
-      actualDisplayWidth = Math.min(Math.round(declaredWidth * SIZE_MULTIPLIER), 400);
-    }
-
-    // Priority 3: Default conservative estimate
-    if (!actualDisplayWidth) {
-      actualDisplayWidth = 350;
-    }
-
-    // If image is in a column, it's displayed at roughly 1/2 or 1/3 of content width
-    // Assume 2-column layout (most common), so divide by 2
-    if (isInColumn) {
-      actualDisplayWidth = Math.round(actualDisplayWidth * 0.45); // ~45% for 2-column with gap
-    }
-
-    // Generate sizes attribute using the actual display width
-    // For columns, also account for responsive stacking on mobile
-    let sizesAttr;
-    if (isInColumn) {
-      // Columns stack on mobile (100vw), side-by-side on desktop
-      sizesAttr = `(max-width: 600px) 100vw, (max-width: 1000px) 50vw, ${actualDisplayWidth}px`;
-    } else {
-      // Regular single-column images
-      sizesAttr = `(max-width: 600px) 100vw, ${actualDisplayWidth}px`;
-    }
-
-    // Replace or add sizes
-    if (/sizes=/i.test(newImgTag)) {
-      newImgTag = newImgTag.replace(/sizes=["'][^"']*["']/i, `sizes="${sizesAttr}"`);
-    } else {
-      newImgTag = newImgTag.replace(/>$/, ` sizes="${sizesAttr}">`);
-    }
-
-    // Replace in content
-    if (newImgTag !== imgTag) {
-      content = content.replace(imgTag, newImgTag);
-      modified = true;
-    }
+    // Replace the <img> tag with <picture> element
+    content = content.replace(imgTag, replacement);
+    modified = true;
   }
 
   if (modified) {
