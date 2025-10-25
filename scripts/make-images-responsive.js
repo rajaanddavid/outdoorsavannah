@@ -223,48 +223,48 @@ function generatePictureElement(htmlFilePath, imageEntry, imgAttributes) {
   const webpVariants = imageEntry.variants.filter(v => v.path.endsWith('.webp'));
   const jpegVariants = imageEntry.variants.filter(v => v.path.match(/\.(jpe?g)$/i));
 
-  // Breakpoints: mobile (≤480px), tablet (≤768px), desktop (>768px)
+  // Breakpoints with overlapping ranges to ensure proper coverage
   const breakpoints = [
-    { name: 'mobile', maxWidth: 480, sizes: [300, 400, 450, 500] },
-    { name: 'tablet', maxWidth: 768, sizes: [450, 500, 768] },
-    { name: 'desktop', maxWidth: null, sizes: [768, 1024, 1536] }
+    { name: 'mobile', mediaQuery: '(max-width: 480px)', minWidth: 150, maxWidth: 500 },
+    { name: 'tablet', mediaQuery: '(max-width: 1000px)', minWidth: 450, maxWidth: 1024 },
+    { name: 'desktop', mediaQuery: '(min-width: 1001px)', minWidth: 768, maxWidth: Infinity }
   ];
 
   let pictureHtml = '  <picture>\n';
 
   // Generate <source> tags for each breakpoint
   for (const breakpoint of breakpoints) {
-    // WebP source
-    const webpForBreakpoint = webpVariants.filter(v => {
-      if (breakpoint.name === 'mobile') return v.width <= 500;
-      if (breakpoint.name === 'tablet') return v.width > 500 && v.width <= 768;
-      return v.width > 768;
-    });
+    // WebP source - filter by size range
+    const webpForBreakpoint = webpVariants.filter(v =>
+      v.width >= breakpoint.minWidth && v.width <= breakpoint.maxWidth
+    );
 
     if (webpForBreakpoint.length > 0) {
-      const mediaQuery = breakpoint.maxWidth ? `(max-width: ${breakpoint.maxWidth}px)` : '(min-width: 769px)';
       const srcsetParts = webpForBreakpoint
         .map(v => `${makeRelativePath(htmlFilePath, v.path)} ${v.width}w`)
         .join(',\n        ');
 
-      pictureHtml += `    <!-- ${breakpoint.name.charAt(0).toUpperCase() + breakpoint.name.slice(1)}: ${breakpoint.maxWidth ? `up to ${breakpoint.maxWidth}px` : 'larger screens'} -->\n`;
+      const description = breakpoint.name === 'mobile' ? 'up to 480px'
+        : breakpoint.name === 'tablet' ? 'up to 1000px'
+        : 'larger screens';
+
+      pictureHtml += `    <!-- ${breakpoint.name.charAt(0).toUpperCase() + breakpoint.name.slice(1)}: ${description} -->\n`;
       pictureHtml += `    <source\n`;
-      pictureHtml += `      media="${mediaQuery}"\n`;
+      pictureHtml += `      media="${breakpoint.mediaQuery}"\n`;
       pictureHtml += `      srcset="\n        ${srcsetParts}\n      "\n`;
       pictureHtml += `      type="image/webp">\n\n`;
     }
   }
 
-  // JPEG fallback (for legacy browsers) - use a single reasonable size
-  // Prefer 500px width, fall back to largest available
-  const jpegFallback = jpegVariants.find(v => v.width === 500) ||
-                       jpegVariants.find(v => v.width >= 450 && v.width <= 768) ||
-                       jpegVariants[jpegVariants.length - 1];
+  // JPEG fallback (for legacy browsers) - provide full responsive support
+  if (jpegVariants.length > 0) {
+    const jpegSrcset = jpegVariants
+      .map(v => `${makeRelativePath(htmlFilePath, v.path)} ${v.width}w`)
+      .join(',\n        ');
 
-  if (jpegFallback) {
     pictureHtml += `    <!-- Legacy browser fallback (JPEG) -->\n`;
     pictureHtml += `    <source\n`;
-    pictureHtml += `      srcset="${makeRelativePath(htmlFilePath, jpegFallback.path)}"\n`;
+    pictureHtml += `      srcset="\n        ${jpegSrcset}\n      "\n`;
     pictureHtml += `      type="image/jpeg">\n\n`;
   }
 
