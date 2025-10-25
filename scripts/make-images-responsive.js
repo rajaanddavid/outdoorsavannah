@@ -265,11 +265,14 @@ async function processHtmlFile(htmlFilePath, imageMap) {
     // Skip if not a WordPress upload
     if (!originalSrc.includes('wp-content/uploads')) continue;
 
-    // Try to find parent figure tag to get size class (WordPress often puts size class on figure)
+    // Try to find parent figure tag and check if image is in a column
     const imgIndex = content.indexOf(imgTag);
-    const precedingContent = content.substring(Math.max(0, imgIndex - 200), imgIndex);
+    const precedingContent = content.substring(Math.max(0, imgIndex - 500), imgIndex);
     const parentFigureMatch = precedingContent.match(/<figure[^>]*class="[^"]*\b(size-\w+)\b[^"]*"[^>]*>$/);
     const figureClass = parentFigureMatch ? parentFigureMatch[1] : null;
+
+    // Check if image is inside wp-block-column (WordPress columns)
+    const isInColumn = /<div[^>]*class="[^"]*wp-block-column[^"]*"[^>]*>(?:(?!<\/div>).)*$/s.test(precedingContent);
 
     // Find the image in our map
     const imageKey = findImageKey(imageMap, originalSrc);
@@ -349,9 +352,22 @@ async function processHtmlFile(htmlFilePath, imageMap) {
       actualDisplayWidth = 350;
     }
 
+    // If image is in a column, it's displayed at roughly 1/2 or 1/3 of content width
+    // Assume 2-column layout (most common), so divide by 2
+    if (isInColumn) {
+      actualDisplayWidth = Math.round(actualDisplayWidth * 0.45); // ~45% for 2-column with gap
+    }
+
     // Generate sizes attribute using the actual display width
-    // Use simple, accurate sizes since we know the actual rendered size
-    const sizesAttr = `(max-width: 600px) 100vw, ${actualDisplayWidth}px`;
+    // For columns, also account for responsive stacking on mobile
+    let sizesAttr;
+    if (isInColumn) {
+      // Columns stack on mobile (100vw), side-by-side on desktop
+      sizesAttr = `(max-width: 600px) 100vw, (max-width: 1000px) 50vw, ${actualDisplayWidth}px`;
+    } else {
+      // Regular single-column images
+      sizesAttr = `(max-width: 600px) 100vw, ${actualDisplayWidth}px`;
+    }
 
     // Replace or add sizes
     if (/sizes=/i.test(newImgTag)) {
