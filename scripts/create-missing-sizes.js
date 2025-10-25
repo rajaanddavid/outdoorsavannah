@@ -5,6 +5,8 @@
  *
  * WordPress typically creates: 150, 240, 300, 768, 1024, 1536
  * But we need: 400, 450, 500 for better responsive coverage
+ *
+ * Generates both .webp (for modern browsers) and .jpeg (for legacy browser fallback)
  */
 
 const sharp = require('sharp');
@@ -14,6 +16,12 @@ const fs = require('fs');
 
 // Target widths to create (if they don't exist)
 const TARGET_WIDTHS = [400, 450, 500];
+
+// Output formats: webp for modern browsers, jpeg for legacy fallback
+const OUTPUT_FORMATS = [
+  { ext: '.webp', options: { quality: 85, effort: 4 } },
+  { ext: '.jpeg', options: { quality: 85, mozjpeg: true } }
+];
 
 async function createMissingVariants() {
   console.log('Finding original images...\n');
@@ -56,25 +64,35 @@ async function createMissingVariants() {
 
         // Calculate proportional height
         const targetHeight = Math.round((targetWidth / originalWidth) * metadata.height);
-        const variantFilename = `${baseName}-${targetWidth}x${targetHeight}${ext}`;
-        const variantPath = path.join(dir, variantFilename);
 
-        // Check if variant already exists
-        if (fs.existsSync(variantPath)) {
-          skipped++;
-          continue;
+        // Create both webp and jpeg versions
+        for (const format of OUTPUT_FORMATS) {
+          const variantFilename = `${baseName}-${targetWidth}x${targetHeight}${format.ext}`;
+          const variantPath = path.join(dir, variantFilename);
+
+          // Check if variant already exists
+          if (fs.existsSync(variantPath)) {
+            skipped++;
+            continue;
+          }
+
+          // Create the variant
+          const image = sharp(normalizedPath)
+            .resize(targetWidth, targetHeight, {
+              fit: 'inside',
+              withoutEnlargement: true
+            });
+
+          // Apply format-specific options
+          if (format.ext === '.webp') {
+            await image.webp(format.options).toFile(variantPath);
+          } else if (format.ext === '.jpeg') {
+            await image.jpeg(format.options).toFile(variantPath);
+          }
+
+          console.log(`  ✓ Created: ${targetWidth}x${targetHeight}${format.ext}`);
+          created++;
         }
-
-        // Create the variant
-        await sharp(normalizedPath)
-          .resize(targetWidth, targetHeight, {
-            fit: 'inside',
-            withoutEnlargement: true
-          })
-          .toFile(variantPath);
-
-        console.log(`  ✓ Created: ${targetWidth}x${targetHeight}`);
-        created++;
       }
 
     } catch (err) {
