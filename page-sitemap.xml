@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- This sitemap was dynamically generated on October 25, 2025 at 5:56 am by All in One SEO v4.8.9 - the original SEO plugin for WordPress. -->
+<!-- This sitemap was dynamically generated on October 25, 2025 at 4:37 pm by All in One SEO v4.8.9 - the original SEO plugin for WordPress. -->
 
 <?xml-stylesheet type="text/xsl" href="https://www.outdoorsavannah.com/main-sitemap.xsl"?>
 <urlset
@@ -9,16 +9,78 @@
 >
 	<url>
 		<loc><![CDATA[https://www.outdoorsavannah.com/]]></loc>
-		<lastmod><![CDATA[2025-10-25T05:38:54+00:00]]></lastmod>
+		<lastmod><![CDATA[2025-10-25T06:38:58+00:00]]></lastmod>
 		<changefreq><![CDATA[always]]></changefreq>
 		<priority><![CDATA[1]]></priority>
 		<image:image>
 			<image:loc>
-				<![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/04/outdoorsavannah-logo-registered-links.webp]]>			</image:loc>
+				<![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/04/outdoorsavannah-logo-registered-links-300x184.webp]]>			</image:loc>
+		</image:image>
+	</url>
+	<url>
+		<loc><![CDATA[https://www.outdoorsavannah.com/cat-shelf-guide/]]></loc>
+		<lastmod><![CDATA[2025-10-25T06:39:05+00:00]]></lastmod>
+		<changefreq><![CDATA[weekly]]></changefreq>
+		<priority><![CDATA[0.7]]></priority>
+		<image:image>
+			<image:loc>
+				<![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/04/Easy-Cat-Shelves-791x1024.webp]]>			</image:loc>
 		</image:image>
 		<image:image>
 			<image:loc>
-				<![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/04/outdoorsavannah-logo-registered-links-300x184.webp]]>			</image:loc>
+				<![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/04/shelf-graded_1.1.1_1.1.2_1.1.3-1024x576.webp]]>			</image:loc>
+		</image:image>
+		<image:image>
+			<image:loc>
+				<![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/04/shelf-widths-1024x662.webp]]>			</image:loc>
+		</image:image>
+		<image:image>
+			<image:loc>
+				<![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/04/shelf-dimensions.webp]]>			</image:loc>
+		</image:image>
+		<image:image>
+			<image:loc>
+				<![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/04/shelf-coverings_1.1.1-819x1024.webp]]>			</image:loc>
+		</image:image>
+		<image:image>
+			<image:loc>
+				<![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/04/shelf-coverings_1.1.2-819x1024.webp]]>			</image:loc>
+		</image:image>
+		<image:image>
+			<image:loc>
+				<![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cat-shelf-guide_1.1.1-1024x1024.webp]]>			</image:loc>
+		</image:image>
+		<image:image>
+			<image:loc>
+				<![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cat-shelf-guide_1.6.1-1024x1024.webp]]>			</image:loc>
+		</image:image>
+		<image:image>
+			<image:loc>
+				<![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cat-shelf-guide_1.5.1-1024x1024.webp]]>			</image:loc>
+		</image:image>
+		<image:image>
+			<image:loc>
+				<![CDATA[https://img.youtube.com/vi/p7E8tCFFeWE/maxresdefault.jpg]]>			</image:loc>
+		</image:image>
+		<image:image>
+			<image:loc>
+				<![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cat-shelf-guide_1.1.1-1-1024x576.webp]]>			</image:loc>
+		</image:image>
+		<image:image>
+			<image:loc>
+				<![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cat-shelf-guide_1.2.1-1024x576.webp]]>			</image:loc>
+		</image:image>
+		<image:image>
+			<image:loc>
+				<![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/04/anchors.webp]]>			</image:loc>
+		</image:image>
+		<image:image>
+			<image:loc>
+				<![CDATA[https://img.youtube.com/vi/hwc_FfsPkb0/maxresdefault.jpg]]>			</image:loc>
+		</image:image>
+		<image:image>
+			<image:loc>
+				<![CDATA[https://img.youtube.com/vi/bg4I_NtOshE/maxresdefault.jpg]]>			</image:loc>
 		</image:image>
 	</url>
 	<url>
@@ -166,76 +228,6 @@
 		<lastmod><![CDATA[2025-10-24T19:32:59+00:00]]></lastmod>
 		<changefreq><![CDATA[weekly]]></changefreq>
 		<priority><![CDATA[0.7]]></priority>
-	</url>
-	<url>
-		<loc><![CDATA[https://www.outdoorsavannah.com/cat-shelf-guide/]]></loc>
-		<lastmod><![CDATA[2025-10-24T19:26:24+00:00]]></lastmod>
-		<changefreq><![CDATA[weekly]]></changefreq>
-		<priority><![CDATA[0.7]]></priority>
-		<image:image>
-			<image:loc>
-				<![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/04/Easy-Cat-Shelves-e1706835431644.webp]]>			</image:loc>
-		</image:image>
-		<image:image>
-			<image:loc>
-				<![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/04/Easy-Cat-Shelves-791x1024.webp]]>			</image:loc>
-		</image:image>
-		<image:image>
-			<image:loc>
-				<![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/04/shelf-graded_1.1.1_1.1.2_1.1.3-1024x576.webp]]>			</image:loc>
-		</image:image>
-		<image:image>
-			<image:loc>
-				<![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/04/shelf-widths-1024x662.webp]]>			</image:loc>
-		</image:image>
-		<image:image>
-			<image:loc>
-				<![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/04/shelf-dimensions.webp]]>			</image:loc>
-		</image:image>
-		<image:image>
-			<image:loc>
-				<![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/04/shelf-coverings_1.1.1-819x1024.webp]]>			</image:loc>
-		</image:image>
-		<image:image>
-			<image:loc>
-				<![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/04/shelf-coverings_1.1.2-819x1024.webp]]>			</image:loc>
-		</image:image>
-		<image:image>
-			<image:loc>
-				<![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cat-shelf-guide_1.1.1-1024x1024.webp]]>			</image:loc>
-		</image:image>
-		<image:image>
-			<image:loc>
-				<![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cat-shelf-guide_1.6.1-1024x1024.webp]]>			</image:loc>
-		</image:image>
-		<image:image>
-			<image:loc>
-				<![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cat-shelf-guide_1.5.1-1024x1024.webp]]>			</image:loc>
-		</image:image>
-		<image:image>
-			<image:loc>
-				<![CDATA[https://img.youtube.com/vi/p7E8tCFFeWE/maxresdefault.jpg]]>			</image:loc>
-		</image:image>
-		<image:image>
-			<image:loc>
-				<![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cat-shelf-guide_1.1.1-1-1024x576.webp]]>			</image:loc>
-		</image:image>
-		<image:image>
-			<image:loc>
-				<![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cat-shelf-guide_1.2.1-1024x576.webp]]>			</image:loc>
-		</image:image>
-		<image:image>
-			<image:loc>
-				<![CDATA[https://www.outdoorsavannah.com/wp-content/uploads/2025/04/anchors.webp]]>			</image:loc>
-		</image:image>
-		<image:image>
-			<image:loc>
-				<![CDATA[https://img.youtube.com/vi/hwc_FfsPkb0/maxresdefault.jpg]]>			</image:loc>
-		</image:image>
-		<image:image>
-			<image:loc>
-				<![CDATA[https://img.youtube.com/vi/bg4I_NtOshE/maxresdefault.jpg]]>			</image:loc>
-		</image:image>
 	</url>
 	<url>
 		<loc><![CDATA[https://www.outdoorsavannah.com/licensing/]]></loc>
