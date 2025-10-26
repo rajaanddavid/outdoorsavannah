@@ -2,8 +2,10 @@
 *
 !/**/
 
-# Allow all HTML files
+# Allow all HTML, XML, XSL files
 !*.html
+!*.xml
+!.xsl
 
 # Allow all JS files in wp-content and wp-includes recursively
 *.js
@@ -13,6 +15,7 @@
 !/wp-includes/**/*.css
 !/css/custom.css
 !/scripts/**/*.js
+!/wp-content/**/*.webp
 
 # ALLOW all JS files in functions folder
 !/functions/**/*.js
