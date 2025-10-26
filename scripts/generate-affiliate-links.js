@@ -124,6 +124,37 @@ const template = (meta, productKey) => {
             background-color: #0d0d0d !important;
             color: #f0f0f0 !important;
         }
+
+    /* CookieYes Banner - try multiple selectors */
+    div[id*="cookie"],
+    div[class*="cookie"],
+    div[class*="cky"],
+    .cky-consent-container,
+    .cky-consent-bar,
+    [data-cky-tag="detail"],
+    [data-cky-tag="notice"] {
+        background-color: #1a1a1a !important;
+        color: #f0f0f0 !important;
+    }
+
+    /* CookieYes text */
+    div[id*="cookie"] span,
+    div[id*="cookie"] p,
+    div[id*="cookie"] div,
+    div[class*="cookie"] span,
+    div[class*="cookie"] p,
+    div[class*="cky"] span,
+    div[class*="cky"] p {
+        color: #f0f0f0 !important;
+    }
+
+    /* CookieYes buttons */
+    div[id*="cookie"] button,
+    div[class*="cookie"] button,
+    div[class*="cky"] button,
+    .cky-btn {
+        border-color: #ffffff !important;
+    }
 </style>
 
 <!-- Open Graph & Twitter meta -->
