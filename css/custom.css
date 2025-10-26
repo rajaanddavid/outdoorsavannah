@@ -78,6 +78,11 @@
     #cat-guide-signup h2 {
         color: #f0f0f0 !important;
     }
+
+    /* Homepage "Raja and David" title text - white in dark mode */
+    .page-id-5 .wp-elements-be6df46427f2d9fd6d174c5c8728c787 {
+        color: #fff !important;
+    }
 }
 
 /* Mobile navigation menu - Dark mode support */
