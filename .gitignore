@@ -37,4 +37,3 @@ package-lock.json
 wrangler.toml
 !criticalcss
 !/scripts/README.md
-!generate-affilliate-links.js
