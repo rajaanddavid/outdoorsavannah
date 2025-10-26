@@ -5,8 +5,11 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const productDir = path.join(__dirname, "product");
-const previewDir = path.join(__dirname, "affiliate");
+// Get the root directory (parent of scripts folder)
+const rootDir = path.join(__dirname, '..');
+
+const productDir = path.join(rootDir, "product");
+const previewDir = path.join(rootDir, "affiliate");
 
 if (!fs.existsSync(previewDir)) fs.mkdirSync(previewDir);
 

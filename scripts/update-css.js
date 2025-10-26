@@ -1,8 +1,11 @@
 const fs = require('fs');
 const path = require('path');
 
+// Get the root directory (parent of scripts folder)
+const rootDir = path.join(__dirname, '..');
+
 // Read the critical CSS content
-const criticalCSS = fs.readFileSync('criticalcss', 'utf8');
+const criticalCSS = fs.readFileSync(path.join(rootDir, 'criticalcss'), 'utf8');
 
 // Critical CSS to be inlined (wrapped in style tags)
 const inlineCriticalCSS = `<style id="custom-critical-css">
@@ -45,7 +48,7 @@ console.log('Updating HTML files with critical CSS + external CSS link...\n');
 
 filesToUpdate.forEach(file => {
   try {
-    const filePath = path.join(__dirname, file);
+    const filePath = path.join(rootDir, file);
 
     if (!fs.existsSync(filePath)) {
       console.log(`  ⚠ Skipped: ${file} (file not found)`);
