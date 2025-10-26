@@ -1,0 +1,349 @@
+/* ========================================
+   SOCIAL MEDIA ICONS - PREVENT WRAPPING
+   ======================================== */
+
+/* Target ONLY social media icon lists on homepage */
+.page-id-5 .wp-block-social-links.is-content-justification-center {
+    gap: 0.75em !important;
+}
+
+/* On screens above 380px, prevent wrapping with slightly tighter spacing */
+@media (min-width: 380px) {
+    .page-id-5 .wp-block-social-links.is-content-justification-center {
+        flex-wrap: nowrap !important;
+        gap: 0.65em !important;
+    }
+}
+
+
+/* ========================================
+   DARK MODE - ALL PAGES INCLUDING PRODUCTS
+   ======================================== */
+
+@media (prefers-color-scheme: dark) {
+    /* Apply to all page types */
+    body,
+    .site,
+    .entry-content,
+    article {
+        background-color: #0d0d0d !important;
+        color: #f0f0f0 !important;
+    }
+
+    /* Invert logos to white - ALL PAGES */
+    img[src*="logo"],
+    .site-logo img,
+    .site-branding img,
+    .custom-logo,
+    img.wp-image-318 {
+        filter: brightness(0) invert(1) !important;
+    }
+
+    /* Navigation background - ALL PAGES */
+    .site-header,
+    .site-top-header,
+    .site-main-header,
+    .header-navigation,
+    nav,
+    .primary-navigation,
+    .site-header-wrap,
+    #masthead,
+    .wp-block-template-part {
+        background-color: #0d0d0d !important;
+    }
+
+    /* Navigation links - ALL PAGES */
+    .site-header a,
+    .header-navigation a,
+    .primary-navigation a,
+    .main-navigation a,
+    .wp-block-navigation a {
+        color: #f0f0f0 !important;
+    }
+
+    /* Homepage buttons - white borders in dark mode */
+    .page-id-5 .wp-block-button__link {
+        border: 2px solid #fff !important;
+    }
+
+    /* Homepage email button in dark mode - white text and white border */
+    .page-id-5 .wp-block-button__link[href="mailto:david@outdoorsavannah.com"] {
+        background-color: #000 !important;
+        border: 2px solid #fff !important;
+        color: #fff !important;
+    }
+
+    /* Cat shelf guide email page text */
+    /* Cat shelf guide email page - h2 heading only */
+    #cat-guide-signup h2 {
+        color: #f0f0f0 !important;
+    }
+}
+
+/* Mobile navigation menu - Dark mode support */
+@media (prefers-color-scheme: dark) {
+    /* Navigation overlay/modal background */
+    .wp-block-navigation__responsive-container,
+    .wp-block-navigation__responsive-dialog {
+        background-color: #0d0d0d !important;
+        color: #f0f0f0 !important;
+    }
+
+    /* Navigation menu items in overlay */
+    .wp-block-navigation__responsive-container .wp-block-navigation__container,
+    .wp-block-navigation__responsive-container-content {
+        background-color: #0d0d0d !important;
+    }
+
+    /* Navigation links in mobile menu */
+    .wp-block-navigation__responsive-container .wp-block-navigation-item a,
+    .wp-block-navigation__responsive-container .wp-block-navigation-item__content {
+        color: #f0f0f0 !important;
+    }
+
+    /* Close button (X) in mobile menu */
+    .wp-block-navigation__responsive-container-close,
+    .wp-block-navigation__responsive-container-close svg {
+        color: #f0f0f0 !important;
+        fill: #f0f0f0 !important;
+    }
+
+    /* Hamburger menu button */
+    .wp-block-navigation__responsive-container-open,
+    .wp-block-navigation__responsive-container-open svg {
+        color: #f0f0f0 !important;
+        fill: #f0f0f0 !important;
+    }
+}
+
+
+/* ========================================
+   CAT SHELF GUIDE (.page-id-145)
+   ======================================== */
+
+/* Title ONLY - center and bold */
+.page-id-145 h1,
+.page-id-145 .entry-title,
+.page-id-145 .wp-block-post-title {
+    text-align: center !important;
+    font-weight: 700 !important;
+}
+
+/* All other text - left aligned */
+.page-id-145 .entry-content p,
+.page-id-145 .entry-content ul,
+.page-id-145 .entry-content ol,
+.page-id-145 .entry-content div:not(.wp-block-buttons) {
+    text-align: left !important;
+}
+
+/* Keep buttons centered */
+.page-id-145 .wp-block-buttons {
+    justify-content: center !important;
+    text-align: center !important;
+}
+
+/* Cat shelf guide buttons - same height as homepage */
+.page-id-145 .wp-block-button__link {
+    min-width: 200px;
+    font-size: 17px;
+    border-radius: 4px;
+    /* Fixed height matching homepage */
+    height: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
+    padding: 8px 20px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+/* Allow wrapping on very small screens */
+@media (max-width: 380px) {
+    .page-id-145 .wp-block-button__link {
+        height: auto !important;
+        max-height: none !important;
+        white-space: normal !important;
+    }
+}
+
+/* ========================================
+   CAT SHELF GUIDE EMAIL PAGE
+   ======================================== */
+/* Subscribe button same height as other buttons */
+#cat-guide-signup button#submitBtn {
+    height: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
+    padding: 8px 20px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    font-size: 16px !important;
+    line-height: 1.6 !important;
+}
+
+/* Allow wrapping on very small screens */
+@media (max-width: 380px) {
+    #cat-guide-signup button#submitBtn {
+        height: auto !important;
+        max-height: none !important;
+        white-space: normal !important;
+    }
+}
+/* Cat shelf guide email page - Center-align title */
+.page-id-512 h1,
+.page-id-512 .entry-title,
+.page-id-512 .wp-block-post-title {
+    text-align: center !important;
+}
+
+/* ========================================
+   PAGE TITLES - CENTER ONLY ON CAT SHELF GUIDE
+   ======================================== */
+
+/* Default: left-aligned and bold */
+h1,
+.entry-title,
+.wp-block-post-title,
+h1.wp-block-post-title,
+.page-title {
+    text-align: left !important;
+    font-weight: 700 !important;
+}
+
+/* Exception: center on cat-shelf-guide only */
+.page-id-145 h1,
+.page-id-145 .entry-title,
+.page-id-145 .wp-block-post-title {
+    text-align: center !important;
+}
+
+/* Secondary headings also bold */
+h2, h3, h4, h5, h6 {
+    font-weight: 700 !important;
+}
+
+/* ========================================
+   PRODUCT PAGES
+   ======================================== */
+
+ /* "Back to products" button - white with black text and border */
+.wp-block-button.is-style-outline--2 .wp-block-button__link,
+a.wp-block-button__link[href*="Back to products"],
+a.wp-block-button__link[href*="#product-"] {
+    background-color: #fff !important;
+    color: #000 !important;
+    border: 2px solid #000 !important;
+    /* Fixed height matching homepage */
+    height: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
+    padding: 8px 20px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+/* Allow wrapping on very small screens */
+@media (max-width: 380px) {
+    .wp-block-button.is-style-outline--2 .wp-block-button__link,
+    a.wp-block-button__link[href*="Back to products"],
+    a.wp-block-button__link[href*="#product-"] {
+        height: auto !important;
+        max-height: none !important;
+        white-space: normal !important;
+    }
+}
+
+/* Product buttons on /product listing page - mobile full width */
+@media (max-width: 600px) {
+    body.page-id-60 .wp-block-buttons,
+    body[class*="parent-pageid-60"] .wp-block-buttons {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+}
+
+/* Product buttons - default styling with fixed height */
+.page-parent .wp-block-button__link:not([href*="#product-"]),
+.page-template-default .wp-block-button__link:not([href*="#product-"]),
+body[class*="product"] .wp-block-button__link:not([href*="#product-"]) {
+    min-width: 150px;
+    font-size: 17px;
+    border-radius: 4px;
+    background-color: #007cba;
+    color: #ffffff;
+    /* Fixed height matching homepage */
+    height: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
+    padding: 8px 20px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+/* Allow wrapping on very small screens */
+@media (max-width: 380px) {
+    .page-parent .wp-block-button__link:not([href*="#product-"]),
+    .page-template-default .wp-block-button__link:not([href*="#product-"]),
+    body[class*="product"] .wp-block-button__link:not([href*="#product-"]) {
+        height: auto !important;
+        max-height: none !important;
+        white-space: normal !important;
+    }
+}
+
+.page-parent .wp-block-button__link:hover,
+.page-template-default .wp-block-button__link:hover,
+body[class*="product"] .wp-block-button__link:hover {
+    background-color: #006ba1;
+}
+
+/* ========================================
+   HEADER SPACING REDUCTION
+   ======================================== */
+
+/* Desktop: Reduce header vertical padding */
+.site-header,
+.wp-block-group.site-header {
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
+}
+
+/* Mobile: Even more compact header */
+@media (max-width: 781px) {
+    .site-header,
+    .wp-block-group.site-header {
+        padding-top: 0.5rem !important;
+        padding-bottom: 0.5rem !important;
+    }
+}
+
+/* Override any inline styles on header */
+div.site-header[style*="padding"] {
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
+}
+
+@media (max-width: 781px) {
+    div.site-header[style*="padding"] {
+        padding-top: 0.5rem !important;
+        padding-bottom: 0.5rem !important;
+    }
+}

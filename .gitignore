@@ -11,6 +11,7 @@
 !/wp-includes/**/*.js
 !/wp-content/**/*.css
 !/wp-includes/**/*.css
+!/css/custom.css
 !/scripts/**/*.js
 
 # ALLOW all JS files in functions folder
@@ -31,3 +32,4 @@ node_modules
 outdoorsavannah.com.iml
 package-lock.json
 wrangler.toml
+!criticalcss
