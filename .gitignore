@@ -36,3 +36,4 @@ outdoorsavannah.com.iml
 package-lock.json
 wrangler.toml
 !criticalcss
+!/scripts/README.md
