@@ -101,7 +101,7 @@ export async function onRequestPost({ request, env }) {
     if (env.DB) {
       try {
         // If using D1 (Pages D1)
-        await env.DB.prepare(`INSERT OR IGNORE INTO cat_emails (email) VALUES (?)`)
+        await env.DB.prepare(`INSERT OR IGNORE INTO cat_shelf_guide (email) VALUES (?)`)
                     .bind(email)
                     .run();
       } catch (dbErr) {
