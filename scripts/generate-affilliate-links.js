@@ -1,17 +1,37 @@
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
+/**
+ * Generate Affiliate Link Preview Pages
+ *
+ * Creates social media preview pages for:
+ * - Homepage, cat-shelf-guide, and all product pages → /affiliate/
+ * - Amazon affiliate links → /affiliate/amzn/
+ *
+ * Structure:
+ * /affiliate/
+ *   ├── home.html (homepage preview)
+ *   ├── cat-shelf-guide.html
+ *   ├── product.html
+ *   ├── [product-name].html (one for each product)
+ *   └── amzn/
+ *       ├── store.html
+ *       ├── outdoor-adventures.html
+ *       ├── cat-wall.html
+ *       └── oxyfresh.html
+ */
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const fs = require('fs');
+const path = require('path');
 
-// Get the root directory (parent of scripts folder)
 const rootDir = path.join(__dirname, '..');
+process.chdir(rootDir);
 
 const productDir = path.join(rootDir, "product");
+const catShelfGuideDir = path.join(rootDir, "cat-shelf-guide");
 const previewDir = path.join(rootDir, "affiliate");
+const amznDir = path.join(previewDir, "amzn");
 
-if (!fs.existsSync(previewDir)) fs.mkdirSync(previewDir);
+// Create directories if they don't exist
+if (!fs.existsSync(previewDir)) fs.mkdirSync(previewDir, { recursive: true });
+if (!fs.existsSync(amznDir)) fs.mkdirSync(amznDir, { recursive: true });
 
 const fbAppId = "1234567890";
 const twitterSite = "@outdoorsavannah";
@@ -256,91 +276,104 @@ document.addEventListener("DOMContentLoaded", async function() {
                   height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
     <div class="profile-circle">
-        <img src="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.webp" alt="Profile">
+        <img alt="Profile" src="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.webp">
     </div>
 </body>
 </html>`;
 };
 
-// --- Protected static pages ---
-const protectedPages = ["home", "product", "cat-shelf-guide"];
+console.log('🚀 Generating affiliate link preview pages...\n');
 
-// --- Read product subdirectories ---
-const products = fs.readdirSync(productDir).filter(f =>
-    fs.statSync(path.join(productDir, f)).isDirectory()
-);
+// --- Step 1: Generate preview pages for main content ---
+console.log('📄 Generating main content previews...');
 
-// --- Combine all pages ---
-const allPages = [...protectedPages, ...products];
+// Define pages to process
+const pagesToProcess = [
+    {
+        slug: 'home',
+        indexPath: path.join(rootDir, 'index.html'),
+        productKey: 'home',
+        outputFile: 'home.html'
+    },
+    {
+        slug: 'cat-shelf-guide',
+        indexPath: path.join(catShelfGuideDir, 'index.html'),
+        productKey: 'cat-shelf-guide',
+        outputFile: 'cat-shelf-guide.html'
+    },
+    {
+        slug: 'product',
+        indexPath: path.join(productDir, 'index.html'),
+        productKey: 'product',
+        outputFile: 'product.html'
+    }
+];
 
-// --- Load amazonLinks.json ---
-let amazonLinks = {};
-const amazonLinksPath = path.join(__dirname, "amazonLinks.json");
-if (fs.existsSync(amazonLinksPath)) {
-    amazonLinks = JSON.parse(fs.readFileSync(amazonLinksPath, "utf-8"));
+// Add all product subdirectories
+if (fs.existsSync(productDir)) {
+    const products = fs.readdirSync(productDir).filter(f =>
+        fs.statSync(path.join(productDir, f)).isDirectory()
+    );
+
+    for (const productSlug of products) {
+        pagesToProcess.push({
+            slug: productSlug,
+            indexPath: path.join(productDir, productSlug, 'index.html'),
+            productKey: `product/${productSlug}`,
+            outputFile: `${productSlug}.html`
+        });
+    }
 }
 
-// --- Generate preview pages ---
-for (const slug of allPages) {
-    let indexPath;
-    let productKey;
-
-    switch(slug) {
-        case "home":
-            indexPath = path.join(__dirname, "index.html");
-            productKey = "home";
-            break;
-        case "cat-shelf-guide":
-            indexPath = path.join(__dirname, "cat-shelf-guide", "index.html");
-            productKey = "cat-shelf-guide";
-            break;
-        case "product":
-            indexPath = path.join(__dirname, "product", "index.html");
-            productKey = "product";
-            break;
-        default:
-            indexPath = path.join(productDir, slug, "index.html");
-            productKey = `product/${slug}`;
-    }
-
-    if (!fs.existsSync(indexPath)) {
-        console.warn(`⚠️ No index.html found for ${slug} at ${indexPath}`);
+// Generate preview pages
+for (const page of pagesToProcess) {
+    if (!fs.existsSync(page.indexPath)) {
+        console.warn(`  ⚠️  No index.html found for ${page.slug} at ${page.indexPath}`);
         continue;
     }
 
-    const html = fs.readFileSync(indexPath, "utf-8");
+    const html = fs.readFileSync(page.indexPath, "utf-8");
     const titleMatch = html.match(/<meta[^>]+property=["']og:title["'][^>]+content=["']([^"']+)["']/i);
     const imageMatch = html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i);
     const descMatch = html.match(/<meta[^>]+property=["']og:description["'][^>]+content=["']([^"']+)["']/i);
     const urlMatch = html.match(/<meta[^>]+property=["']og:url["'][^>]+content=["']([^"']+)["']/i);
 
-    const shouldUseProfileImage = slug === "home";
+    const shouldUseProfileImage = page.slug === "home";
     const image = shouldUseProfileImage ? profileImageUrl : (imageMatch ? imageMatch[1] : "https://www.outdoorsavannah.com/default-og-image.webp");
 
     const meta = {
-        title: titleMatch ? titleMatch[1] : slug,
+        title: titleMatch ? titleMatch[1] : page.slug,
         image: image,
         description: descMatch ? descMatch[1] : "",
         url: urlMatch ? urlMatch[1] : "",
     };
 
-    const fileName = `${slug}.html`;
-    const previewPath = path.join(previewDir, fileName);
-
-    let previewHtml = template(meta, productKey);
+    const previewPath = path.join(previewDir, page.outputFile);
+    const previewHtml = template(meta, page.productKey);
 
     fs.writeFileSync(previewPath, previewHtml, "utf-8");
-    console.log(`✅ Generated preview for ${productKey}`);
+    console.log(`  ✓ ${page.productKey} → /affiliate/${page.outputFile}`);
 }
 
-// --- Special handling for amzn variants ---
-if (amazonLinks.amzn) {
-    const amznDir = path.join(previewDir, "amzn");
-    if (!fs.existsSync(amznDir)) fs.mkdirSync(amznDir, { recursive: true });
+// --- Step 2: Generate Amazon affiliate variant pages ---
+console.log('\n🛍️  Generating Amazon affiliate variant pages...');
 
+// Load amazonLinks.json
+let amazonLinks = {};
+const amazonLinksPath = path.join(rootDir, "amazonLinks.json");
+if (fs.existsSync(amazonLinksPath)) {
+    amazonLinks = JSON.parse(fs.readFileSync(amazonLinksPath, "utf-8"));
+} else {
+    console.warn('  ⚠️  amazonLinks.json not found, skipping amzn pages');
+}
+
+// Generate amzn variant pages
+if (amazonLinks.amzn) {
     const variantKeys = Object.keys(amazonLinks.amzn).filter(
         k => !k.endsWith("_deeplink_ios") && !k.endsWith("_deeplink_android")
     );
+
+    console.log(`  Found ${variantKeys.length} amzn variants: ${variantKeys.join(', ')}`);
 
     for (const variantKey of variantKeys) {
         const deeplinkUrl = amazonLinks.amzn[variantKey + "_deeplink_ios"] || amazonLinks.amzn[variantKey];
@@ -354,11 +387,18 @@ if (amazonLinks.amzn) {
         };
 
         const previewPath = path.join(amznDir, `${variantKey}.html`);
-        let previewHtml = template(meta, "amzn");
+        const previewHtml = template(meta, "amzn");
 
         fs.writeFileSync(previewPath, previewHtml, "utf-8");
-        console.log(`✅ Generated amzn variant preview: ${variantKey} → "${meta.title}"`);
+        console.log(`  ✓ amzn/${variantKey} → /affiliate/amzn/${variantKey}.html ("${meta.title}")`);
     }
+} else {
+    console.log('  ⚠️  No "amzn" key found in amazonLinks.json');
 }
 
-console.log("\n🎉 All preview pages generated!");
+console.log("\n✅ All affiliate preview pages generated!");
+console.log(`\n📊 Summary:`);
+console.log(`  • Main content previews: ${pagesToProcess.length} pages`);
+console.log(`  • Amazon variants: ${amazonLinks.amzn ? Object.keys(amazonLinks.amzn).filter(k => !k.endsWith("_deeplink_ios") && !k.endsWith("_deeplink_android")).length : 0} pages`);
+console.log(`  • Output directory: /affiliate/`);
+console.log(`  • Amazon directory: /affiliate/amzn/`);
