@@ -16,28 +16,38 @@
             padding: 0 !important;
         }
     </style>
-<!-- Google Tag Manager -->
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-NBJRDCGV');</script>
-<!-- End Google Tag Manager -->
-
-<!-- Google tag (gtag.js) for GA4 (Analytics)-->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-0Q38LVTQS4"></script>
-<script>window.dataLayer = window.dataLayer || [];
+<!-- Deferred loading to prevent forced reflows and improve performance -->
+<script>
+  window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
 
-  gtag('config', 'G-0Q38LVTQS4');</script>
+  // Load gtag.js after page is interactive to avoid forced reflows
+  function loadGtagScript() {
+    const script = document.createElement('script');
+    script.src = 'https://www.googletagmanager.com/gtag/js?id=G-0Q38LVTQS4';
+    script.async = true;
+    script.onload = function() {
+      gtag('js', new Date());
+      // GA4 configuration: anonymized IP, no ads or personalization
+      gtag('config', 'G-0Q38LVTQS4', {
+        'anonymize_ip': true,       // anonymize visitor IPs
+        'allow_google_signals': false, // disable Google Signals
+        'allow_ad_personalization_signals': false // disable ads personalization
+      });
+    };
+    document.head.appendChild(script);
+  }
+
+  // Load after page is interactive (but before full load for faster tracking)
+  if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    setTimeout(loadGtagScript, 1);
+  } else {
+    window.addEventListener('DOMContentLoaded', loadGtagScript);
+  }
+</script>
 <script src="https://engine.outdoorsavannah.com/header-engine.v21.min.js" defer></script>
 </head>
 <body>
-<!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NBJRDCGV"
-                  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-<!-- End Google Tag Manager (noscript) -->
 <script>
     // Check if we're on the homepage path
     if (
