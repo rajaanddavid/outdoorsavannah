@@ -46,6 +46,10 @@ async function restoreImgTags() {
       });
     } while (newContent !== prevContent);
 
+    // Remove <figure class="wp-block-image..."> wrappers added by make-images-responsive.js
+    // This handles cases where the figure was added by the script and needs to be removed
+    newContent = newContent.replace(/<figure class="wp-block-image[^"]*">\s*(<img[^>]*>)\s*<\/figure>/gi, '$1');
+
     // Clean up any orphaned </picture> or </figure> tags that might be left
     newContent = newContent.replace(/\s*<\/picture>\s*<\/figure>/gi, '');
     newContent = newContent.replace(/\s*<\/picture>/gi, '');
