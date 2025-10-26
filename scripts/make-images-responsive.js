@@ -93,10 +93,7 @@ async function buildImageMap() {
 
     const dir = path.dirname(normalizedPath).replace(/\\/g, '/');
     const relativeDir = dir.replace(`${UPLOADS_DIR}/`, '');
-
-    // Normalize key to always use .webp extension so JPEG and WebP variants map to same image
-    const normalizedExt = 'webp';
-    const key = `${relativeDir}/${parsed.base}.${normalizedExt}`;
+    const key = `${relativeDir}/${parsed.base}.${parsed.ext}`;
 
     if (!imageMap.has(key)) {
       imageMap.set(key, {
@@ -108,10 +105,7 @@ async function buildImageMap() {
     const entry = imageMap.get(key);
 
     if (!parsed.isVariant) {
-      // Prefer webp original over jpeg
-      if (!entry.original || parsed.ext === 'webp') {
-        entry.original = normalizedPath;
-      }
+      entry.original = normalizedPath;
     } else {
       entry.variants.push({
         path: normalizedPath,
@@ -195,7 +189,7 @@ function findImageKey(imageMap, url) {
 }
 
 /**
- * Generate srcset attribute for an image (used for legacy code path)
+ * Generate srcset attribute for an image
  */
 function generateSrcset(htmlFilePath, imageEntry) {
   const srcsetParts = [];
@@ -209,6 +203,8 @@ function generateSrcset(htmlFilePath, imageEntry) {
   // Add original if it exists
   if (imageEntry.original) {
     const relativePath = makeRelativePath(htmlFilePath, imageEntry.original);
+    // For original, we don't know the exact width, so put it last without width descriptor
+    // or we can just use it as the largest size
     srcsetParts.push(relativePath);
   }
 
@@ -216,84 +212,9 @@ function generateSrcset(htmlFilePath, imageEntry) {
 }
 
 /**
- * Generate <picture> element with <source> tags for responsive images
- */
-function generatePictureElement(htmlFilePath, imageEntry, imgAttributes) {
-  // Group variants by format (webp vs jpeg)
-  const webpVariants = imageEntry.variants.filter(v => v.path.endsWith('.webp'));
-  const jpegVariants = imageEntry.variants.filter(v => v.path.match(/\.(jpe?g)$/i));
-
-  // Breakpoints with overlapping ranges to ensure proper coverage
-  const breakpoints = [
-    { name: 'mobile', mediaQuery: '(max-width: 480px)', minWidth: 150, maxWidth: 500 },
-    { name: 'tablet', mediaQuery: '(max-width: 1000px)', minWidth: 450, maxWidth: 1024 },
-    { name: 'desktop', mediaQuery: '(min-width: 1001px)', minWidth: 768, maxWidth: Infinity }
-  ];
-
-  let pictureHtml = '  <picture>\n';
-
-  // Generate <source> tags for each breakpoint
-  for (const breakpoint of breakpoints) {
-    // WebP source - filter by size range
-    let webpForBreakpoint = webpVariants.filter(v =>
-      v.width >= breakpoint.minWidth && v.width <= breakpoint.maxWidth
-    );
-
-    // For small images: if no variants in this breakpoint range, use all available variants
-    // This ensures small images still get WebP on all screen sizes
-    if (webpForBreakpoint.length === 0 && breakpoint.name !== 'mobile') {
-      webpForBreakpoint = webpVariants;
-    }
-
-    if (webpForBreakpoint.length > 0) {
-      const srcsetParts = webpForBreakpoint
-        .map(v => `${makeRelativePath(htmlFilePath, v.path)} ${v.width}w`)
-        .join(',\n        ');
-
-      const description = breakpoint.name === 'mobile' ? 'up to 480px'
-        : breakpoint.name === 'tablet' ? 'up to 1000px'
-        : 'larger screens';
-
-      pictureHtml += `    <!-- ${breakpoint.name.charAt(0).toUpperCase() + breakpoint.name.slice(1)}: ${description} -->\n`;
-      pictureHtml += `    <source\n`;
-      pictureHtml += `      media="${breakpoint.mediaQuery}"\n`;
-      pictureHtml += `      srcset="\n        ${srcsetParts}\n      "\n`;
-      pictureHtml += `      type="image/webp">\n\n`;
-    }
-  }
-
-  // JPEG fallback (for legacy browsers) - provide full responsive support
-  if (jpegVariants.length > 0) {
-    const jpegSrcset = jpegVariants
-      .map(v => `${makeRelativePath(htmlFilePath, v.path)} ${v.width}w`)
-      .join(',\n        ');
-
-    pictureHtml += `    <!-- Legacy browser fallback (JPEG) -->\n`;
-    pictureHtml += `    <source\n`;
-    pictureHtml += `      srcset="\n        ${jpegSrcset}\n      "\n`;
-    pictureHtml += `      type="image/jpeg">\n\n`;
-  }
-
-  // Fallback <img> tag
-  const fallbackSrc = imageEntry.original ||
-                      webpVariants[Math.floor(webpVariants.length / 2)]?.path ||
-                      imageEntry.variants[0]?.path;
-
-  pictureHtml += `    <img ${imgAttributes} src="${makeRelativePath(htmlFilePath, fallbackSrc)}">\n`;
-  pictureHtml += `  </picture>`;
-
-  return pictureHtml;
-}
-
-/**
  * Process a single HTML file
  */
 async function processHtmlFile(htmlFilePath, imageMap) {
-  // Skip header.html - it's a template file used for insertion
-  if (htmlFilePath.includes('header.html')) {
-    return false;
-  }
-
   let content = fs.readFileSync(htmlFilePath, 'utf8');
   let modified = false;
 
@@ -356,24 +277,9 @@ async function processHtmlFile(htmlFilePath, imageMap) {
 
     // Try to find parent figure tag and check if image is in a column
     const imgIndex = content.indexOf(imgTag);
-    const precedingContent = content.substring(Math.max(0, imgIndex - 1000), imgIndex);
+    const precedingContent = content.substring(Math.max(0, imgIndex - 500), imgIndex);
     const parentFigureMatch = precedingContent.match(/<figure[^>]*class="[^"]*\b(size-\w+)\b[^"]*"[^>]*>$/);
     const figureClass = parentFigureMatch ? parentFigureMatch[1] : null;
-
-    // Skip images in excluded contexts (logos, social media icons, etc.)
-    const excludedPatterns = [
-      /site-branding.*?brand.*?has-logo-image/s,  // Site logo
-      /mobile-site-branding.*?brand.*?has-logo-image/s,  // Mobile logo
-      /footer-social-wrap/s,  // Footer social media icons
-      /social-button.*?footer-social-item/s,  // Social media buttons
-      /header-social/s,  // Header social media
-      /custom-logo/  // WordPress custom logo class
-    ];
-
-    const shouldExclude = excludedPatterns.some(pattern => pattern.test(precedingContent));
-    if (shouldExclude) {
-      continue; // Skip logos and social media icons
-    }
 
     // Check if image is inside wp-block-column (WordPress columns)
     const isInColumn = /<div[^>]*class="[^"]*wp-block-column[^"]*"[^>]*>(?:(?!<\/div>).)*$/s.test(precedingContent);
@@ -387,49 +293,104 @@ async function processHtmlFile(htmlFilePath, imageMap) {
 
     const imageEntry = imageMap.get(imageKey);
 
-    // Check if this image is already inside a <picture> element
-    const alreadyInPicture = /<picture[^>]*>(?:[^<]|<(?!\/picture>))*$/s.test(precedingContent);
-    if (alreadyInPicture) {
-      continue; // Skip if already wrapped in <picture>
-    }
-
-    // Extract all img attributes (except src, srcset, sizes - we'll regenerate those)
-    let imgAttributes = imgTag
-      .replace(/<img\s+/i, '')
-      .replace(/>/i, '')
-      .replace(/\s*src=["'][^"']*["']/gi, '')
-      .replace(/\s*srcset=["'][^"']*["']/gi, '')
-      .replace(/\s*sizes=["'][^"']*["']/gi, '')
-      .trim();
-
-    // Generate <picture> element
-    const pictureElement = generatePictureElement(htmlFilePath, imageEntry, imgAttributes);
-
-    // Check if img is inside a <figure> - if so, replace just the img, not the figure
-    const figureMatch = precedingContent.match(/<figure[^>]*>(?:(?!<img).)*$/s);
-
-    let replacement;
-    if (figureMatch) {
-      // Just replace the <img> with <picture>
-      replacement = pictureElement;
+    // Determine the best src (prefer original, fallback to largest variant)
+    let newSrc;
+    if (imageEntry.original) {
+      newSrc = makeRelativePath(htmlFilePath, imageEntry.original);
+    } else if (imageEntry.variants.length > 0) {
+      const largest = imageEntry.variants[imageEntry.variants.length - 1];
+      newSrc = makeRelativePath(htmlFilePath, largest.path);
     } else {
-      // Wrap in a figure
-      const sizeClass = figureClass || 'size-large';
-      replacement = `<figure class="wp-block-image aligncenter ${sizeClass}">\n${pictureElement}\n</figure>`;
+      continue;
     }
 
-    // Replace the <img> tag with <picture> element
-    // Capture any leading/trailing whitespace around the img tag and preserve only what's needed
-    const imgTagIndex = content.indexOf(imgTag);
-    const beforeImg = content.substring(0, imgTagIndex);
-    const afterImg = content.substring(imgTagIndex + imgTag.length);
+    // Generate srcset
+    const srcset = generateSrcset(htmlFilePath, imageEntry);
 
-    // Remove any trailing whitespace after the img tag
-    const afterImgTrimmed = afterImg.replace(/^\s+/, '');
+    // Build new img tag
+    let newImgTag = imgTag;
 
-    // Reconstruct without accumulating whitespace
-    content = beforeImg + replacement + afterImgTrimmed;
-    modified = true;
+    // Replace src with relative path
+    newImgTag = newImgTag.replace(/src=["'][^"']+["']/i, `src="${newSrc}"`);
+
+    // Replace or add srcset
+    if (/srcset=/i.test(newImgTag)) {
+      newImgTag = newImgTag.replace(/srcset=["'][^"']*["']/i, `srcset="${srcset}"`);
+    } else {
+      // Add srcset before the closing >
+      newImgTag = newImgTag.replace(/>$/, ` srcset="${srcset}">`);
+    }
+
+    // Add or update sizes attribute for better responsiveness
+    // Strategy: Assume images are constrained by CSS to ~50% of viewport on desktop,
+    // full width on mobile (common WordPress/responsive theme pattern)
+    const widthMatch = newImgTag.match(/width=["']?(\d+)["']?/i);
+    const declaredWidth = widthMatch ? parseInt(widthMatch[1]) : null;
+
+    // Map WordPress size classes to ACTUAL displayed widths
+    // Based on typical WordPress theme content constraints (~400-600px content width)
+    const sizeClassActualWidths = {
+      'size-thumbnail': 150,
+      'size-medium': 300,
+      'size-medium_large': 350, // Actually constrained by content width
+      'size-large': 350,          // Actually constrained by content width
+      'size-full': 400            // Actually constrained by content width
+    };
+
+    // Determine actual displayed width
+    let actualDisplayWidth = null;
+
+    // Priority 1: Use WordPress size class from parent figure or img tag (most reliable)
+    if (figureClass && sizeClassActualWidths[figureClass]) {
+      actualDisplayWidth = sizeClassActualWidths[figureClass];
+    } else {
+      for (const [className, width] of Object.entries(sizeClassActualWidths)) {
+        if (newImgTag.includes(className)) {
+          actualDisplayWidth = width;
+          break;
+        }
+      }
+    }
+
+    // Priority 2: If no size class, use declared width * multiplier
+    if (!actualDisplayWidth && declaredWidth) {
+      actualDisplayWidth = Math.min(Math.round(declaredWidth * SIZE_MULTIPLIER), 400);
+    }
+
+    // Priority 3: Default conservative estimate
+    if (!actualDisplayWidth) {
+      actualDisplayWidth = 350;
+    }
+
+    // If image is in a column, it's displayed at roughly 1/2 or 1/3 of content width
+    // Assume 2-column layout (most common), so divide by 2
+    if (isInColumn) {
+      actualDisplayWidth = Math.round(actualDisplayWidth * 0.45); // ~45% for 2-column with gap
+    }
+
+    // Generate sizes attribute using the actual display width
+    // For columns, also account for responsive stacking on mobile
+    let sizesAttr;
+    if (isInColumn) {
+      // Columns stack on mobile (100vw), side-by-side on desktop
+      sizesAttr = `(max-width: 600px) 100vw, (max-width: 1000px) 50vw, ${actualDisplayWidth}px`;
+    } else {
+      // Regular single-column images
+      sizesAttr = `(max-width: 600px) 100vw, ${actualDisplayWidth}px`;
+    }
+
+    // Replace or add sizes
+    if (/sizes=/i.test(newImgTag)) {
+      newImgTag = newImgTag.replace(/sizes=["'][^"']*["']/i, `sizes="${sizesAttr}"`);
+    } else {
+      newImgTag = newImgTag.replace(/>$/, ` sizes="${sizesAttr}">`);
+    }
+
+    // Replace in content
+    if (newImgTag !== imgTag) {
+      content = content.replace(imgTag, newImgTag);
+      modified = true;
+    }
   }
 
   if (modified) {
@@ -448,13 +409,19 @@ async function main() {
   console.log('WordPress Static Site - Make Images Responsive');
   console.log('================================================\n');
 
+  // Get the root directory (parent of scripts folder)
+  const rootDir = path.join(__dirname, '..');
+
+  // Change to root directory for glob
+  process.chdir(rootDir);
+
   // Build image map
   const imageMap = await buildImageMap();
 
   // Find all HTML files
   console.log('\nFinding HTML files...');
   const htmlFiles = await glob('**/*.html', {
-    ignore: ['node_modules/**', 'wp-includes/**', 'wp-admin/**'],
+    ignore: ['node_modules/**', 'wp-includes/**', 'wp-admin/**', 'redirect.html'],
     nodir: true,
     windowsPathsNoEscape: true
   });
