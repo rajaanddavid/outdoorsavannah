@@ -388,6 +388,30 @@ body {
 <link rel="alternate" title="oEmbed (JSON)" type="application/json+oembed" href="https://www.outdoorsavannah.com/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fhttps%3A%2F%2Fwww.outdoorsavannah.com%2Fproduct%2Fbackpack%2F">
 <link rel="alternate" title="oEmbed (XML)" type="text/xml+oembed" href="https://www.outdoorsavannah.com/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fhttps%3A%2F%2Fwww.outdoorsavannah.com%2Fproduct%2Fbackpack%2F&amp;format=xml">
 <!-- START HEADER SNIPPET -->
+<!-- Google tag (gtag.js) for GA4 (Analytics) - anonymized, non-personalized -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-0Q38LVTQS4"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  // GA4 configuration: anonymized IP, no ads or personalization
+  gtag('config', 'G-0Q38LVTQS4', {
+    'anonymize_ip': true,       // anonymize visitor IPs
+    'allow_google_signals': false, // disable Google Signals
+    'allow_ad_personalization_signals': false // disable ads personalization
+  });
+</script>
+
+
+<link rel="preload" as="image" href="/wp-content/uploads/2025/04/outdoorsavannah-logo-registered-links-300x184.webp" fetchpriority="high">
+<link rel="preload" href="/wp-content/uploads/2025/04/Easy-Cat-Shelves-400x518.webp" as="image" fetchpriority="high">
+<link rel="preload" href="/amazonLinks.json" as="fetch" type="application/json" crossorigin>
+
+<link rel="me" href="https://www.threads.com/@outdoorsavannah">
+<link rel="me" href="https://www.threads.com/@rajaanddavid">
+
+<script src="https://engine.outdoorsavannah.com/header-engine.v21.min.js" defer></script>
 <!-- END HEADER SNIPPET -->
 <script type="importmap" id="wp-importmap">
 {"imports":{"@wordpress\/interactivity":"https:\/\/www.outdoorsavannah.com\/wp-includes\/js\/dist\/script-modules\/interactivity\/index.min.js?ver=55aebb6e0a16726baffb"}}
@@ -401,6 +425,16 @@ body {
 
 <body class="wp-singular page-template-default page page-id-92 page-child parent-pageid-60 wp-custom-logo wp-embed-responsive wp-theme-blockbase">
 <!-- START BODY SNIPPET -->
+<script>
+    // Check if we're on the homepage path
+    if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
+      document.body.classList.add('page-id-5');
+    }
+    // Check if we're on the cat-shelf-guide path
+    if (window.location.pathname === '/cat-shelf-guide') {
+      document.body.classList.add('page-id-145');
+    }
+</script>
 <!-- END BODY SNIPPET -->
 
 <div class="wp-site-blocks">
