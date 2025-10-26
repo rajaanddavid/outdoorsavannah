@@ -117,6 +117,245 @@ ol,ul{box-sizing:border-box}:root :where(.wp-block-list.has-background){padding:
 :root :where(.wp-block-post-title){line-height: var(--wp--custom--heading--typography--line-height);margin-bottom: 0;}
 :root :where(.wp-block-quote){border-color: var(--wp--custom--color--primary);border-width: 0 0 0 1px;border-style: solid;font-size: var(--wp--custom--font-sizes--normal);font-style: normal;padding-left: var(--wp--custom--gap--horizontal);}
 </style>
+<style id="custom-critical-css">
+/* ========================================
+   BLOCKBASE THEME CUSTOMIZATION
+   Making Blockbase match Kadence appearance
+   ======================================== */
+
+/* ========================================
+   CONTENT WIDTH OVERRIDE
+   ======================================== */
+.page-id-5,
+.page-id-145,
+.page-parent,
+.page .page-id-5,
+.page .page-id-145,
+body[class*="page-id-"] {
+    --wp--style--global--content-size: 1290px;
+    --wp--style--global--wide-size: 1290px;
+}
+
+/* ========================================
+   HOMEPAGE BUTTON STYLES (.page-id-5)
+   Match live site exactly
+   ======================================== */
+
+/* Base button styling - PRESERVE inline background colors */
+.page-id-5 .wp-block-button__link {
+    /* Pill shape */
+    border-radius: 9999px !important;
+    /* Typography */
+    font-size: 16px !important;
+    line-height: 1.6 !important;
+    font-weight: normal !important;
+    text-decoration: none !important;
+    /* Sizing - match live site */
+    min-width: 100px !important;
+    /* Fixed height above 380px screens */
+    height: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
+    /* Reduced padding for shorter buttons */
+    padding: 8px 20px !important;
+    /* Display */
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    /* Prevent text wrapping */
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    /* Light mode: black border */
+    border: 2px solid #000 !important;
+    /* Effects */
+    box-shadow: none !important;
+    transition: box-shadow 0.3s ease !important;
+    /* DO NOT set background-color or color here - preserve inline styles */
+}
+
+/* Allow wrapping on very small screens (under 380px) */
+@media (max-width: 380px) {
+    .page-id-5 .wp-block-button__link {
+        height: auto !important;
+        max-height: none !important;
+        white-space: normal !important;
+    }
+}
+
+/* Light backgrounds (has-theme-palette-3-color) get black text */
+.page-id-5 .wp-block-button__link.has-theme-palette-3-color {
+    color: #000 !important;
+}
+
+/* Dark backgrounds (has-theme-palette-9-color) get white text */
+.page-id-5 .wp-block-button__link.has-theme-palette-9-color {
+    color: #fff !important;
+}
+
+/* Email button - transparent background with black border */
+/* ONLY target email button by href, not by class */
+.page-id-5 .wp-block-button__link[href="mailto:david@outdoorsavannah.com"] {
+    background-color: transparent !important;
+    border: 2px solid #000 !important;
+    color: #000 !important;
+}
+
+/* Hover state - add elevation effect */
+.page-id-5 .wp-block-button__link:hover {
+    box-shadow: 0px 15px 25px -7px rgba(0,0,0,0.1) !important;
+}
+
+/* Button container layout - DESKTOP (above 600px) */
+.page-id-5 .wp-block-buttons {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 10px !important;
+    max-width: 350px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+/* Single button containers - full width */
+.page-id-5 .wp-block-buttons:not(.is-nowrap) > .wp-block-button {
+    flex: 1 1 100% !important;
+    max-width: 100% !important;
+}
+
+/* Nowrap containers (side-by-side buttons) - Below 380px: stack vertically */
+@media (max-width: 380px) {
+    .page-id-5 .wp-block-buttons.is-nowrap {
+        flex-wrap: wrap !important;
+        gap: 10px !important;
+    }
+
+    .page-id-5 .wp-block-buttons.is-nowrap > .wp-block-button {
+        flex: 1 1 100% !important;
+    }
+}
+
+/* Nowrap containers (side-by-side buttons) - 381px to 600px: side by side, expand with screen */
+@media (min-width: 381px) and (max-width: 600px) {
+    .page-id-5 .wp-block-buttons.is-nowrap {
+        flex-wrap: nowrap !important;
+        max-width: 100% !important; /* Match single buttons */
+        gap: 1px !important;
+    }
+
+    .page-id-5 .wp-block-buttons.is-nowrap > .wp-block-button {
+        flex: 1 1 calc(50% - 5px) !important;
+    }
+}
+
+/* Nowrap containers (side-by-side buttons) - Above 600px: side by side, fixed width */
+@media (min-width: 601px) {
+    .page-id-5 .wp-block-buttons.is-nowrap {
+        flex-wrap: nowrap !important;
+        max-width: 350px !important;
+        gap: 10px !important;
+    }
+
+    .page-id-5 .wp-block-buttons.is-nowrap > .wp-block-button {
+        flex: 1 1 calc(50% - 5px) !important;
+    }
+}
+
+/* Ensure button links fill container */
+.page-id-5 .wp-block-buttons > .wp-block-button .wp-block-button__link {
+    display: inline-flex !important;
+    width: 100% !important;
+}
+
+/* Mobile responsive - expand to 90% */
+@media (max-width: 600px) {
+    .page-id-5 .wp-block-buttons {
+        max-width: 90% !important;
+    }
+}
+
+/* ========================================
+   PRODUCT PAGES
+   ======================================== */
+
+/* Product listing and individual product pages */
+.page-parent .wp-block-columns,
+.page-template-default .wp-block-columns,
+body[class*="product"] .wp-block-columns {
+    max-width: 1290px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Mobile: Back to products button full width edge-to-edge */
+@media (max-width: 600px) {
+    .wp-block-button.is-style-outline--2,
+    .wp-block-buttons:has(a[href*="#product-"]) {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+
+    .wp-block-button.is-style-outline--2 .wp-block-button__link,
+    a.wp-block-button__link[href*="#product-"] {
+        width: 100% !important;
+    }
+}
+
+/* Product page buttons on mobile - full width edge-to-edge */
+@media (max-width: 600px) {
+    body[class*="page-id-"] .wp-block-buttons,
+    .page-parent .wp-block-buttons,
+    .page-template-default .wp-block-buttons {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    body[class*="page-id-"] .wp-block-button,
+    .page-parent .wp-block-button,
+    .page-template-default .wp-block-button {
+        width: 100% !important;
+    }
+}
+
+/* ========================================
+   TYPOGRAPHY
+   ======================================== */
+
+body {
+    font-size: 17px !important;
+    line-height: 1.6 !important;
+}
+
+/* ========================================
+   SPACING - FIXED BREAKPOINTS
+   ======================================== */
+
+.wp-site-blocks {
+    padding-top: 5rem;
+    padding-bottom: 5rem;
+}
+
+/* Tablet breakpoint - matches live site */
+@media (max-width: 1024px) {
+    .wp-site-blocks {
+        padding-top: 3rem;
+        padding-bottom: 3rem;
+    }
+}
+
+/* Mobile breakpoint - matches live site */
+@media (max-width: 767px) {
+    .wp-site-blocks {
+        padding-top: 2rem;
+        padding-bottom: 2rem;
+    }
+}</style>
+<link rel="preload" href="/css/custom.css" as="style">
+<link rel="stylesheet" href="/css/custom.css">
 <style id="core-block-supports-inline-css">
 .wp-container-core-navigation-is-layout-aa60f3ea{justify-content:flex-end;}.wp-container-core-group-is-layout-2871236e{flex-wrap:nowrap;justify-content:space-between;}.wp-container-core-buttons-is-layout-a89b3969{justify-content:center;}.wp-container-core-columns-is-layout-28f84493{flex-wrap:nowrap;}.wp-container-core-group-is-layout-81a7f686{justify-content:center;}
 </style>
