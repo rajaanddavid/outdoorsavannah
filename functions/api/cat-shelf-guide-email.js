@@ -115,6 +115,7 @@ export async function onRequestPost({ request, env }) {
     const secretKey = env.AWS_SECRET_ACCESS_KEY;
     const from = "david@outdoorsavannah.com";
     const to = email;
+    const guideUrl = env.CAT_SHELF_GUIDE_URL;
 
     const endpoint = `https://email.${region}.amazonaws.com/`;
 
@@ -123,8 +124,112 @@ export async function onRequestPost({ request, env }) {
       Action: "SendEmail",
       Source: from,
       "Destination.ToAddresses.member.1": to,
-      "Message.Subject.Data": "Your Cat Shelf Guide",
-      "Message.Body.Text.Data": `Hi! Thanks for requesting the Cat Shelf Guide. Here it is:\n\n[Insert guide link or text here]`
+      "Message.Subject.Data": "😸 Your Cat Shelf Guide!",
+
+        // Plain text version (for older email clients)
+      "Message.Body.Text.Data": `Thanks for joining.
+    I hope this inspires you to build your own cat friendly space!
+    Cat Shelf Guide on Google Drive: ${env.CAT_SHELF_GUIDE_URL}`,
+
+      // HTML version
+      "Message.Body.Html.Data": `
+      <!DOCTYPE html>
+      <html lang="en">
+        <head>
+          <meta charset="UTF-8" />
+          <title>Your Cat Shelf Guide!</title>
+        <style>
+          body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: #f5f6fa;
+            margin: 0;
+            padding: 0;
+            color: #333;
+          }
+          .container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+          }
+          .header {
+            background: #0069ff;
+            height: 12px;
+          }
+          .content {
+            padding: 40px 30px;
+            text-align: center;
+          }
+          h1 {
+            color: #1d1d1f;
+            font-size: 28px;
+            margin-bottom: 8px;
+          }
+          p {
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 28px;
+            line-height: 1.5;
+          }
+          .image {
+            margin-bottom: 24px;
+          }
+          .button {
+            display: inline-block;
+            background: #0069ff;
+            color: #fff !important;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 14px 24px;
+            border-radius: 999px;
+            font-size: 16px;
+          }
+          .footer {
+            background: #f5f6fa;
+            text-align: center;
+            padding: 20px;
+            font-size: 13px;
+            color: #777;
+          }
+          .footer a {
+            color: #555;
+            text-decoration: none;
+            font-weight: 600;
+          }
+          .unsubscribe {
+            margin-top: 8px;
+            display: block;
+            color: #888;
+            text-decoration: underline;
+            font-size: 13px;
+          }
+        </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header"></div>
+            <div class="content">
+              <h1>Thanks for Joining</h1>
+              <p>I hope this inspires you to build your own cat friendly space!</p>
+
+              <div class="image">
+                <img src="https://example.com/path/to/your-image.jpg" alt="Cat Shelf Guide" width="100%" style="border-radius:8px;max-width:520px;">
+              </div>
+
+              <a href="${guideUrl}" class="button">Cat Shelf Guide on Google Drive</a>
+            </div>
+
+            <div class="footer">
+              <a href="https://www.outdoorsavannah.com/">OutdoorSavannah.com</a>
+              <a href="https://www.outdoorsavannah.com/unsubscribe/" class="unsubscribe">Unsubscribe</a>
+              <p style="margin-top:12px;">OutdoorSavannah, 2000 County Rd B2 W #131903, St. Paul, MN, 55113</p>
+            </div>
+          </div>
+        </body>
+      </html>
+      `
     });
 
     // Generate signed headers
