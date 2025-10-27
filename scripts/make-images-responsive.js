@@ -288,10 +288,10 @@ function generatePictureElement(htmlFilePath, imageEntry, imgAttributes, isInCol
   const imgSrcset = imgSrcsetParts.join(', ');
 
   // Generate sizes attribute based on context
-  // Column images: 100vw mobile, max 450px on all larger screens
+  // Column images: 100vw mobile, max 425px on all larger screens
   // Full-width images: 100vw on mobile, 50vw on tablet, 800px on desktop
   const sizes = isInColumn
-    ? '(max-width: 768px) 100vw, 450px'
+    ? '(max-width: 768px) 100vw, 425px'
     : '(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 800px';
 
   pictureHtml += `    <img ${imgAttributes} src="${makeRelativePath(htmlFilePath, fallbackSrc)}"`;
