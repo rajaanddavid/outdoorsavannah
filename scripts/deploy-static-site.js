@@ -78,6 +78,21 @@ async function deploy() {
       log('  ✓ Moved fourohfour/404.html to /404.html', 'green');
     }
 
+    // Remove fourohfour entry from page-sitemap.xml
+    const sitemapPath = path.join(rootDir, 'page-sitemap.xml');
+    if (fs.existsSync(sitemapPath)) {
+      let sitemapContent = fs.readFileSync(sitemapPath, 'utf8');
+
+      // Remove the fourohfour URL entry (entire <url> block)
+      sitemapContent = sitemapContent.replace(
+        /\s*<url>\s*<loc><!\[CDATA\[https:\/\/www\.outdoorsavannah\.com\/fourohfour\/\]\]><\/loc>[\s\S]*?<\/url>/g,
+        ''
+      );
+
+      fs.writeFileSync(sitemapPath, sitemapContent, 'utf8');
+      log('  ✓ Removed fourohfour from page-sitemap.xml', 'green');
+    }
+
     log('✓ 404 page setup - COMPLETE\n', 'green');
   } catch (error) {
     log(`\n✗ ERROR setting up 404 page`, 'red');
