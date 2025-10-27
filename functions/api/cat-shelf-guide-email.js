@@ -5,59 +5,19 @@
 // Helper functions
 // --------------------
 
-// Generate Cloudflare Access signed token URL
-async function generateAccessUrl(r2Url, jwtSecret, userEmail) {
-  // Create JWT payload
-  const now = Math.floor(Date.now() / 1000);
-
-  const header = {
-    alg: "HS256",
-    typ: "JWT"
-  };
-
-  const payload = {
-    email: userEmail,
-    iat: now,
-    // No expiration - links don't expire
-  };
-
-  // Base64url encode helper
-  const base64UrlEncode = (str) => {
-    return btoa(str)
-      .replace(/\+/g, '-')
-      .replace(/\//g, '_')
-      .replace(/=/g, '');
-  };
-
-  const encodedHeader = base64UrlEncode(JSON.stringify(header));
-  const encodedPayload = base64UrlEncode(JSON.stringify(payload));
-  const signingInput = `${encodedHeader}.${encodedPayload}`;
-
-  // Sign with HMAC SHA-256
+// Generate access token URL (uses guide-access.js endpoint)
+async function generateAccessUrl(userEmail, jwtSecret, guideName = 'cat-shelves') {
+  // Generate a simple token based on email and secret
   const encoder = new TextEncoder();
-  const keyData = encoder.encode(jwtSecret);
-  const messageData = encoder.encode(signingInput);
+  const data = encoder.encode(userEmail + jwtSecret);
+  const digest = await crypto.subtle.digest("SHA-256", data);
+  const token = Array.from(new Uint8Array(digest))
+    .map(b => b.toString(16).padStart(2, "0"))
+    .join("")
+    .substring(0, 32); // Use first 32 chars as token
 
-  const cryptoKey = await crypto.subtle.importKey(
-    'raw',
-    keyData,
-    { name: 'HMAC', hash: 'SHA-256' },
-    false,
-    ['sign']
-  );
-
-  const signature = await crypto.subtle.sign('HMAC', cryptoKey, messageData);
-
-  // Convert signature to base64url
-  const signatureArray = Array.from(new Uint8Array(signature));
-  const base64Signature = base64UrlEncode(
-    String.fromCharCode.apply(null, signatureArray)
-  );
-
-  const jwt = `${signingInput}.${base64Signature}`;
-
-  // Append token as query parameter for Cloudflare Access
-  return `${r2Url}?token=${encodeURIComponent(jwt)}`;
+  // Return URL to our guide-access endpoint which validates and redirects
+  return `https://outdoorsavannah.com/api/guide-access?email=${encodeURIComponent(userEmail)}&token=${token}&guide=${guideName}`;
 }
 
 // Hash a string using SHA-256
@@ -263,9 +223,8 @@ export async function onRequestPost({ request, env }) {
     const from = "david@outdoorsavannah.com";
     const to = email;
 
-    // Generate signed URL for R2 bucket protected by Cloudflare Access
-    const r2BaseUrl = "https://cdn.outdoorsavannah.com/Easy-Cat-Shelves.pdf";
-    const guideUrl = await generateAccessUrl(r2BaseUrl, env.JWT_SECRET, email);
+    // Generate access URL that goes through our validation endpoint
+    const guideUrl = await generateAccessUrl(email, env.JWT_SECRET);
 
     const endpoint = `https://email.${region}.amazonaws.com/`;
 
