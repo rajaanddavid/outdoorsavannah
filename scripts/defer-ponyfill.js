@@ -25,8 +25,7 @@ async function deferPonyfill() {
     // This makes it non-render-blocking while still loading
     const ponyfillDeferred = content.replace(
       /<link rel="stylesheet" id="blockbase-ponyfill-css" href="([^"]*ponyfill\.css[^"]*)" media="all">/g,
-      '<link rel="stylesheet" id="blockbase-ponyfill-css" href="$1" media="print" onload="this.media=\'all\'; this.onload=null;">'
-    );
+      '<link rel="stylesheet" id="blockbase-ponyfill-css" href="$1" media="print" onload="this.media=\'all\'; this.onload=null;">');
 
     if (ponyfillDeferred !== content) {
       content = ponyfillDeferred;
