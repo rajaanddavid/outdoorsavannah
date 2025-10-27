@@ -81,6 +81,59 @@ async function signAWSv4({ method, url, region, service, body, accessKeyId, secr
   };
 }
 
+// Rate limiting helper
+async function checkRateLimit(email, ip, env) {
+  if (!env.KV) return true; // Skip if KV not configured
+
+  const now = Date.now();
+  const oneHour = 60 * 60 * 1000;
+  const oneDay = 24 * oneHour;
+
+  // Rate limit by email: 3 requests per hour, 5 per day
+  const emailKey = `rate_limit_email:${email}`;
+  const emailData = await env.KV.get(emailKey, { type: "json" });
+
+  if (emailData) {
+    const hourAgo = now - oneHour;
+    const dayAgo = now - oneDay;
+
+    const recentRequests = emailData.requests.filter(t => t > hourAgo);
+    const dailyRequests = emailData.requests.filter(t => t > dayAgo);
+
+    if (recentRequests.length >= 3) {
+      return { blocked: true, reason: "Too many requests from this email. Please try again in 1 hour." };
+    }
+    if (dailyRequests.length >= 5) {
+      return { blocked: true, reason: "Daily limit reached for this email. Please try again tomorrow." };
+    }
+
+    emailData.requests.push(now);
+    await env.KV.put(emailKey, JSON.stringify(emailData), { expirationTtl: 86400 }); // 24h expiry
+  } else {
+    await env.KV.put(emailKey, JSON.stringify({ requests: [now] }), { expirationTtl: 86400 });
+  }
+
+  // Rate limit by IP: 10 requests per hour (prevents mass spam from one source)
+  const ipKey = `rate_limit_ip:${ip}`;
+  const ipData = await env.KV.get(ipKey, { type: "json" });
+
+  if (ipData) {
+    const hourAgo = now - oneHour;
+    const recentRequests = ipData.requests.filter(t => t > hourAgo);
+
+    if (recentRequests.length >= 10) {
+      return { blocked: true, reason: "Too many requests from your network. Please try again later." };
+    }
+
+    ipData.requests.push(now);
+    await env.KV.put(ipKey, JSON.stringify(ipData), { expirationTtl: 3600 }); // 1h expiry
+  } else {
+    await env.KV.put(ipKey, JSON.stringify({ requests: [now] }), { expirationTtl: 3600 });
+  }
+
+  return { blocked: false };
+}
+
 // --------------------
 // Main function
 // --------------------
@@ -95,17 +148,56 @@ export async function onRequestPost({ request, env }) {
       });
     }
 
-    // --- 1. Log email to database ---
-    // Example using D1 (SQLite) or KV:
-    // Replace with your own database logic
+    // --- Rate limiting check ---
+    const clientIP = request.headers.get('CF-Connecting-IP') || request.headers.get('X-Forwarded-For') || 'unknown';
+    const rateLimitCheck = await checkRateLimit(email, clientIP, env);
+
+    if (rateLimitCheck.blocked) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: rateLimitCheck.reason
+      }), {
+        status: 429,
+        headers: {
+          "Content-Type": "application/json",
+          "Retry-After": "3600" // 1 hour
+        }
+      });
+    }
+
+    // --- 1. Handle subscription in database ---
     if (env.DB) {
       try {
-        // If using D1 (Pages D1)
-        await env.DB.prepare(`INSERT OR IGNORE INTO cat_shelf_guide (email) VALUES (?)`)
+        // Check if email already exists
+        const existing = await env.DB.prepare(`SELECT email, unsubscribed FROM cat_shelf_guide WHERE email = ?`)
                     .bind(email)
-                    .run();
+                    .first();
+
+        if (existing) {
+          // If previously unsubscribed, re-subscribe them and continue to send email
+          if (existing.unsubscribed === 1) {
+            await env.DB.prepare(`UPDATE cat_shelf_guide SET unsubscribed = 0, unsubscribed_at = NULL WHERE email = ?`)
+                        .bind(email)
+                        .run();
+            // Continue to send email below
+          }
+          // If already subscribed (unsubscribed = 0), still send email again
+          // No action needed in database, just continue to send email
+        } else {
+          // New subscriber - add to database
+          await env.DB.prepare(`INSERT INTO cat_shelf_guide (email, unsubscribed) VALUES (?, 0)`)
+                      .bind(email)
+                      .run();
+        }
       } catch (dbErr) {
         console.error("Database error:", dbErr);
+        return new Response(JSON.stringify({
+          success: false,
+          error: "Database error occurred"
+        }), {
+          status: 500,
+          headers: { "Content-Type": "application/json" }
+        });
       }
     }
 
@@ -224,7 +316,7 @@ export async function onRequestPost({ request, env }) {
             <div class="footer">
               <a href="https://www.outdoorsavannah.com/">OutdoorSavannah.com</a>
               <p style="margin-top:12px;">
-                <a href="https://outdoorsavannah.com/unsubscribe?email={{email}}" style="color:#555;text-decoration:underline;">
+                <a href="https://outdoorsavannah.com/unsubscribe?email=${encodeURIComponent(email)}" style="color:#555;text-decoration:underline;">
                   Unsubscribe
                 </a>
               </p>
