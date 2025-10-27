@@ -222,6 +222,7 @@ export async function onRequestPost({ request, env }) {
     const secretKey = env.AWS_SECRET_ACCESS_KEY;
     const from = "david@outdoorsavannah.com";
     const to = email;
+    const driveUrl = env.CAT_SHELF_GUIDE_DRIVE_URL;
 
     // Generate access URL that goes through our validation endpoint
     const guideUrl = await generateAccessUrl(email, env.GUIDE_SERVICE_TOKEN);
@@ -295,6 +296,18 @@ export async function onRequestPost({ request, env }) {
               border-radius: 999px;
               font-size: 16px;
             }
+            .links {
+              margin-top: 20px;
+              font-size: 14px;
+            }
+            .links a {
+              color: #0069ff;
+              text-decoration: none;
+              margin: 0 12px;
+            }
+            .links a:hover {
+              text-decoration: underline;
+            }
             .footer {
               background: #3a3a3a;
               text-align: center;
@@ -324,7 +337,12 @@ export async function onRequestPost({ request, env }) {
                 <div class="image">
                   <img src="http://www.outdoorsavannah.com/wp-content/uploads/2025/10/carousel-2-27-23-1_1.3.1-scaled.webp" alt="Cat Shelf Guide" width="100%" style="border-radius:8px;max-width:520px;">
                 </div>
-                <a href="${guideUrl}" class="button">Download Cat Shelf Guide (PDF)</a>
+                <a href="${guideUrl}" class="button">Cat Shelf Guide (PDF)</a>
+                <div class="links">
+                  <a href="${guideUrl}" download="Easy-Cat-Shelves.pdf">Download</a>
+                  <span style="color:#ccc;">|</span>
+                  <a href="${driveUrl}" target="_blank">Get on Google Drive</a>
+                </div>
               </div>
               <div class="footer">
                 <a href="https://www.outdoorsavannah.com/">OutdoorSavannah.com</a>
