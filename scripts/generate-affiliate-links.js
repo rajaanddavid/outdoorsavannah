@@ -172,6 +172,7 @@ const template = (meta, productKey) => {
 <meta name="twitter:creator" content="${twitterCreator}">
 <meta name="robots" content="noindex, nofollow">
 
+<script>
 document.addEventListener("DOMContentLoaded", async function() {
     const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
     const isAndroid = /Android/i.test(navigator.userAgent);
