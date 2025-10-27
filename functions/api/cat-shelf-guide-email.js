@@ -223,7 +223,11 @@ export async function onRequestPost({ request, env }) {
 
             <div class="footer">
               <a href="https://www.outdoorsavannah.com/">OutdoorSavannah.com</a>
-              <a href="https://www.outdoorsavannah.com/unsubscribe/" class="unsubscribe">Unsubscribe</a>
+              <p style="margin-top:12px;">
+                <a href="https://outdoorsavannah.com/unsubscribe?email={{email}}" style="color:#555;text-decoration:underline;">
+                  Unsubscribe
+                </a>
+              </p>
               <p style="margin-top:12px;">OutdoorSavannah, 2000 County Rd B2 W #131903, St. Paul, MN, 55113</p>
             </div>
           </div>
