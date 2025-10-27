@@ -124,7 +124,10 @@ filesToUpdate.forEach(file => {
 
     // Insert critical CSS inline + external CSS link + preserved WordPress styles
     const before = content.substring(0, insertPosition);
-    const after = content.substring(insertPosition);
+    let after = content.substring(insertPosition);
+
+    // Trim leading whitespace from 'after' to prevent double newlines
+    after = after.replace(/^\s*\n/, '\n');
 
     const newContent = before + '\n' + inlineCriticalCSS + '\n' + externalCSSLink +
       (wpStylesToPreserve ? '\n' + wpStylesToPreserve : '') + after;
