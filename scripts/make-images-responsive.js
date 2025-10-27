@@ -381,7 +381,10 @@ async function processHtmlFile(htmlFilePath, imageMap) {
 
     // Try to find parent figure tag and check if image is in a column
     const imgIndex = content.indexOf(imgTag);
+    // For column detection, look back further (10000 chars) to catch nested structures like galleries
+    // For figure detection, only look back 1000 chars for performance
     const precedingContent = content.substring(Math.max(0, imgIndex - 1000), imgIndex);
+    const precedingContentForColumn = content.substring(Math.max(0, imgIndex - 10000), imgIndex);
     const parentFigureMatch = precedingContent.match(/<figure[^>]*class="[^"]*\b(size-\w+)\b[^"]*"[^>]*>$/);
     const figureClass = parentFigureMatch ? parentFigureMatch[1] : null;
 
@@ -404,11 +407,11 @@ async function processHtmlFile(htmlFilePath, imageMap) {
     // Both indicate the image should use 50vw or less sizing
     let isInColumn = false;
 
-    // Check for wp-block-column
-    const columnMatch = precedingContent.match(/<div[^>]*class="[^"]*wp-block-column[^"]*"[^>]*>/g);
+    // Check for wp-block-column (use extended lookback for nested structures like galleries)
+    const columnMatch = precedingContentForColumn.match(/<div[^>]*class="[^"]*wp-block-column[^"]*"[^>]*>/g);
     if (columnMatch) {
-      const lastColumnIndex = precedingContent.lastIndexOf(columnMatch[columnMatch.length - 1]);
-      const afterColumn = precedingContent.substring(lastColumnIndex);
+      const lastColumnIndex = precedingContentForColumn.lastIndexOf(columnMatch[columnMatch.length - 1]);
+      const afterColumn = precedingContentForColumn.substring(lastColumnIndex);
       const openDivs = (afterColumn.match(/<div[^>]*>/g) || []).length;
       const closeDivs = (afterColumn.match(/<\/div>/g) || []).length;
       isInColumn = openDivs > closeDivs;
@@ -416,10 +419,10 @@ async function processHtmlFile(htmlFilePath, imageMap) {
 
     // Check for wp-block-media-text with grid-template-columns (typically 30% or 50%)
     if (!isInColumn) {
-      const mediaTextMatch = precedingContent.match(/<div[^>]*class="[^"]*wp-block-media-text[^"]*"[^>]*>/g);
+      const mediaTextMatch = precedingContentForColumn.match(/<div[^>]*class="[^"]*wp-block-media-text[^"]*"[^>]*>/g);
       if (mediaTextMatch) {
-        const lastMediaTextIndex = precedingContent.lastIndexOf(mediaTextMatch[mediaTextMatch.length - 1]);
-        const afterMediaText = precedingContent.substring(lastMediaTextIndex);
+        const lastMediaTextIndex = precedingContentForColumn.lastIndexOf(mediaTextMatch[mediaTextMatch.length - 1]);
+        const afterMediaText = precedingContentForColumn.substring(lastMediaTextIndex);
         const openDivs = (afterMediaText.match(/<div[^>]*>/g) || []).length;
         const closeDivs = (afterMediaText.match(/<\/div>/g) || []).length;
         isInColumn = openDivs > closeDivs;
