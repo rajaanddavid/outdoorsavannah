@@ -1,6 +1,6 @@
 // guide-access.js
-// Cloudflare Pages Function to validate token and fetch from R2 bucket
-// Uses Cloudflare Access Service Token for authentication
+// Cloudflare Pages Function to validate token and serve PDFs from private R2 bucket
+// Uses R2 bucket binding for secure, direct access to private storage
 // Supports multiple guides via 'guide' query parameter
 
 export async function onRequestGet({ request, env }) {
@@ -21,48 +21,59 @@ export async function onRequestGet({ request, env }) {
       return new Response('Invalid or expired access link', { status: 403 });
     }
 
-    // Map guide names to R2 URLs
-    const guideUrls = {
-      'cat-shelves': 'https://cdn.outdoorsavannah.com/Easy-Cat-Shelves.pdf',
-      'cat-wall': 'https://cdn.outdoorsavannah.com/Cat-Wall-Guide.pdf',
+    // Map guide names to R2 object keys (filenames in the bucket)
+    const guideFiles = {
+      'cat-shelves': 'Easy-Cat-Shelves.pdf',
+      'cat-wall': 'Cat-Wall-Guide.pdf',
       // Add more guides here as needed
     };
 
-    const r2Url = guideUrls[guide];
+    const filename = guideFiles[guide];
 
-    if (!r2Url) {
+    if (!filename) {
       return new Response('Guide not found', { status: 404 });
     }
 
-    // Fetch the PDF from R2 using Cloudflare Access Service Token
-    const pdfResponse = await fetch(r2Url, {
-      headers: {
-        'CF-Access-Client-Id': env.GUIDE_SERVICE_CLIENT_ID,
-        'CF-Access-Client-Secret': env.GUIDE_SERVICE_TOKEN
-      }
-    });
+    // Access R2 bucket directly using the binding (private access)
+    // The bucket binding is named 'guides_bucket' in Cloudflare Pages settings
+    const object = await env.guides_bucket.get(filename);
 
-    if (!pdfResponse.ok) {
-      console.error('Failed to fetch PDF:', pdfResponse.status, pdfResponse.statusText);
-      return new Response('Failed to retrieve guide', { status: 500 });
+    if (!object) {
+      console.error('PDF not found in R2:', filename);
+      return new Response('Guide file not found', { status: 404 });
     }
 
-    // Get the PDF as an ArrayBuffer and stream it back to the user
-    const pdfBlob = await pdfResponse.arrayBuffer();
+    // Get the PDF as an ArrayBuffer
+    const pdfBlob = await object.arrayBuffer();
+    console.log('PDF size:', pdfBlob.byteLength, 'bytes');
+
+    // Verify PDF magic number (PDFs start with %PDF)
+    const header = new Uint8Array(pdfBlob.slice(0, 5));
+    const headerStr = String.fromCharCode(...header);
+    console.log('PDF header:', headerStr);
+
+    if (!headerStr.startsWith('%PDF')) {
+      console.error('Invalid PDF - does not start with %PDF magic bytes');
+      return new Response('Invalid PDF file in storage', { status: 500 });
+    }
+
+    // Get content type from R2 object metadata or default to application/pdf
+    const contentType = object.httpMetadata?.contentType || 'application/pdf';
 
     return new Response(pdfBlob, {
       status: 200,
       headers: {
-        'Content-Type': 'application/pdf',
-        'Content-Disposition': `inline; filename="${guide}.pdf"`,
+        'Content-Type': contentType,
+        'Content-Disposition': `inline; filename="${filename}"`,
         'Content-Length': pdfBlob.byteLength.toString(),
         'Accept-Ranges': 'bytes',
-        'Cache-Control': 'public, max-age=3600'
+        'Cache-Control': 'public, max-age=3600',
+        'ETag': object.httpEtag || ''
       }
     });
 
   } catch (err) {
-    console.error(err);
+    console.error('Error in guide-access:', err);
     return new Response('Access error', { status: 500 });
   }
 }
