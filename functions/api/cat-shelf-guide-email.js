@@ -316,7 +316,7 @@ export async function onRequestPost({ request, env }) {
             <div class="footer">
               <a href="https://www.outdoorsavannah.com/">OutdoorSavannah.com</a>
               <p style="margin-top:12px;">
-                <a href="https://outdoorsavannah.com/unsubscribe?email=${encodeURIComponent(email)}" style="color:#555;text-decoration:underline;">
+                <a href="https://outdoorsavannah.com/api/unsubscribe?email=${encodeURIComponent(email)}" style="color:#555;text-decoration:underline;">
                   Unsubscribe
                 </a>
               </p>
