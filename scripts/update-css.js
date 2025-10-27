@@ -56,6 +56,13 @@ filesToUpdate.forEach(file => {
 
     let content = fs.readFileSync(filePath, 'utf8');
 
+    // Capture any WordPress-generated style tags that might be after our custom CSS
+    // (like core-block-supports-inline-css) so we can preserve them
+    const wpStylesAfterCustomCSSMatch = content.match(
+      /<link rel="stylesheet" href="\/css\/custom\.css"[^>]*>\s*((?:<style id="(?!custom-critical-css|global-styles-inline-css)[^"]*">[\s\S]*?<\/style>\s*)*)/
+    );
+    const wpStylesToPreserve = wpStylesAfterCustomCSSMatch ? wpStylesAfterCustomCSSMatch[1] : '';
+
     // Remove old custom CSS if it exists
     // Pattern 1: Remove everything from "BLOCKBASE THEME CUSTOMIZATION" comment to the end of that style tag
     content = content.replace(
@@ -79,6 +86,11 @@ filesToUpdate.forEach(file => {
       ''
     );
 
+    // Pattern 4: Remove WordPress style tags that were captured (they'll be re-inserted)
+    if (wpStylesToPreserve) {
+      content = content.replace(wpStylesToPreserve, '');
+    }
+
     // Find the end of the global-styles-inline-css style tag
     const globalStylesEndMatch = content.match(/<style id="global-styles-inline-css">[\s\S]*?<\/style>/);
 
@@ -90,11 +102,12 @@ filesToUpdate.forEach(file => {
 
     const insertPosition = globalStylesEndMatch.index + globalStylesEndMatch[0].length;
 
-    // Insert critical CSS inline + external CSS link
+    // Insert critical CSS inline + external CSS link + preserved WordPress styles
     const before = content.substring(0, insertPosition);
     const after = content.substring(insertPosition);
 
-    const newContent = before + '\n' + inlineCriticalCSS + '\n' + externalCSSLink + after;
+    const newContent = before + '\n' + inlineCriticalCSS + '\n' + externalCSSLink +
+      (wpStylesToPreserve ? '\n' + wpStylesToPreserve : '') + after;
 
     // Write the updated content back to the file
     fs.writeFileSync(filePath, newContent, 'utf8');
