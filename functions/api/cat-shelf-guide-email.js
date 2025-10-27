@@ -224,7 +224,7 @@ export async function onRequestPost({ request, env }) {
     const to = email;
 
     // Generate access URL that goes through our validation endpoint
-    const guideUrl = await generateAccessUrl(email, env.JWT_SECRET);
+    const guideUrl = await generateAccessUrl(email, env.GUIDE_SERVICE_TOKEN);
 
     const endpoint = `https://email.${region}.amazonaws.com/`;
 

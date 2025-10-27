@@ -1,5 +1,6 @@
 // guide-access.js
-// Cloudflare Pages Function to validate token and redirect to R2 bucket
+// Cloudflare Pages Function to validate token and fetch from R2 bucket
+// Uses Cloudflare Access Service Token for authentication
 // Supports multiple guides via 'guide' query parameter
 
 export async function onRequestGet({ request, env }) {
@@ -14,7 +15,7 @@ export async function onRequestGet({ request, env }) {
     }
 
     // Verify the token matches the email
-    const expectedToken = await generateToken(email, env.JWT_SECRET);
+    const expectedToken = await generateToken(email, env.GUIDE_SERVICE_TOKEN);
 
     if (token !== expectedToken) {
       return new Response('Invalid or expired access link', { status: 403 });
@@ -32,8 +33,27 @@ export async function onRequestGet({ request, env }) {
       return new Response('Guide not found', { status: 404 });
     }
 
-    // Redirect to the R2 bucket with Cloudflare Access
-    return Response.redirect(r2Url, 302);
+    // Fetch the PDF from R2 using Cloudflare Access Service Token
+    const pdfResponse = await fetch(r2Url, {
+      headers: {
+        'CF-Access-Client-Id': env.GUIDE_SERVICE_CLIENT_ID,
+        'CF-Access-Client-Secret': env.GUIDE_SERVICE_TOKEN
+      }
+    });
+
+    if (!pdfResponse.ok) {
+      console.error('Failed to fetch PDF:', pdfResponse.status, pdfResponse.statusText);
+      return new Response('Failed to retrieve guide', { status: 500 });
+    }
+
+    // Stream the PDF back to the user
+    return new Response(pdfResponse.body, {
+      headers: {
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': `inline; filename="${guide}.pdf"`,
+        'Cache-Control': 'public, max-age=3600'
+      }
+    });
 
   } catch (err) {
     console.error(err);
