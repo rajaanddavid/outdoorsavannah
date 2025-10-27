@@ -400,8 +400,31 @@ async function processHtmlFile(htmlFilePath, imageMap) {
       continue; // Skip logos and social media icons
     }
 
-    // Check if image is inside wp-block-column (WordPress columns)
-    const isInColumn = /<div[^>]*class="[^"]*wp-block-column[^"]*"[^>]*>(?:(?!<\/div>).)*$/s.test(precedingContent);
+    // Check if image is inside wp-block-column (WordPress columns) or wp-block-media-text
+    // Both indicate the image should use 50vw or less sizing
+    let isInColumn = false;
+
+    // Check for wp-block-column
+    const columnMatch = precedingContent.match(/<div[^>]*class="[^"]*wp-block-column[^"]*"[^>]*>/g);
+    if (columnMatch) {
+      const lastColumnIndex = precedingContent.lastIndexOf(columnMatch[columnMatch.length - 1]);
+      const afterColumn = precedingContent.substring(lastColumnIndex);
+      const openDivs = (afterColumn.match(/<div[^>]*>/g) || []).length;
+      const closeDivs = (afterColumn.match(/<\/div>/g) || []).length;
+      isInColumn = openDivs > closeDivs;
+    }
+
+    // Check for wp-block-media-text with grid-template-columns (typically 30% or 50%)
+    if (!isInColumn) {
+      const mediaTextMatch = precedingContent.match(/<div[^>]*class="[^"]*wp-block-media-text[^"]*"[^>]*>/g);
+      if (mediaTextMatch) {
+        const lastMediaTextIndex = precedingContent.lastIndexOf(mediaTextMatch[mediaTextMatch.length - 1]);
+        const afterMediaText = precedingContent.substring(lastMediaTextIndex);
+        const openDivs = (afterMediaText.match(/<div[^>]*>/g) || []).length;
+        const closeDivs = (afterMediaText.match(/<\/div>/g) || []).length;
+        isInColumn = openDivs > closeDivs;
+      }
+    }
 
     // Find the image in our map
     const imageKey = findImageKey(imageMap, originalSrc);
