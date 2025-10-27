@@ -34,9 +34,29 @@ export async function onRequestGet({ request, env }) {
       return new Response('Guide not found', { status: 404 });
     }
 
+    // Check if this is a range request
+    const range = request.headers.get('Range');
+
     // Access R2 bucket directly using the binding (private access)
     // The bucket binding is named 'guides_bucket' in Cloudflare Pages settings
-    const object = await env.guides_bucket.get(filename);
+    let object;
+
+    if (range) {
+      // Handle range request for streaming support
+      const rangeMatch = range.match(/bytes=(\d+)-(\d*)/);
+      if (rangeMatch) {
+        const start = parseInt(rangeMatch[1]);
+        const end = rangeMatch[2] ? parseInt(rangeMatch[2]) : undefined;
+
+        object = await env.guides_bucket.get(filename, {
+          range: end ? { offset: start, length: end - start + 1 } : { offset: start }
+        });
+      } else {
+        object = await env.guides_bucket.get(filename);
+      }
+    } else {
+      object = await env.guides_bucket.get(filename);
+    }
 
     if (!object) {
       console.error('PDF not found in R2:', filename);
@@ -47,29 +67,47 @@ export async function onRequestGet({ request, env }) {
     const pdfBlob = await object.arrayBuffer();
     console.log('PDF size:', pdfBlob.byteLength, 'bytes');
 
-    // Verify PDF magic number (PDFs start with %PDF)
-    const header = new Uint8Array(pdfBlob.slice(0, 5));
-    const headerStr = String.fromCharCode(...header);
-    console.log('PDF header:', headerStr);
+    // Verify PDF magic number (PDFs start with %PDF) - only check on full requests
+    if (!range) {
+      const header = new Uint8Array(pdfBlob.slice(0, 5));
+      const headerStr = String.fromCharCode(...header);
+      console.log('PDF header:', headerStr);
 
-    if (!headerStr.startsWith('%PDF')) {
-      console.error('Invalid PDF - does not start with %PDF magic bytes');
-      return new Response('Invalid PDF file in storage', { status: 500 });
+      if (!headerStr.startsWith('%PDF')) {
+        console.error('Invalid PDF - does not start with %PDF magic bytes');
+        return new Response('Invalid PDF file in storage', { status: 500 });
+      }
     }
 
     // Get content type from R2 object metadata or default to application/pdf
     const contentType = object.httpMetadata?.contentType || 'application/pdf';
 
+    // Build response headers
+    const headers = {
+      'Content-Type': contentType,
+      'Content-Disposition': `inline; filename="${filename}"`,
+      'Accept-Ranges': 'bytes',
+      'Cache-Control': 'public, max-age=3600',
+      'ETag': object.httpEtag || ''
+    };
+
+    // Handle range response
+    if (range && object.range) {
+      headers['Content-Range'] = `bytes ${object.range.offset}-${object.range.offset + pdfBlob.byteLength - 1}/${object.size}`;
+      headers['Content-Length'] = pdfBlob.byteLength.toString();
+
+      return new Response(pdfBlob, {
+        status: 206, // Partial Content
+        headers
+      });
+    }
+
+    // Full response
+    headers['Content-Length'] = pdfBlob.byteLength.toString();
+
     return new Response(pdfBlob, {
       status: 200,
-      headers: {
-        'Content-Type': contentType,
-        'Content-Disposition': `inline; filename="${filename}"`,
-        'Content-Length': pdfBlob.byteLength.toString(),
-        'Accept-Ranges': 'bytes',
-        'Cache-Control': 'public, max-age=3600',
-        'ETag': object.httpEtag || ''
-      }
+      headers
     });
 
   } catch (err) {
