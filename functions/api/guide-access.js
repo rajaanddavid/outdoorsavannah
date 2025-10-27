@@ -24,6 +24,7 @@ export async function onRequestGet({ request, env }) {
     // Map guide names to R2 URLs
     const guideUrls = {
       'cat-shelves': 'https://cdn.outdoorsavannah.com/Easy-Cat-Shelves.pdf',
+      'cat-wall': 'https://cdn.outdoorsavannah.com/Cat-Wall-Guide.pdf',
       // Add more guides here as needed
     };
 
@@ -46,11 +47,16 @@ export async function onRequestGet({ request, env }) {
       return new Response('Failed to retrieve guide', { status: 500 });
     }
 
-    // Stream the PDF back to the user
-    return new Response(pdfResponse.body, {
+    // Get the PDF as an ArrayBuffer and stream it back to the user
+    const pdfBlob = await pdfResponse.arrayBuffer();
+
+    return new Response(pdfBlob, {
+      status: 200,
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': `inline; filename="${guide}.pdf"`,
+        'Content-Length': pdfBlob.byteLength.toString(),
+        'Accept-Ranges': 'bytes',
         'Cache-Control': 'public, max-age=3600'
       }
     });
