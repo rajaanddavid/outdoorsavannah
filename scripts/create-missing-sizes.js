@@ -17,7 +17,12 @@ const path = require('path');
 const fs = require('fs');
 
 // All standard WordPress sizes plus our custom intermediate sizes
-const TARGET_WIDTHS = [150, 240, 300, 400, 450, 500, 768, 1024, 1536];
+const TARGET_WIDTHS = [150, 240, 300, 400, 425, 450, 500, 768, 1024, 1536];
+
+// Images to skip processing (use normalized forward-slash paths)
+const SKIP_IMAGES = [
+  'wp-content/uploads/2025/10/carousel-2-27-23-1_1.3.1-scaled.webp'
+];
 
 // Output formats: webp for modern browsers, jpeg for legacy fallback
 const OUTPUT_FORMATS = [
@@ -47,6 +52,14 @@ async function createMissingVariants() {
 
   for (const originalPath of originals) {
     const normalizedPath = originalPath.replace(/\\/g, '/');
+
+    // Skip images in the exclusion list
+    if (SKIP_IMAGES.includes(normalizedPath)) {
+      console.log(`Skipping (excluded): ${normalizedPath}`);
+      skipped++;
+      continue;
+    }
+
     const dir = path.dirname(normalizedPath);
     const ext = path.extname(normalizedPath);
     const baseName = path.basename(normalizedPath, ext);
