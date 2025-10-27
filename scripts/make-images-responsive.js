@@ -218,7 +218,7 @@ function generateSrcset(htmlFilePath, imageEntry) {
 /**
  * Generate <picture> element with <source> tags for responsive images
  */
-function generatePictureElement(htmlFilePath, imageEntry, imgAttributes) {
+function generatePictureElement(htmlFilePath, imageEntry, imgAttributes, isInColumn = false) {
   // Group variants by format (webp vs jpeg)
   const webpVariants = imageEntry.variants.filter(v => v.path.endsWith('.webp'));
   const jpegVariants = imageEntry.variants.filter(v => v.path.match(/\.(jpe?g)$/i));
@@ -287,9 +287,12 @@ function generatePictureElement(htmlFilePath, imageEntry, imgAttributes) {
   }
   const imgSrcset = imgSrcsetParts.join(', ');
 
-  // Generate sizes attribute based on typical responsive behavior
-  // Default: assume image takes 100vw on mobile, 50vw on tablet, fixed width on desktop
-  const sizes = '(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 800px';
+  // Generate sizes attribute based on context
+  // Column images: always 50% width on desktop
+  // Full-width images: 100vw on mobile, 50vw on tablet, 800px on desktop
+  const sizes = isInColumn
+    ? '(max-width: 768px) 100vw, 50vw'
+    : '(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 800px';
 
   pictureHtml += `    <img ${imgAttributes} src="${makeRelativePath(htmlFilePath, fallbackSrc)}"`;
 
@@ -425,7 +428,7 @@ async function processHtmlFile(htmlFilePath, imageMap) {
       .trim();
 
     // Generate <picture> element
-    const pictureElement = generatePictureElement(htmlFilePath, imageEntry, imgAttributes);
+    const pictureElement = generatePictureElement(htmlFilePath, imageEntry, imgAttributes, isInColumn);
 
     // Check if img is inside a <figure> - if so, replace just the img, not the figure
     const figureMatch = precedingContent.match(/<figure[^>]*>(?:(?!<img).)*$/s);
