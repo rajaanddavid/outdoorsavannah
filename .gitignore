@@ -16,6 +16,7 @@
 !/css/custom.css
 !/scripts/**/*.js
 !/wp-content/**/*.webp
+!/wp-content/**/*.jpeg
 
 # ALLOW all JS files in functions folder
 !/functions/**/*.js
