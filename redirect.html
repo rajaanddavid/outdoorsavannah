@@ -16,35 +16,7 @@
             padding: 0 !important;
         }
     </style>
-<!-- Deferred loading to prevent forced reflows and improve performance -->
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-
-  // Load gtag.js after page is interactive to avoid forced reflows
-  function loadGtagScript() {
-    const script = document.createElement('script');
-    script.src = 'https://www.googletagmanager.com/gtag/js?id=G-0Q38LVTQS4';
-    script.async = true;
-    script.onload = function() {
-      gtag('js', new Date());
-      // GA4 configuration: anonymized IP, no ads or personalization
-      gtag('config', 'G-0Q38LVTQS4', {
-        'anonymize_ip': true,       // anonymize visitor IPs
-        'allow_google_signals': false, // disable Google Signals
-        'allow_ad_personalization_signals': false // disable ads personalization
-      });
-    };
-    document.head.appendChild(script);
-  }
-
-  // Load after page is interactive (but before full load for faster tracking)
-  if (document.readyState === 'complete' || document.readyState === 'interactive') {
-    setTimeout(loadGtagScript, 1);
-  } else {
-    window.addEventListener('DOMContentLoaded', loadGtagScript);
-  }
-</script>
+<script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "bb4c39b3f83c48b8bb675aca3076fcfa"}'></script>
 <script src="https://engine.outdoorsavannah.com/header-engine.v21.min.js" defer></script>
 </head>
 <body>

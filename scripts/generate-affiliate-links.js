@@ -172,23 +172,6 @@ const template = (meta, productKey) => {
 <meta name="twitter:creator" content="${twitterCreator}">
 <meta name="robots" content="noindex, nofollow">
 
-<!-- Google Tag Manager -->
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-NBJRDCGV');</script>
-<!-- End Google Tag Manager -->
-
-<!-- Google tag (gtag.js) for GA4 (Analytics)-->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-0Q38LVTQS4"></script>
-<script>window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-0Q38LVTQS4');</script>
-
-<script>
 document.addEventListener("DOMContentLoaded", async function() {
     const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
     const isAndroid = /Android/i.test(navigator.userAgent);
@@ -271,10 +254,6 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 </head>
 <body>
-<!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NBJRDCGV"
-                  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-<!-- End Google Tag Manager (noscript) -->
     <div class="profile-circle">
         <img alt="Profile" src="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.webp">
     </div>

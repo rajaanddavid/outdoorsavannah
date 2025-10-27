@@ -403,37 +403,7 @@ body {
 <link rel="alternate" title="oEmbed (JSON)" type="application/json+oembed" href="https://www.outdoorsavannah.com/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fhttps%3A%2F%2Fwww.outdoorsavannah.com%2Fcat-shelf-guide%2F">
 <link rel="alternate" title="oEmbed (XML)" type="text/xml+oembed" href="https://www.outdoorsavannah.com/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fhttps%3A%2F%2Fwww.outdoorsavannah.com%2Fcat-shelf-guide%2F&amp;format=xml">
 <!-- START HEADER SNIPPET -->
-<!-- Google tag (gtag.js) for GA4 (Analytics) - anonymized, non-personalized -->
-<!-- Deferred loading to prevent forced reflows and improve performance -->
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-
-  // Load gtag.js after page is interactive to avoid forced reflows
-  function loadGtagScript() {
-    const script = document.createElement('script');
-    script.src = 'https://www.googletagmanager.com/gtag/js?id=G-0Q38LVTQS4';
-    script.async = true;
-    script.onload = function() {
-      gtag('js', new Date());
-      // GA4 configuration: anonymized IP, no ads or personalization
-      gtag('config', 'G-0Q38LVTQS4', {
-        'anonymize_ip': true,       // anonymize visitor IPs
-        'allow_google_signals': false, // disable Google Signals
-        'allow_ad_personalization_signals': false // disable ads personalization
-      });
-    };
-    document.head.appendChild(script);
-  }
-
-  // Load after page is interactive (but before full load for faster tracking)
-  if (document.readyState === 'complete' || document.readyState === 'interactive') {
-    setTimeout(loadGtagScript, 1);
-  } else {
-    window.addEventListener('DOMContentLoaded', loadGtagScript);
-  }
-</script>
-
+<script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "bb4c39b3f83c48b8bb675aca3076fcfa"}'></script>
 
 <link rel="preload" as="image" href="/wp-content/uploads/2025/04/outdoorsavannah-logo-registered-links-300x184.webp" fetchpriority="high">
 <link rel="preload" href="/wp-content/uploads/2025/04/Easy-Cat-Shelves-400x518.webp" as="image" fetchpriority="high">
