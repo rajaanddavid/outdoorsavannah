@@ -56,12 +56,24 @@ filesToUpdate.forEach(file => {
 
     let content = fs.readFileSync(filePath, 'utf8');
 
-    // Capture any WordPress-generated style tags that might be after our custom CSS
-    // (like core-block-supports-inline-css) so we can preserve them
+    // Capture WordPress-generated style tags to preserve them
+    // Check two locations: after custom.css links OR after global-styles (blank slate)
+    let wpStylesToPreserve = '';
+
     const wpStylesAfterCustomCSSMatch = content.match(
-      /<link rel="stylesheet" href="\/css\/custom\.css"[^>]*>\s*((?:<style id="(?!custom-critical-css|global-styles-inline-css)[^"]*">[\s\S]*?<\/style>\s*)*)/
+      /<link rel="stylesheet" href="\/css\/custom\.css"[^>]*>\s*\n?((?:<style id="(?!custom-critical-css|global-styles-inline-css)[^"]*">[\s\S]*?<\/style>\s*\n?)*)/
     );
-    const wpStylesToPreserve = wpStylesAfterCustomCSSMatch ? wpStylesAfterCustomCSSMatch[1] : '';
+    if (wpStylesAfterCustomCSSMatch && wpStylesAfterCustomCSSMatch[1].trim()) {
+      wpStylesToPreserve = wpStylesAfterCustomCSSMatch[1].trim();
+    } else {
+      // Blank slate: capture WordPress styles right after global-styles
+      const wpStylesAfterGlobalMatch = content.match(
+        /<style id="global-styles-inline-css">[\s\S]*?<\/style>\s*\n?((?:<style id="(?!custom-critical-css|global-styles-inline-css)[^"]*">[\s\S]*?<\/style>\s*\n?)+)/
+      );
+      if (wpStylesAfterGlobalMatch && wpStylesAfterGlobalMatch[1].trim()) {
+        wpStylesToPreserve = wpStylesAfterGlobalMatch[1].trim();
+      }
+    }
 
     // Remove old custom CSS if it exists
     // Pattern 1: Remove everything from "BLOCKBASE THEME CUSTOMIZATION" comment to the end of that style tag
@@ -88,8 +100,16 @@ filesToUpdate.forEach(file => {
 
     // Pattern 4: Remove WordPress style tags that were captured (they'll be re-inserted)
     if (wpStylesToPreserve) {
-      content = content.replace(wpStylesToPreserve, '');
+      // Escape special regex characters for safe replacement
+      const escapedStyles = wpStylesToPreserve.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      content = content.replace(new RegExp(escapedStyles, 'g'), '');
     }
+
+    // Pattern 5: Also remove WordPress styles after global-styles (blank slate scenario)
+    content = content.replace(
+      /(<style id="global-styles-inline-css">[\s\S]*?<\/style>)\s*\n?((?:<style id="(?!custom-critical-css|global-styles-inline-css)[^"]*">[\s\S]*?<\/style>\s*\n?)+)/g,
+      '$1\n'
+    );
 
     // Find the end of the global-styles-inline-css style tag
     const globalStylesEndMatch = content.match(/<style id="global-styles-inline-css">[\s\S]*?<\/style>/);
