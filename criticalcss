@@ -277,7 +277,7 @@ body {
    LAYOUT SHIFT PREVENTION
    Reserves space for button content before JS loads
    ======================================== */
-.wp-block-button{min-height:3.5em}
+.wp-block-button{min-height:2em}
 
 /* ========================================
    IMAGE BLOCK STYLES (inlined for performance)
