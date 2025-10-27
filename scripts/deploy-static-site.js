@@ -55,6 +55,36 @@ async function deploy() {
 
   const startTime = Date.now();
 
+  // Pre-step: Handle 404 page renaming and moving
+  log(`\n${'='.repeat(60)}`, 'cyan');
+  log('Pre-step: Setting up 404 page', 'bright');
+  log('='.repeat(60), 'cyan');
+
+  try {
+    const fs = require('fs');
+    const fourOhFourPath = path.join(rootDir, 'fourohfour', 'index.html');
+    const fourOhFourNewPath = path.join(rootDir, 'fourohfour', '404.html');
+    const finalPath = path.join(rootDir, '404.html');
+
+    // Rename fourohfour/index.html to fourohfour/404.html
+    if (fs.existsSync(fourOhFourPath)) {
+      fs.renameSync(fourOhFourPath, fourOhFourNewPath);
+      log('  ✓ Renamed fourohfour/index.html to fourohfour/404.html', 'green');
+    }
+
+    // Move fourohfour/404.html to root /404.html
+    if (fs.existsSync(fourOhFourNewPath)) {
+      fs.renameSync(fourOhFourNewPath, finalPath);
+      log('  ✓ Moved fourohfour/404.html to /404.html', 'green');
+    }
+
+    log('✓ 404 page setup - COMPLETE\n', 'green');
+  } catch (error) {
+    log(`\n✗ ERROR setting up 404 page`, 'red');
+    log(`${error.message}`, 'red');
+    log(`\nContinuing with deployment...`, 'yellow');
+  }
+
   // Step 1: Generate affiliate link pages
   runScript(
     'generate-affiliate-links.js',
