@@ -5,6 +5,61 @@
 // Helper functions
 // --------------------
 
+// Generate Cloudflare Access signed token URL
+async function generateAccessUrl(r2Url, jwtSecret, userEmail) {
+  // Create JWT payload
+  const now = Math.floor(Date.now() / 1000);
+
+  const header = {
+    alg: "HS256",
+    typ: "JWT"
+  };
+
+  const payload = {
+    email: userEmail,
+    iat: now,
+    // No expiration - links don't expire
+  };
+
+  // Base64url encode helper
+  const base64UrlEncode = (str) => {
+    return btoa(str)
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=/g, '');
+  };
+
+  const encodedHeader = base64UrlEncode(JSON.stringify(header));
+  const encodedPayload = base64UrlEncode(JSON.stringify(payload));
+  const signingInput = `${encodedHeader}.${encodedPayload}`;
+
+  // Sign with HMAC SHA-256
+  const encoder = new TextEncoder();
+  const keyData = encoder.encode(jwtSecret);
+  const messageData = encoder.encode(signingInput);
+
+  const cryptoKey = await crypto.subtle.importKey(
+    'raw',
+    keyData,
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign']
+  );
+
+  const signature = await crypto.subtle.sign('HMAC', cryptoKey, messageData);
+
+  // Convert signature to base64url
+  const signatureArray = Array.from(new Uint8Array(signature));
+  const base64Signature = base64UrlEncode(
+    String.fromCharCode.apply(null, signatureArray)
+  );
+
+  const jwt = `${signingInput}.${base64Signature}`;
+
+  // Append token as query parameter for Cloudflare Access
+  return `${r2Url}?token=${encodeURIComponent(jwt)}`;
+}
+
 // Hash a string using SHA-256
 async function hash(str) {
   const encoder = new TextEncoder();
@@ -207,7 +262,10 @@ export async function onRequestPost({ request, env }) {
     const secretKey = env.AWS_SECRET_ACCESS_KEY;
     const from = "david@outdoorsavannah.com";
     const to = email;
-    const guideUrl = env.CAT_SHELF_GUIDE_URL;
+
+    // Generate signed URL for R2 bucket protected by Cloudflare Access
+    const r2BaseUrl = "https://cdn.outdoorsavannah.com/Easy-Cat-Shelves.pdf";
+    const guideUrl = await generateAccessUrl(r2BaseUrl, env.JWT_SECRET, email);
 
     const endpoint = `https://email.${region}.amazonaws.com/`;
 
@@ -221,7 +279,7 @@ export async function onRequestPost({ request, env }) {
         // Plain text version (for older email clients)
         "Message.Body.Text.Data": `Thanks for joining.
         I hope this inspires you to build your own cat friendly space!
-        Cat Shelf Guide on Google Drive: ${env.CAT_SHELF_GUIDE_URL}`,
+        Download Cat Shelf Guide: ${guideUrl}`,
         // HTML version
         "Message.Body.Html.Data": `
         <!DOCTYPE html>
@@ -307,7 +365,7 @@ export async function onRequestPost({ request, env }) {
                 <div class="image">
                   <img src="http://www.outdoorsavannah.com/wp-content/uploads/2025/10/carousel-2-27-23-1_1.3.1-scaled.webp" alt="Cat Shelf Guide" width="100%" style="border-radius:8px;max-width:520px;">
                 </div>
-                <a href="${guideUrl}" class="button">Cat Shelf Guide on Google Drive</a>
+                <a href="${guideUrl}" class="button">Download Cat Shelf Guide (PDF)</a>
               </div>
               <div class="footer">
                 <a href="https://www.outdoorsavannah.com/">OutdoorSavannah.com</a>
