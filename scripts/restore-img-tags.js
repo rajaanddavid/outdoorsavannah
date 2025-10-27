@@ -41,8 +41,14 @@ async function restoreImgTags() {
       prevContent = newContent;
       newContent = newContent.replace(/\s*<picture>[\s\S]*?(<img[^>]*>)[\s\S]*?<\/picture>/gi, (_match, imgTag) => {
         modified = true;
-        // Return just the img tag, without any whitespace
-        return imgTag;
+
+        // Remove srcset and sizes attributes that were added by make-images-responsive.js
+        let cleanedImgTag = imgTag
+          .replace(/\s+srcset="[^"]*"/gi, '')
+          .replace(/\s+sizes="[^"]*"/gi, '');
+
+        // Return just the cleaned img tag, without any whitespace
+        return cleanedImgTag;
       });
     } while (newContent !== prevContent);
 
