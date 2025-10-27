@@ -215,7 +215,7 @@ export async function onRequestPost({ request, env }) {
               <p>I hope this inspires you to build your own cat friendly space!</p>
 
               <div class="image">
-                <img src="https://example.com/path/to/your-image.jpg" alt="Cat Shelf Guide" width="100%" style="border-radius:8px;max-width:520px;">
+                <img src="http://www.outdoorsavannah.com/wp-content/uploads/2025/10/carousel-2-27-23-1_1.3.1-scaled.webp" alt="Cat Shelf Guide" width="100%" style="border-radius:8px;max-width:520px;">
               </div>
 
               <a href="${guideUrl}" class="button">Cat Shelf Guide on Google Drive</a>
