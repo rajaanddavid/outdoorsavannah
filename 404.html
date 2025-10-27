@@ -375,6 +375,12 @@ body {
 }
 
 /* ========================================
+   LAYOUT SHIFT PREVENTION
+   Reserves space for button content before JS loads
+   ======================================== */
+.wp-block-button{min-height:3.5em}
+
+/* ========================================
    IMAGE BLOCK STYLES (inlined for performance)
    Prevents render-blocking from image/style.min.css
    ======================================== */
@@ -382,36 +388,6 @@ body {
 <link rel="preload" href="/css/custom.css" as="style">
 <link rel="stylesheet" href="/css/custom.css">
 
-<style id="wp-block-template-skip-link-inline-css">
-
-		.skip-link.screen-reader-text {
-			border: 0;
-			clip-path: inset(50%);
-			height: 1px;
-			margin: -1px;
-			overflow: hidden;
-			padding: 0;
-			position: absolute !important;
-			width: 1px;
-			word-wrap: normal !important;
-		}
-
-		.skip-link.screen-reader-text:focus {
-			background-color: #eee;
-			clip-path: none;
-			color: #444;
-			display: block;
-			font-size: 1em;
-			height: auto;
-			left: 5px;
-			line-height: normal;
-			padding: 15px 23px 14px;
-			text-decoration: none;
-			top: 5px;
-			width: auto;
-			z-index: 100000;
-		}
-</style>
 <link rel="stylesheet" id="blockbase-ponyfill-css" href="https://www.outdoorsavannah.com/wp-content/themes/blockbase/assets/ponyfill.css?ver=3.1.21" media="print" onload="this.media='all'; this.onload=null;">
 <link rel="https://api.w.org/" href="https://www.outdoorsavannah.com/wp-json/"><link rel="alternate" title="JSON" type="application/json" href="https://www.outdoorsavannah.com/wp-json/wp/v2/pages/757"><link rel="EditURI" type="application/rsd+xml" title="RSD" href="https://www.outdoorsavannah.com/xmlrpc.php?rsd">
 <meta name="generator" content="WordPress 6.8.3">
