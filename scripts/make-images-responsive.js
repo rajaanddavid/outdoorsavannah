@@ -274,12 +274,34 @@ function generatePictureElement(htmlFilePath, imageEntry, imgAttributes) {
     pictureHtml += `      type="image/jpeg">\n\n`;
   }
 
-  // Fallback <img> tag
+  // Fallback <img> tag with srcset and sizes
   const fallbackSrc = imageEntry.original ||
                       webpVariants[Math.floor(webpVariants.length / 2)]?.path ||
                       imageEntry.variants[0]?.path;
 
-  pictureHtml += `    <img ${imgAttributes} src="${makeRelativePath(htmlFilePath, fallbackSrc)}">\n`;
+  // Generate srcset for the img tag using all WebP variants
+  const imgSrcsetParts = [];
+  for (const variant of webpVariants) {
+    const relativePath = makeRelativePath(htmlFilePath, variant.path);
+    imgSrcsetParts.push(`${relativePath} ${variant.width}w`);
+  }
+  const imgSrcset = imgSrcsetParts.join(', ');
+
+  // Generate sizes attribute based on typical responsive behavior
+  // Default: assume image takes 100vw on mobile, 50vw on tablet, fixed width on desktop
+  const sizes = '(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 800px';
+
+  pictureHtml += `    <img ${imgAttributes} src="${makeRelativePath(htmlFilePath, fallbackSrc)}"`;
+
+  if (imgSrcset) {
+    pictureHtml += ` srcset="${imgSrcset}"`;
+  }
+
+  if (imgSrcset) {
+    pictureHtml += ` sizes="${sizes}"`;
+  }
+
+  pictureHtml += `>\n`;
   pictureHtml += `  </picture>`;
 
   return pictureHtml;
@@ -454,13 +476,35 @@ async function main() {
   // Change to root directory for glob
   process.chdir(rootDir);
 
+  // Parse command line arguments
+  const args = process.argv.slice(2);
+  const onlyAffiliate = args.includes('--only-affiliate');
+  const excludeAffiliate = args.includes('--exclude-affiliate');
+
+  if (onlyAffiliate && excludeAffiliate) {
+    console.error('❌ Error: Cannot use both --only-affiliate and --exclude-affiliate');
+    process.exit(1);
+  }
+
   // Build image map
   const imageMap = await buildImageMap();
 
   // Find all HTML files
   console.log('\nFinding HTML files...');
-  const htmlFiles = await glob('**/*.html', {
-    ignore: ['node_modules/**', 'wp-includes/**', 'wp-admin/**', 'redirect.html'],
+
+  let globPattern = '**/*.html';
+  let ignorePatterns = ['node_modules/**', 'wp-includes/**', 'wp-admin/**', 'redirect.html'];
+
+  if (onlyAffiliate) {
+    globPattern = 'affiliate/**/*.html';
+    console.log('🎯 Targeting only /affiliate folder\n');
+  } else if (excludeAffiliate) {
+    ignorePatterns.push('affiliate/**');
+    console.log('🚫 Excluding /affiliate folder\n');
+  }
+
+  const htmlFiles = await glob(globPattern, {
+    ignore: ignorePatterns,
     nodir: true,
     windowsPathsNoEscape: true
   });
