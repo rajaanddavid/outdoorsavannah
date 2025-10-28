@@ -99,7 +99,6 @@
 document.addEventListener("DOMContentLoaded", async function() {
     const ua = navigator.userAgent;
     const _isIOS = /iPhone|iPad|iPod/i.test(ua);
-    const _isAndroid = /Android/i.test(ua);
     const _isMobile = /Mobile|iPhone|iPad|iPod|Android|BlackBerry|IEMobile|Kindle|Silk-Accelerated|(hpw|web)OS|Opera M(obi|ini)/i.test(ua);
     const _isAppBrowser = new RegExp(
       '((?:fban\/fbios|fb_iab\/fb4a)(?!.+fbav)|;fbav\/([\w.]+);|metaiab|instagram|barcelona|threads|linkedIn|twitter|tiktok|wechat|line)',
@@ -200,20 +199,7 @@ document.addEventListener("DOMContentLoaded", async function() {
     // Mobile redirects
     const baseRedirect = '/redirect?' + queryParams + encodedHash;
 
-    if (isAndroid() && isAppBrowser()) {
-        // Android app browser → intent
-        // Ensure queryParams and encodedHash are already URL-safe
-        const androidRedirect = [
-            'intent://www.outdoorsavannah.com/redirect?',
-            queryParams,
-            encodedHash,
-            '#Intent;scheme=https;action=android.intent.action.VIEW;end'
-        ].join('');
-        const iframe = document.createElement('iframe');
-        iframe.style.display = 'none';
-        iframe.src = androidRedirect;
-        document.body.appendChild(iframe);
-    } else if (isIOS() && isAppBrowser()) {
+    if (isIOS() && isAppBrowser()) {
         // iOS in-app browser → x-safari-https
         const iosRedirect = 'x-safari-https://www.outdoorsavannah.com/redirect?' + queryParams + encodedHash;
         window.location.href = iosRedirect;
