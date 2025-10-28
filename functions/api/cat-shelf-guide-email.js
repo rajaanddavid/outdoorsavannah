@@ -5,7 +5,7 @@
 // Helper functions
 // --------------------
 
-// Generate access token URL (uses guide-access.js endpoint)
+// Generate access token URL (uses outdoorsavannah-guides.js endpoint)
 async function generateAccessUrl(userEmail, jwtSecret, guideName = 'cat-shelves') {
   // Generate a simple token based on email and secret
   const encoder = new TextEncoder();
@@ -16,8 +16,8 @@ async function generateAccessUrl(userEmail, jwtSecret, guideName = 'cat-shelves'
     .join("")
     .substring(0, 32); // Use first 32 chars as token
 
-  // Return URL to our guide-access endpoint which validates and redirects
-  return `https://outdoorsavannah.com/api/guide-access?email=${encodeURIComponent(userEmail)}&token=${token}&guide=${guideName}`;
+  // Return URL to our outdoorsavannah-guides endpoint which validates and redirects
+  return `https://outdoorsavannah.com/api/outdoorsavannah-guides?email=${encodeURIComponent(userEmail)}&token=${token}&guide=${guideName}`;
 }
 
 // Hash a string using SHA-256

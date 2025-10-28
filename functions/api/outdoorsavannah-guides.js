@@ -1,4 +1,4 @@
-// guide-access.js
+// outdoorsavannah-guides.js
 // Cloudflare Pages Function to validate token and serve PDFs from private R2 bucket
 // Uses R2 bucket binding for secure, direct access to private storage
 // Supports multiple guides via 'guide' query parameter
@@ -112,7 +112,7 @@ export async function onRequestGet({ request, env }) {
     });
 
   } catch (err) {
-    console.error('Error in guide-access:', err);
+    console.error('Error in outdoorsavannah-guides:', err);
     return new Response('Access error', { status: 500 });
   }
 }
