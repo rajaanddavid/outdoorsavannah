@@ -83,6 +83,11 @@
     .page-id-5 .wp-elements-be6df46427f2d9fd6d174c5c8728c787 {
         color: #fff !important;
     }
+
+    /* Homepage "OutdoorSavannah LLC" title text - white in dark mode */
+    .page-id-5 .wp-elements-c9ee0ef65dd5fb6ae197433570a06233 {
+        color: #fff !important;
+    }
 }
 
 /* Mobile navigation menu - Dark mode support */
