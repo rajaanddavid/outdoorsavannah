@@ -277,12 +277,16 @@ document.addEventListener("DOMContentLoaded", async function() {
     // Mobile redirects
     const baseRedirect = '/redirect?' + queryParams + encodedHash;
 
+    // If there are existing query params, append &skipDeeplink=true
+    const skipParam = queryParams ? '&skipDeeplink=true' : 'skipDeeplink=true';
+
     if (isAndroid() && isAppBrowser()) {
         // Android app browser → intent
         // Ensure queryParams and encodedHash are already URL-safe
         const androidRedirect = [
             'intent://www.outdoorsavannah.com/redirect?',
             queryParams,
+            skipParam,
             encodedHash,
             '#Intent;scheme=https;action=android.intent.action.VIEW;end'
         ].join('');
