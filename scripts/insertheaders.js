@@ -19,7 +19,7 @@ async function getHtmlFiles(dir) {
     const fullPath = path.join(dir, entry.name);
     if (entry.isDirectory()) {
       results = results.concat(await getHtmlFiles(fullPath));
-    } else if (entry.isFile() && ['index.html', '404.html'].includes(entry.name)) {
+    } else if (entry.isFile() && ['index.html', '404.html', 'redirect.html'].includes(entry.name)) {
       results.push(fullPath);
     }
   }
