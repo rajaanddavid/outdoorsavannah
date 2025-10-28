@@ -240,7 +240,9 @@ export async function onRequestPost({ request, env }) {
         // Plain text version (for older email clients)
         "Message.Body.Text.Data": `Thanks for joining.
         I hope this inspires you to build your own cat friendly space!
-        Download Cat Shelf Guide: ${guideUrl}`,
+        Cat Shelf Guide (PDF): ${guideUrl}
+        Download: ${downloadUrl}
+        Get on Google Drive: ${driveUrl}`,
         // HTML version
         "Message.Body.Html.Data": `
         <!DOCTYPE html>
@@ -338,7 +340,7 @@ export async function onRequestPost({ request, env }) {
                 <div class="image">
                   <img src="http://www.outdoorsavannah.com/wp-content/uploads/2025/10/carousel-2-27-23-1_1.3.1-scaled.webp" alt="Cat Shelf Guide" width="100%" style="border-radius:8px;max-width:520px;">
                 </div>
-                <a href="${guideUrl}" class="button">Download Cat Shelf Guide (PDF)</a>
+                <a href="${guideUrl}" class="button">Cat Shelf Guide (PDF)</a>
                 <div class="links">
                   <a href="${downloadUrl}">Download</a>
                   <span style="color:#ccc;">|</span>
