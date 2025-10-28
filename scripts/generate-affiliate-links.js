@@ -178,7 +178,10 @@ document.addEventListener("DOMContentLoaded", async function() {
     const _isIOS = /iPhone|iPad|iPod/i.test(ua);
     const _isAndroid = /Android/i.test(ua);
     const _isMobile = /Mobile|iPhone|iPad|iPod|Android|BlackBerry|IEMobile|Kindle|Silk-Accelerated|(hpw|web)OS|Opera M(obi|ini)/i.test(ua);
-    const _isAppBrowser = /((?:fban\/fbios|fb_iab\/fb4a)(?!.+fbav)|;fbav\/([\w.]+);|metaiab|instagram|barcelona|threads|linkedIn|twitter|tiktok|wechat|line)/i.test(ua);
+    const _isAppBrowser = new RegExp(
+      '((?:fban\\/fbios|fb_iab\\/fb4a)(?!.+fbav)|;fbav\\/([\\w.]+);|metaiab|instagram|barcelona|threads|linkedIn|twitter|tiktok|wechat|line)',
+      'i'
+    ).test(ua);
 
     // Return cached values
     function isMobile() { return _isMobile; }
