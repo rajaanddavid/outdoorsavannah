@@ -97,9 +97,17 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", async function() {
-    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-    const isAndroid = /Android/i.test(navigator.userAgent);
-    const isMobile = isIOS || isAndroid;
+    const ua = navigator.userAgent;
+    const _isIOS = /iPhone|iPad|iPod/i.test(ua);
+    const _isAndroid = /Android/i.test(ua);
+    const _isMobile = /Mobile|iPhone|iPad|iPod|Android|BlackBerry|IEMobile|Kindle|Silk-Accelerated|(hpw|web)OS|Opera M(obi|ini)/i.test(ua);
+    const _isAppBrowser = /((?:fban/fbios|fb_iab/fb4a)(?!.+fbav)|;fbav/([w.]+);|metaiab|instagram|barcelona|threads|linkedIn|twitter|tiktok|wechat|line)/i.test(ua);
+
+    // Return cached values
+    function isMobile() { return _isMobile; }
+    function isAndroid() { return _isAndroid; }
+    function isIOS() { return _isIOS; }
+    function isAppBrowser() { return _isAppBrowser; }
 
     const url = new URL(window.location.href);
     const productKey = "product/string-toy";
@@ -159,20 +167,58 @@ document.addEventListener("DOMContentLoaded", async function() {
         return;
     }
 
-    if (!isMobile) {
+    // Build base query string safely
+    const queryParams = [
+        'product=' + encodeURIComponent(productKey),
+        variant ? 'variant=' + encodeURIComponent(variant) : null
+    ].filter(Boolean).join('&');
+
+    // Encode hash safely; remove leading '#' if present
+    const encodedHash = hash ? '%23' + encodeURIComponent(hash.replace(/^#/, '')) : '';
+
+    if (!isMobile()) {
+        // Desktop: use productLinks mapping
         const validKeys = Object.keys(productLinks).filter(
             k => !k.endsWith("_deeplink_ios") && !k.endsWith("_deeplink_android")
         );
-        const targetKey = variant && validKeys.find(k => k.toLowerCase() === variant.toLowerCase()) ? variant : validKeys[0];
-        const targetLink = productLinks[targetKey] || '/';
+        const targetKey = variant && validKeys.find(k => k.toLowerCase() === variant.toLowerCase())
+            ? variant
+            : validKeys[0];
+        let targetLink = productLinks[targetKey] || '/';
+
+        // Separate hash from URL and encode it safely
+        const [urlWithoutHash, linkHash] = targetLink.split('#');
+        targetLink = urlWithoutHash + (linkHash ? '%23' + encodeURIComponent(linkHash) : '');
+
         window.location.replace(targetLink);
         return;
     }
 
-    if (isMobile) {
-        const redirectUrl = "/redirect.html?product=" + encodeURIComponent(productKey) + (variant ? "&variant=" + encodeURIComponent(variant) : "");
-        window.location.replace(redirectUrl + hash);
+    // Mobile redirects
+    const baseRedirect = '/redirect?' + queryParams + encodedHash;
+
+    if (isAndroid() && isAppBrowser()) {
+        // Android app browser → intent
+        // Ensure queryParams and encodedHash are already URL-safe
+        const androidRedirect = [
+            'intent://www.outdoorsavannah.com/redirect?',
+            queryParams,
+            encodedHash,
+            '#Intent;scheme=https;action=android.intent.action.VIEW;end'
+        ].join('');
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.src = androidRedirect;
+        document.body.appendChild(iframe);
+    } else if (isIOS() && isAppBrowser()) {
+        // iOS in-app browser → x-safari-https
+        const iosRedirect = 'x-safari-https://www.outdoorsavannah.com/redirect?' + queryParams + encodedHash;
+        window.location.href = iosRedirect;
+    } else {
+        // Other mobile browsers
+        window.location.replace(baseRedirect);
     }
+}
 });
 </script>
 
