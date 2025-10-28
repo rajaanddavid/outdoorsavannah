@@ -321,6 +321,25 @@ body[class*="product"] .wp-block-button__link:hover {
 }
 
 /* ========================================
+   NAVIGATION - HORIZONTAL ON DESKTOP
+   ======================================== */
+
+/* Desktop navigation - horizontal layout */
+@media (min-width: 782px) {
+    .wp-block-navigation__container,
+    .wp-block-navigation ul {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: wrap !important;
+        gap: 1.5rem !important;
+    }
+
+    .wp-block-navigation-item {
+        display: inline-block !important;
+    }
+}
+
+/* ========================================
    HEADER SPACING REDUCTION
    ======================================== */
 
