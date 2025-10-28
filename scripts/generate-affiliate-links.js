@@ -295,7 +295,6 @@ document.addEventListener("DOMContentLoaded", async function() {
         // Other mobile browsers
         window.location.replace(baseRedirect);
     }
-}
 });
 </script>
 
