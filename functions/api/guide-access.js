@@ -9,6 +9,7 @@ export async function onRequestGet({ request, env }) {
     const token = url.searchParams.get('token');
     const email = url.searchParams.get('email');
     const guide = url.searchParams.get('guide') || 'cat-shelves'; // Default guide
+    const forceDownload = url.searchParams.get('download') === '1'; // Force download if download=1
 
     if (!token || !email) {
       return new Response('Invalid access link', { status: 403 });
@@ -85,7 +86,7 @@ export async function onRequestGet({ request, env }) {
     // Build response headers
     const headers = {
       'Content-Type': contentType,
-      'Content-Disposition': `inline; filename="${filename}"`,
+      'Content-Disposition': forceDownload ? `attachment; filename="${filename}"` : `inline; filename="${filename}"`,
       'Accept-Ranges': 'bytes',
       'Cache-Control': 'public, max-age=3600',
       'ETag': object.httpEtag || ''

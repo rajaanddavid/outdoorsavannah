@@ -226,6 +226,7 @@ export async function onRequestPost({ request, env }) {
 
     // Generate access URL that goes through our validation endpoint
     const guideUrl = await generateAccessUrl(email, env.GUIDE_SERVICE_TOKEN);
+    const downloadUrl = guideUrl + '&download=1';
 
     const endpoint = `https://email.${region}.amazonaws.com/`;
 
@@ -337,9 +338,9 @@ export async function onRequestPost({ request, env }) {
                 <div class="image">
                   <img src="http://www.outdoorsavannah.com/wp-content/uploads/2025/10/carousel-2-27-23-1_1.3.1-scaled.webp" alt="Cat Shelf Guide" width="100%" style="border-radius:8px;max-width:520px;">
                 </div>
-                <a href="${guideUrl}" class="button">Cat Shelf Guide (PDF)</a>
+                <a href="${guideUrl}" class="button">Download Cat Shelf Guide (PDF)</a>
                 <div class="links">
-                  <a href="${guideUrl}" download="Easy-Cat-Shelves.pdf">Download</a>
+                  <a href="${downloadUrl}">Download</a>
                   <span style="color:#ccc;">|</span>
                   <a href="${driveUrl}" target="_blank">Get on Google Drive</a>
                 </div>
