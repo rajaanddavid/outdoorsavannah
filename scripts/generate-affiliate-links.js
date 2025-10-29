@@ -294,6 +294,38 @@ document.addEventListener("DOMContentLoaded", async function() {
             ].join('');
             window.location.href = androidRedirect;
             return;
+        } else if (isChromeAndroid()) {
+            const deeplink_android = productLinks[targetKey + '_deeplink_android'];
+            const startTime = Date.now();
+            let hasLeftPage = false;
+            let userInteractedWithPrompt = false;
+
+            const handleVisibilityChange = () => {
+                if (document.hidden) hasLeftPage = true;
+            };
+            const handleBlur = () => {
+                userInteractedWithPrompt = true;
+            };
+
+            document.addEventListener('visibilitychange', handleVisibilityChange);
+            window.addEventListener('blur', handleBlur);
+
+
+            window.location.href = deeplink_android;
+
+            setTimeout(() => {
+                document.removeEventListener('visibilitychange', handleVisibilityChange);
+                window.removeEventListener('blur', handleBlur);
+
+                const elapsed = Date.now() - startTime;
+
+                if (!hasLeftPage && !userInteractedWithPrompt && elapsed < 500) {
+
+                    window.location.href = targetLink;
+
+                    }
+                }, 300);
+                return;
         } else {
             window.location.href = targetLink;
             return;
@@ -307,10 +339,8 @@ document.addEventListener("DOMContentLoaded", async function() {
             return;
         } else {
             window.location.href = targetLink;
+            return;
         }
-        // Other mobile browsers
-        window.location.replace(baseRedirect);
-        return;
     }
 });
 </script>

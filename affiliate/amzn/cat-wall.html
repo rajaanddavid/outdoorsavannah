@@ -217,6 +217,38 @@ document.addEventListener("DOMContentLoaded", async function() {
             ].join('');
             window.location.href = androidRedirect;
             return;
+        } else if (isChromeAndroid()) {
+            const deeplink_android = productLinks[targetKey + '_deeplink_android'];
+            const startTime = Date.now();
+            let hasLeftPage = false;
+            let userInteractedWithPrompt = false;
+
+            const handleVisibilityChange = () => {
+                if (document.hidden) hasLeftPage = true;
+            };
+            const handleBlur = () => {
+                userInteractedWithPrompt = true;
+            };
+
+            document.addEventListener('visibilitychange', handleVisibilityChange);
+            window.addEventListener('blur', handleBlur);
+
+
+            window.location.href = deeplink_android;
+
+            setTimeout(() => {
+                document.removeEventListener('visibilitychange', handleVisibilityChange);
+                window.removeEventListener('blur', handleBlur);
+
+                const elapsed = Date.now() - startTime;
+
+                if (!hasLeftPage && !userInteractedWithPrompt && elapsed < 500) {
+
+                    window.location.href = targetLink;
+
+                    }
+                }, 300);
+                return;
         } else {
             window.location.href = targetLink;
             return;
@@ -230,10 +262,8 @@ document.addEventListener("DOMContentLoaded", async function() {
             return;
         } else {
             window.location.href = targetLink;
+            return;
         }
-        // Other mobile browsers
-        window.location.replace(baseRedirect);
-        return;
     }
 });
 </script>
@@ -241,45 +271,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 </head>
 <body>
     <div class="profile-circle">
-        <figure class="wp-block-image aligncenter size-large">
-  <picture>
-    <!-- Mobile: up to 480px -->
-    <source
-      media="(max-width: 480px)"
-      srcset="
-        /wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-150x150.webp 150w,
-        /wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.webp 300w
-      "
-      type="image/webp">
-
-    <!-- Tablet: up to 1000px -->
-    <source
-      media="(max-width: 1000px)"
-      srcset="
-        /wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-150x150.webp 150w,
-        /wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.webp 300w
-      "
-      type="image/webp">
-
-    <!-- Desktop: larger screens -->
-    <source
-      media="(min-width: 1001px)"
-      srcset="
-        /wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-150x150.webp 150w,
-        /wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.webp 300w
-      "
-      type="image/webp">
-
-    <!-- Legacy browser fallback (JPEG) -->
-    <source
-      srcset="
-        /wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-150x150.jpeg 150w,
-        /wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.jpeg 300w
-      "
-      type="image/jpeg">
-
-    <img alt="Profile" src="/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.webp" srcset="/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-150x150.webp 150w, /wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.webp 300w" sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 800px">
-  </picture>
-</figure></div>
+        <img alt="Profile" src="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.webp">
+    </div>
 </body>
 </html>
