@@ -319,12 +319,12 @@ document.addEventListener("DOMContentLoaded", async function() {
 
                 const elapsed = Date.now() - startTime;
 
-                if (!hasLeftPage && !userInteractedWithPrompt && elapsed < 500) {
+                if (!hasLeftPage && !userInteractedWithPrompt && elapsed < 3300) {
 
                     window.location.href = targetLink;
 
                     }
-                }, 300);
+                }, 3000);
                 return;
         } else {
             window.location.href = targetLink;
@@ -338,7 +338,7 @@ document.addEventListener("DOMContentLoaded", async function() {
             window.location.href = iosRedirect;
             return;
         } else {
-            window.location.href = targetLink;
+            window.location.replace(baseRedirect);
             return;
         }
     }
