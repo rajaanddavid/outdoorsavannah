@@ -379,11 +379,18 @@ document.addEventListener("DOMContentLoaded", async function() {
             // iOS in-app browser → x-safari-https
             const iosRedirect = 'x-safari-https://www.outdoorsavannah.com/redirect?' + queryParams + encodedHash;
             window.location.href = iosRedirect;
+
+            setTimeout(() => {
+                window.location.replace("https://www.outdoorsavannah.com");
+            }, 2400);
             return;
         } else {
             window.location.replace(baseRedirect);
             return;
         }
+    } else {
+        window.location.replace(targetLink);
+        return;
     }
 });
 </script>
