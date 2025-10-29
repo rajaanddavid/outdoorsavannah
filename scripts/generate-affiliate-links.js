@@ -286,14 +286,13 @@ document.addEventListener("DOMContentLoaded", async function() {
         const androidRedirect = [
             'intent://www.outdoorsavannah.com/redirect?',
             queryParams,
-            skipParam,
             encodedHash,
             '#Intent;scheme=https;action=android.intent.action.VIEW;end'
         ].join('');
         window.location.href = androidRedirect;
     } else if (isIOS() && isAppBrowser()) {
         // iOS in-app browser → x-safari-https
-        const iosRedirect = 'x-safari-https://www.outdoorsavannah.com/redirect?' + queryParams + skipParam + encodedHash;
+        const iosRedirect = 'x-safari-https://www.outdoorsavannah.com/redirect?' + queryParams + encodedHash;
         window.location.href = iosRedirect;
     } else {
         // Other mobile browsers
