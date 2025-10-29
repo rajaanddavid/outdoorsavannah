@@ -429,11 +429,8 @@ document.addEventListener("DOMContentLoaded", async function() {
             window.location.href = normalizedDeeplink;
 
             setTimeout(() => {
-              const elapsed = Date.now() - now;
-              if (elapsed < 5000) {
                 window.location.replace("https://www.outdoorsavannah.com");
-              }
-            }, 4000);
+            }, 2400);
             return;
         } else if (isChromiumAndroid()) {
             const deeplink_android = productLinks[targetKey + '_deeplink_android'];
