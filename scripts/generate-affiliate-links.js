@@ -256,41 +256,66 @@ document.addEventListener("DOMContentLoaded", async function() {
     // Encode hash safely; remove leading '#' if present
     const encodedHash = hash ? '%23' + encodeURIComponent(hash.replace(/^#/, '')) : '';
 
+    const validKeys = Object.keys(productLinks).filter(
+        k => !k.endsWith("_deeplink_ios") && !k.endsWith("_deeplink_android")
+    );
+    const targetKey = variant && validKeys.find(k => k.toLowerCase() === variant.toLowerCase())
+        ? variant
+        : validKeys[0];
+    let targetLink = productLinks[targetKey] || '/';
+
+    const baseRedirect = '/redirect?' + queryParams + encodedHash;
+
     if (!isMobile()) {
-        // Desktop: use productLinks mapping
-        const validKeys = Object.keys(productLinks).filter(
-            k => !k.endsWith("_deeplink_ios") && !k.endsWith("_deeplink_android")
-        );
-        const targetKey = variant && validKeys.find(k => k.toLowerCase() === variant.toLowerCase())
-            ? variant
-            : validKeys[0];
-        let targetLink = productLinks[targetKey] || '/';
-
-        // Separate hash from URL and encode it safely
-        const [urlWithoutHash, linkHash] = targetLink.split('#');
-        targetLink = urlWithoutHash + (linkHash ? '%23' + encodeURIComponent(linkHash) : '');
-
-        window.location.replace(targetLink);
+        window.location.replace(baseRedirect);
         return;
     }
 
     // Mobile redirects
-    const baseRedirect = '/redirect?' + queryParams + encodedHash;
+
 
     // If there are existing query params, append &skipDeeplink=true
     const skipParam = queryParams ? '&skipDeeplink=true' : 'skipDeeplink=true';
 
-    if (isAndroid() && isAppBrowser()) {
-        // Android app browser → intent
-        // Ensure queryParams and encodedHash are already URL-safe
-        const androidRedirect = [
-            'intent://www.outdoorsavannah.com/redirect?',
-            queryParams,
-            encodedHash,
-            '#Intent;scheme=https;action=android.intent.action.VIEW;end'
-        ].join('');
-        window.location.href = androidRedirect;
-    } else if (isIOS() && isAppBrowser()) {
+    if (isAndroid()) {
+        if (isAppBrowser()) {
+            // Android app browser → intent
+            // Ensure queryParams and encodedHash are already URL-safe
+            const androidRedirect = [
+                'intent://www.outdoorsavannah.com/redirect?',
+                queryParams,
+                encodedHash,
+                '#Intent;scheme=https;action=android.intent.action.VIEW;end'
+            ].join('');
+            window.location.href = androidRedirect;
+        } else {
+            const deeplink_android = productLinks[targetKey + '_deeplink_android'];
+
+            // Try deeplink in iframe
+            let hasLeftPage = false;
+
+            const handleVisibilityChange = () => {
+                if (document.hidden) {
+                    hasLeftPage = true;
+                }
+            };
+
+            document.addEventListener('visibilitychange', handleVisibilityChange);
+
+            window.location.href = deeplink_android;
+
+            // Fallback to redirect.html with skipDeeplink=true via x-safari
+            setTimeout(() => {
+                document.removeEventListener('visibilitychange', handleVisibilityChange);
+
+                if (!hasLeftPage) {
+                    window.location.replace(baseRedirect);
+                }
+            }, 300);
+            return;
+            }
+        }
+    if (isIOS() && isAppBrowser()) {
         // iOS in-app browser → x-safari-https
         const iosRedirect = 'x-safari-https://www.outdoorsavannah.com/redirect?' + queryParams + encodedHash;
         window.location.href = iosRedirect;
