@@ -435,24 +435,8 @@ document.addEventListener("DOMContentLoaded", async function() {
             window.location.href = normalizedDeeplink;
             return;
         } else if (isChromiumAndroid()) {
-            const deeplink_android = productLinks[targetKey + '_deeplink_android'];
-            const startTime = Date.now();
-
-            window.location.href = deeplink_android;
-            showFallbackButton(deeplink_android, targetLink);
-
-            setTimeout(() => {
-                const elapsed = Date.now() - startTime;
-
-                if (elapsed < 1200) {
-
-                    window.location.replace(targetLink);
-
-                    }
-                }, 900);
-                return;
-        } else {
-            window.location.href = targetLink;
+            const normalizedDeeplink = normalizeIntentLink(deeplink_android, targetLink);
+            window.location.href = normalizedDeeplink
             return;
             }
         }
