@@ -354,10 +354,12 @@ document.addEventListener("DOMContentLoaded", async function() {
 //                '#Intent;scheme=https;action=android.intent.action.VIEW;end'
 //            ].join('');
 //            window.location.href = androidRedirect;
+            const deeplink_android = productLinks[targetKey + '_deeplink_android'];
             const normalizedDeeplink = normalizeIntentLink(deeplink_android, targetLink);
             window.location.href = normalizedDeeplink;
             return;
         } else if (isChromiumAndroid()) {
+            const deeplink_android = productLinks[targetKey + '_deeplink_android'];
             const normalizedDeeplink = normalizeIntentLink(deeplink_android, targetLink);
             window.location.href = normalizedDeeplink
             return;
