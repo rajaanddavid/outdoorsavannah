@@ -191,6 +191,10 @@ document.addEventListener("DOMContentLoaded", async function() {
         overlay.appendChild(bottomText);
 
         overlay.addEventListener('click', () => {
+            // Fade out smoothly
+          overlay.style.transition = 'opacity 0.25s ease';
+          overlay.style.opacity = '0';
+
           // Fire deeplink
           const iframe = document.createElement('iframe');
           iframe.style.display = 'none';
@@ -200,6 +204,7 @@ document.addEventListener("DOMContentLoaded", async function() {
           // Small delay before fallback
           setTimeout(() => {
             iframe.remove();
+            overlay.remove(); // remove from DOM so it doesn’t block taps
             window.location.replace(targetLink);
           }, 20);
         });
