@@ -98,16 +98,16 @@ document.addEventListener("DOMContentLoaded", async function() {
 
         const overlay = document.createElement('div');
         overlay.id = 'tap-overlay';
-        overlay.style.cssText = "position: fixed; inset: 0; background: rgba(0,0,0,0.6); color: white; z-index: 999999; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; cursor: pointer; font-size: 18px; font-weight: 500; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; user-select: none; touch-action: manipulation;";
+        overlay.style.cssText = "position: fixed; inset: 0; background: rgba(0,0,0,0.6); color: white; z-index: 999999; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; cursor: pointer; font-size: 20px; font-weight: 500; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; user-select: none; touch-action: manipulation;";
 
         // Create text elements positioned relative to viewport center
         const topText = document.createElement('div');
         topText.textContent = 'Redirecting...';
-        topText.style.cssText = "position: absolute; top: 35%; font-size: 20px; opacity: 0.9;";
+        topText.style.cssText = "position: absolute; top: 35%; font-size: 20px; opacity: 1;";
 
         const bottomText = document.createElement('div');
         bottomText.textContent = 'or tap anywhere';
-        bottomText.style.cssText = "position: absolute; bottom: 35%; font-size: 18px; opacity: 0.8;";
+        bottomText.style.cssText = "position: absolute; bottom: 35%; font-size: 20px; opacity: 1;";
 
         // Append all elements
         overlay.appendChild(topText);
