@@ -345,23 +345,35 @@ document.addEventListener("DOMContentLoaded", async function() {
 
     if (isAndroid()) {
         if (isAppBrowser()) {
-            // Android app browser → intent
-            // Ensure queryParams and encodedHash are already URL-safe
-//            const androidRedirect = [
-//                'intent://www.outdoorsavannah.com/redirect?',
-//                queryParams,
-//                encodedHash,
-//                '#Intent;scheme=https;action=android.intent.action.VIEW;end'
-//            ].join('');
-//            window.location.href = androidRedirect;
+            const now = Date.now();
+
             const deeplink_android = productLinks[targetKey + '_deeplink_android'];
             const normalizedDeeplink = normalizeIntentLink(deeplink_android, targetLink);
             window.location.href = normalizedDeeplink;
+
+            setTimeout(() => {
+              const elapsed = Date.now() - now;
+              if (elapsed < 5000) {
+                window.location.replace("https://www.outdoorsavannah.com");
+              }
+            }, 4000);
             return;
         } else if (isChromiumAndroid()) {
             const deeplink_android = productLinks[targetKey + '_deeplink_android'];
-            const normalizedDeeplink = normalizeIntentLink(deeplink_android, targetLink);
-            window.location.href = normalizedDeeplink
+            const now = Date.now();
+
+            window.location.href = deeplink_android;
+            showFallbackButton(deeplink_android, targetLink);
+
+            setTimeout(() => {
+                const elapsed = Date.now() - now;
+                if (elapsed < 1200) {
+                    window.location.replace(targetLink);
+                    }
+                }, 900);
+                return;
+        } else {
+            window.location.href = targetLink;
             return;
             }
         }
