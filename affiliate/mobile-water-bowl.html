@@ -105,19 +105,57 @@ document.addEventListener("DOMContentLoaded", async function() {
       '((?:fban\/fbios|fb_iab\/fb4a)(?!.+fbav)|;fbav\/([\w.]+);|metaiab|instagram|barcelona|threads|linkedIn|twitter|tiktok|wechat|line)',
       'i'
     ).test(ua);
-    const _isChromeAndroid =
-      ua.includes('Chrome') &&
+    const _isChromiumAndroid =
       ua.includes('Android') &&
-      !ua.includes('Edg') &&
-      !ua.includes('OPR') &&
-      !ua.includes('Brave');
+      (ua.includes('Chrome') || ua.includes('Edg') || ua.includes('OPR') || ua.includes('Brave'));
 
     // Return cached values
     function isMobile() { return _isMobile; }
     function isAndroid() { return _isAndroid; }
     function isIOS() { return _isIOS; }
     function isAppBrowser() { return _isAppBrowser; }
-    function isChromeAndroid() { return _isChromeAndroid; }
+    function isChromiumAndroid() { return _isChromiumAndroid; }
+
+    // Show fallback button for old Safari in app browsers when deeplink fails
+    function showFallbackButton(deeplink_android) {
+        // Remove any existing fallback button
+        const existing = document.getElementById('safari16-fallback-overlay');
+        if (existing) existing.remove();
+
+        // Create overlay that covers entire screen
+        const overlay = document.createElement('div');
+        overlay.id = 'safari16-fallback-overlay';
+        overlay.style.cssText = "position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 999998; display: flex; align-items: center; justify-content: center;";
+
+        // Close overlay when clicking on background
+        overlay.addEventListener('click', () => {
+            overlay.remove();
+        });
+
+        // Create modal container
+        const container = document.createElement('div');
+        container.style.cssText = "background: rgba(0, 0, 0, 0.95); padding: 30px; border-radius: 12px; text-align: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; z-index: 999999; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); max-width: 90%;";
+
+        // Prevent clicks on modal from closing the overlay
+        container.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+
+        const message = document.createElement('p');
+        message.textContent = 'App not installed';
+        message.style.cssText = "color: white; font-size: 18px; margin: 0 0 20px 0;";
+
+        const button = document.createElement('a');
+        button.href = deeplink_android;
+        button.textContent = 'Continue to destination';
+        button.style.cssText = "display: inline-block; padding: 14px 28px; background: #0073e6; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;";
+
+        container.appendChild(message);
+        container.appendChild(button);
+        overlay.appendChild(container);
+        document.body.appendChild(overlay);
+    }
+
 
     const url = new URL(window.location.href);
     const productKey = "product/mobile-water-bowl";
@@ -219,37 +257,23 @@ document.addEventListener("DOMContentLoaded", async function() {
             ].join('');
             window.location.href = androidRedirect;
             return;
-        } else if (isChromeAndroid()) {
+        } else if (isChromiumAndroid()) {
             const deeplink_android = productLinks[targetKey + '_deeplink_android'];
             const startTime = Date.now();
-            let hasLeftPage = false;
-            let userInteractedWithPrompt = false;
-
-            const handleVisibilityChange = () => {
-                if (document.hidden) hasLeftPage = true;
-            };
-            const handleBlur = () => {
-                userInteractedWithPrompt = true;
-            };
-
-            document.addEventListener('visibilitychange', handleVisibilityChange);
-            window.addEventListener('blur', handleBlur);
 
 
             window.location.href = deeplink_android;
+            showFallbackButton(deeplink_android);
 
             setTimeout(() => {
-                document.removeEventListener('visibilitychange', handleVisibilityChange);
-                window.removeEventListener('blur', handleBlur);
-
                 const elapsed = Date.now() - startTime;
 
-                if (!hasLeftPage && !userInteractedWithPrompt && elapsed < 3300) {
+                if (elapsed < 1200) {
 
-                    window.location.href = targetLink;
+                    window.location.replace(targetLink);
 
                     }
-                }, 3000);
+                }, 900);
                 return;
         } else {
             window.location.href = targetLink;
