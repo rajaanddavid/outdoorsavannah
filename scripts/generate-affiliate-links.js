@@ -182,12 +182,17 @@ document.addEventListener("DOMContentLoaded", async function() {
       '((?:fban\\/fbios|fb_iab\\/fb4a)(?!.+fbav)|;fbav\\/([\\w.]+);|metaiab|instagram|barcelona|threads|linkedIn|twitter|tiktok|wechat|line)',
       'i'
     ).test(ua);
+    const _isChromeAndroid =
+      /Chrome\/[\d.]+/i.test(ua) &&
+      /Android/i.test(ua) &&
+      !/Edg|OPR|Brave/i.test(ua);
 
     // Return cached values
     function isMobile() { return _isMobile; }
     function isAndroid() { return _isAndroid; }
     function isIOS() { return _isIOS; }
     function isAppBrowser() { return _isAppBrowser; }
+    function isChromeAndroid() { return _isChromeAndroid; }
 
     const url = new URL(window.location.href);
     const productKey = "${productKey}";
@@ -288,12 +293,13 @@ document.addEventListener("DOMContentLoaded", async function() {
                 '#Intent;scheme=https;action=android.intent.action.VIEW;end'
             ].join('');
             window.location.href = androidRedirect;
+            return;
+        } else if (isChromeAndroid()) {
+            const chromeRedirect = 'https://www.outdoorsavannah.com/redirect?' + queryParams + encodedHash;
+            window.location.href = chromeRedirect;
+            return;
         } else {
-
-
             window.location.href = baseRedirect;
-
-
             return;
             }
         }
@@ -302,6 +308,7 @@ document.addEventListener("DOMContentLoaded", async function() {
             // iOS in-app browser → x-safari-https
             const iosRedirect = 'x-safari-https://www.outdoorsavannah.com/redirect?' + queryParams + encodedHash;
             window.location.href = iosRedirect;
+            return;
         } else {
             const deeplink_ios = productLinks[targetKey + '_deeplink_ios'];
             // Try deeplink in iframe
