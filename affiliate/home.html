@@ -135,6 +135,125 @@ document.addEventListener("DOMContentLoaded", async function() {
         document.body.appendChild(overlay);
     }
 
+    // --- Universal normalizeIntentLink for Android ---
+    function normalizeIntentLink(url, fallback) {
+      console.log("[normalizeIntentLink] Input:", { url: url, fallback: fallback });
+
+      if (!url) return url;
+
+      try {
+        let prefix, intentPart, originalPath, normalizedPath, browserFallback;
+
+        // --- Handle intent:// URLs ---
+        if (url.startsWith("intent://")) {
+          [prefix, intentPart] = url.split("#Intent;");
+          console.log("[normalizeIntentLink] prefix, intentPart:", prefix, intentPart);
+          if (!intentPart) return url;
+
+          // Extract scheme and force https
+          var schemeMatch = intentPart.match(/scheme=([^;]+)/);
+          var scheme = "https";
+          console.log("[normalizeIntentLink] scheme:", scheme);
+
+          // Clean intent parameters: remove package/component/end/browser fallback
+          var filteredParts = intentPart.split(";").filter(function(part) {
+            return !part.startsWith("package=") &&
+                   !part.startsWith("component=") &&
+                   !part.trim().startsWith("end");
+          }).map(function(part) {
+            return part.startsWith("scheme=") ? "scheme=" + scheme : part;
+          });
+          console.log("[normalizeIntentLink] filteredParts:", filteredParts);
+
+          // Extract originalPath
+          originalPath = prefix.replace(/^intent:\/\//, "");
+          console.log("[normalizeIntentLink] originalPath:", originalPath);
+
+          function normalizeFallbackUrl(url) {
+            if (!url) return null;
+            url = url.trim();
+            if (/^https?:\/\//i.test(url)) return url;
+            return "https://" + url.replace(/^https?:\/\//i, "");
+          }
+
+          function isValidUrl(url) {
+            try { new URL(url); return true; } catch (err) { return false; }
+          }
+
+          function detectTldInIntent(url) {
+            var hostMatch = url.replace(/^intent:\/\//, "").split("#Intent")[0].match(/^([^\/?#@]+)/);
+            if (!hostMatch) return false;
+            var host = hostMatch[1].toLowerCase();
+            var parts = host.split(".");
+            if (parts.length < 2) return false;
+            var tld = parts.slice(-2).join(".");
+            return /^[a-z0-9-]+(\.[a-z0-9-]+)+$/i.test(tld);
+          }
+
+          var isTld = detectTldInIntent(url);
+          console.log("[normalizeIntentLink] isTld:", isTld);
+
+          var existingFallbackMatch = url.match(/S\.browser_fallback_url=([^;]+)/);
+          if (existingFallbackMatch) {
+            browserFallback = decodeURIComponent(existingFallbackMatch[1]);
+            console.log("[normalizeIntentLink] Found existing S.browser_fallback_url:", browserFallback);
+            browserFallback = normalizeFallbackUrl(browserFallback);
+            if (!isValidUrl(browserFallback)) {
+              console.warn("[normalizeIntentLink] Invalid fallback detected, using default targetLink");
+              browserFallback = normalizeFallbackUrl(fallback);
+            }
+          } else {
+            browserFallback = fallback.indexOf("https://") === 0
+              ? fallback
+              : "https://" + fallback.replace(/^https?:\/\//, "");
+            console.log("[normalizeIntentLink] browserFallback (from fallback param):", browserFallback);
+          }
+
+          if (isTld) {
+            normalizedPath = originalPath;
+          } else {
+            var fallbackHostMatch = fallback.replace(/^https?:\/\//, "").match(/^([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
+            var fallbackHost = fallbackHostMatch ? fallbackHostMatch[1] : fallback.replace(/^https?:\/\//, "");
+            normalizedPath = fallbackHost + "/" + originalPath;
+          }
+
+          var intentPrefix = "intent://" + normalizedPath;
+          var normalizedIntent = intentPrefix + "#Intent;" + filteredParts.join(";") + ";action=android.intent.action.VIEW";
+          if (!existingFallbackMatch) {
+            normalizedIntent += ";S.browser_fallback_url=" + encodeURIComponent(browserFallback);
+          }
+          normalizedIntent += ";end";
+
+          normalizedIntent = normalizedIntent.replace(/;;+/g, ";");
+
+          console.log("[normalizeIntentLink] normalizedPath:", normalizedPath);
+          console.log("[normalizeIntentLink] normalizedIntent:", normalizedIntent);
+          return normalizedIntent;
+        }
+
+        // --- Handle app:// URLs ---
+        if (/^com\./.test(url)) {
+          var path = url.replace(/^com\.[a-zA-Z0-9._-]+:\/\//, "");
+          console.log("[normalizeIntentLink] app:// path:", path);
+
+          browserFallback = fallback.indexOf("https://") === 0
+            ? fallback
+            : "https://" + fallback.replace(/^https?:\/\//, "");
+          console.log("[normalizeIntentLink] browserFallback for app://:", browserFallback);
+
+          var normalizedIntent = ("intent://" + path + "#Intent;scheme=https;action=android.intent.action.VIEW;S.browser_fallback_url=" + encodeURIComponent(browserFallback) + ";end").replace(/;;+/g, ";");
+          console.log("[normalizeIntentLink] normalizedIntent for app://:", normalizedIntent);
+          return normalizedIntent;
+        }
+
+        console.log("[normalizeIntentLink] URL returned as-is");
+        return url;
+
+      } catch (err) {
+        console.error("[normalizeIntentLink] error:", err);
+        return url;
+      }
+    }
 
     const url = new URL(window.location.href);
     const productKey = "home";
@@ -228,13 +347,15 @@ document.addEventListener("DOMContentLoaded", async function() {
         if (isAppBrowser()) {
             // Android app browser → intent
             // Ensure queryParams and encodedHash are already URL-safe
-            const androidRedirect = [
-                'intent://www.outdoorsavannah.com/redirect?',
-                queryParams,
-                encodedHash,
-                '#Intent;scheme=https;action=android.intent.action.VIEW;end'
-            ].join('');
-            window.location.href = androidRedirect;
+//            const androidRedirect = [
+//                'intent://www.outdoorsavannah.com/redirect?',
+//                queryParams,
+//                encodedHash,
+//                '#Intent;scheme=https;action=android.intent.action.VIEW;end'
+//            ].join('');
+//            window.location.href = androidRedirect;
+            const normalizedDeeplink = normalizeIntentLink(deeplink_android, targetLink);
+            window.location.href = normalizedDeeplink;
             return;
         } else if (isChromiumAndroid()) {
             const deeplink_android = productLinks[targetKey + '_deeplink_android'];
