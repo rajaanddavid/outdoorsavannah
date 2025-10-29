@@ -90,7 +90,7 @@ const template = (meta, productKey) => {
 
     body {
         width: 100%;
-        height: 100vh;
+        min-height: 100dvh;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -175,7 +175,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 
         const overlay = document.createElement('div');
         overlay.id = 'tap-overlay';
-        overlay.style.cssText = "position: fixed; inset: 0; background: rgba(0,0,0,0.6); color: white; z-index: 999999; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; cursor: pointer;";
+        overlay.style.cssText = "position: fixed; inset: 0; background: rgba(0,0,0,0.6); color: white; z-index: 999999; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; cursor: pointer; -webkit-tap-highlight-color: transparent; user-select: none; touch-action: manipulation;";
 
         // Create text elements positioned relative to viewport center
         const topText = document.createElement('div');
