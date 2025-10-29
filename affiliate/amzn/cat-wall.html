@@ -106,9 +106,11 @@ document.addEventListener("DOMContentLoaded", async function() {
       'i'
     ).test(ua);
     const _isChromeAndroid =
-      new RegExp('Chrome/[\d.]+', 'i').test(ua) &&
-      /Android/i.test(ua) &&
-      !new RegExp('Edg|OPR|Brave', 'i').test(ua);
+      ua.includes('Chrome') &&
+      ua.includes('Android') &&
+      !ua.includes('Edg') &&
+      !ua.includes('OPR') &&
+      !ua.includes('Brave');
 
     // Return cached values
     function isMobile() { return _isMobile; }
