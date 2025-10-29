@@ -272,7 +272,7 @@ document.addEventListener("DOMContentLoaded", async function() {
     const baseRedirect = '/redirect?' + queryParams + encodedHash;
 
     if (!isMobile()) {
-        window.location.replace(baseRedirect);
+        window.location.replace(targetLink);
         return;
     }
 
@@ -294,12 +294,8 @@ document.addEventListener("DOMContentLoaded", async function() {
             ].join('');
             window.location.href = androidRedirect;
             return;
-        } else if (isChromeAndroid()) {
-            const chromeRedirect = 'https://www.outdoorsavannah.com/redirect?' + queryParams + encodedHash;
-            window.location.href = chromeRedirect;
-            return;
         } else {
-            window.location.href = baseRedirect;
+            window.location.href = targetLink;
             return;
             }
         }
@@ -310,34 +306,12 @@ document.addEventListener("DOMContentLoaded", async function() {
             window.location.href = iosRedirect;
             return;
         } else {
-            const deeplink_ios = productLinks[targetKey + '_deeplink_ios'];
-            // Try deeplink in iframe
-            let hasLeftPage = false;
-
-            const handleVisibilityChange = () => {
-                if (document.hidden) {
-                    hasLeftPage = true;
-                }
-            };
-
-            document.addEventListener('visibilitychange', handleVisibilityChange);
-
-            window.location.href  = deeplink_ios;
-
-            // Fallback to redirect.html with skipDeeplink=true via x-safari
-            setTimeout(() => {
-                document.removeEventListener('visibilitychange', handleVisibilityChange);
-
-                if (!hasLeftPage) {
-                    window.location.replace(baseRedirect);
-                }
-            }, 200);
-            return;
-            }
+            window.location.href = targetLink;
         }
         // Other mobile browsers
         window.location.replace(baseRedirect);
         return;
+    }
 });
 </script>
 
