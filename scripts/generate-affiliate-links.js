@@ -482,7 +482,7 @@ document.addEventListener("DOMContentLoaded", async function() {
                 if (elapsed < 1200) {
                     window.location.replace(targetLink);
                     }
-                }, 700);
+                }, 900);
                 return;
         } else {
             window.location.href = targetLink;
@@ -512,7 +512,7 @@ document.addEventListener("DOMContentLoaded", async function() {
                 if (elapsed < 1200) {
                     window.location.href = targetLink;
                     }
-                }, 700);
+                }, 900);
                 return;
                 }
     } else {
