@@ -6,3 +6,49 @@ Disallow: /body.html
 Disallow: /insertheaders.js
 Disallow: /amazonLinks.json
 Sitemap: http://outdoorsavannah.com/sitemap_index.xml
+
+# --- Whitelist social media scrapers for embedding ---
+User-agent: facebookexternalhit
+Allow: /affiliate
+
+User-agent: Facebot
+Allow: /affiliate
+
+User-agent: Instagram
+Allow: /affiliate
+
+User-agent: ThreadsBot
+Allow: /affiliate
+
+User-agent: MetaBot
+Allow: /affiliate
+
+User-agent: Pinterest
+Allow: /affiliate
+
+User-agent: Discordbot
+Allow: /affiliate
+
+User-agent: Twitterbot
+Allow: /affiliate
+
+User-agent: LinkedInBot
+Allow: /affiliate
+
+User-agent: TikTokbot
+Allow: /affiliate
+
+User-agent: YouTube
+Allow: /affiliate
+
+User-agent: Redditbot
+Allow: /affiliate
+
+User-agent: Slackbot
+Allow: /affiliate
+
+User-agent: WhatsApp
+Allow: /affiliate
+
+User-agent: TelegramBot
+Allow: /affiliate
