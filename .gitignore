@@ -17,6 +17,7 @@
 !/scripts/**/*.js
 !/wp-content/**/*.webp
 !/wp-content/**/*.jpeg
+!/wp-content/mu-plugins/*.php
 
 # ALLOW all JS files in functions folder
 !/functions/**/*.js
