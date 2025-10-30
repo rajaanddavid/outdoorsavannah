@@ -457,6 +457,8 @@ document.addEventListener("DOMContentLoaded", async function() {
     // If there are existing query params, append &skipDeeplink=true
     // const skipParam = queryParams ? '&skipDeeplink=true' : 'skipDeeplink=true';
     // const iosExternalParam = queryParams ? '&iosExternalAffiliate=true' : 'iosExternalAffiliate=true';
+    // If there are existing query params, append &skipDeeplink=true
+    const iosParam = '&iosAppbrowserRedirect=true';
 
     if (isAndroid()) {
         if (isAppBrowser()) {
@@ -490,33 +492,40 @@ document.addEventListener("DOMContentLoaded", async function() {
             }
         }
     if (isIOS()) {
-        if (isAppBrowser()) {
+        const currentUrl = window.location.href;
+
+        if (isAppBrowser() && !currentUrl.includes(iosParam)) {
             // iOS in-app browser → x-safari-https
             const currentUrl = window.location.href;
-            const safariUrl = 'x-safari-' + targetLink;
-            window.location.href = safariUrl;
+            const iosRedirect = 'x-safari-' + currentUrl + iosParam;
+            window.location.href = iosRedirect;
 
             setTimeout(() => {
                 window.location.replace("https://www.outdoorsavannah.com");
             }, 2400);
             return;
-        } else {
-            const now = Date.now();
-            const deeplink_ios = productLinks[targetKey + '_deeplink_ios'];
+        }
+        // Now if already redirected via Safari, go to targetLink
+        if (currentUrl.includes(iosParam)) {
+            window.location.href = targetLink;
+            return;
+        }
 
-            showSafariButton(deeplink_ios, targetLink)
-            console.log("[iosExternalAffiliate] deeplink_ios:", deeplink_ios);
-            console.log("[iosExternalAffiliate] targetLink:", targetLink);
+        const now = Date.now();
+        const deeplink_ios = productLinks[targetKey + '_deeplink_ios'];
 
-            setTimeout(() => {
-                const elapsed = Date.now() - now;
-                if (elapsed < 1200) {
-                    window.location.href = targetLink;
-                    }
-                }, 900);
-                return;
+        showSafariButton(deeplink_ios, targetLink)
+        console.log("[iosExternalAffiliate] deeplink_ios:", deeplink_ios);
+        console.log("[iosExternalAffiliate] targetLink:", targetLink);
+
+        setTimeout(() => {
+            const elapsed = Date.now() - now;
+            if (elapsed < 1200) {
+                window.location.href = targetLink;
                 }
-    } else {
+            }, 900);
+            return;
+   } else {
         window.location.replace(targetLink);
         return;
     }
