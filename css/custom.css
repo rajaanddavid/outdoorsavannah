@@ -61,11 +61,6 @@
         color: #f0f0f0 !important;
     }
 
-    /* Mobile navigation "Home" link ::after pseudo-element */
-    .wp-block-navigation__container .wp-block-navigation-item:first-child .wp-block-navigation-item__label::after {
-        color: #f0f0f0 !important;
-    }
-
     /* Homepage buttons - white borders in dark mode */
     .page-id-5 .wp-block-button__link {
         border: 2px solid #fff !important;
