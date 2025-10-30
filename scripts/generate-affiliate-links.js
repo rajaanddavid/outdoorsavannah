@@ -462,7 +462,7 @@ document.addEventListener("DOMContentLoaded", async function() {
             }, 2400);
             return;
         } else {
-            window.location.replace(baseRedirect);
+            window.location.href = baseRedirect;
             return;
         }
     } else {
