@@ -10,6 +10,7 @@ Sitemap: http://outdoorsavannah.com/sitemap_index.xml
 # --- Whitelist social media scrapers for embedding ---
 User-agent: facebookexternalhit
 Allow: /affiliate
+Allow: /redirect
 
 User-agent: Facebot
 Allow: /affiliate
