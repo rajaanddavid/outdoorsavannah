@@ -63,19 +63,24 @@ async function deploy() {
   try {
     const fs = require('fs');
     const fourOhFourPath = path.join(rootDir, 'fourohfour', 'index.html');
-    const fourOhFourNewPath = path.join(rootDir, 'fourohfour', '404.html');
     const finalPath = path.join(rootDir, '404.html');
 
-    // Rename fourohfour/index.html to fourohfour/404.html
+    // Move fourohfour/index.html directly to root /404.html
     if (fs.existsSync(fourOhFourPath)) {
-      fs.renameSync(fourOhFourPath, fourOhFourNewPath);
-      log('  ✓ Renamed fourohfour/index.html to fourohfour/404.html', 'green');
-    }
+      fs.renameSync(fourOhFourPath, finalPath);
+      log('  ✓ Moved fourohfour/index.html to /404.html', 'green');
 
-    // Move fourohfour/404.html to root /404.html
-    if (fs.existsSync(fourOhFourNewPath)) {
-      fs.renameSync(fourOhFourNewPath, finalPath);
-      log('  ✓ Moved fourohfour/404.html to /404.html', 'green');
+      // Remove the now-empty fourohfour directory
+      const fourOhFourDir = path.join(rootDir, 'fourohfour');
+      try {
+        fs.rmdirSync(fourOhFourDir);
+        log('  ✓ Removed empty fourohfour directory', 'green');
+      } catch (e) {
+        // Directory might not be empty or might not exist, that's okay
+        log('  ⚠ Could not remove fourohfour directory (may not be empty)', 'yellow');
+      }
+    } else {
+      log('  ⚠ fourohfour/index.html not found', 'yellow');
     }
 
     // Remove fourohfour entry from page-sitemap.xml
