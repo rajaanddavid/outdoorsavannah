@@ -167,12 +167,8 @@ document.addEventListener("DOMContentLoaded", async function() {
     function isAppBrowser() { return _isAppBrowser; }
     function isChromiumAndroid() { return _isChromiumAndroid; }
 
-    // Show fallback button for old Safari in app browsers when deeplink fails
-    function showFallbackButton(deeplink_android, targetLink) {
-        // Remove any existing fallback button
-        const existing = document.getElementById('safari16-fallback-overlay');
-        if (existing) existing.remove();
-
+    // show overlay button for external Chromium Android users so they can deeplink or move ahead faster
+    function showChromiumAndroidButton(deeplink_android, targetLink) {
         const overlay = document.createElement('div');
         overlay.id = 'tap-overlay';
         overlay.style.cssText = "position: fixed; inset: 0; background: rgba(0,0,0,0.6); color: white; z-index: 999999; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; cursor: pointer; font-size: 20px; font-weight: 500; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; user-select: none; touch-action: manipulation;";
@@ -418,7 +414,8 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 
     // If there are existing query params, append &skipDeeplink=true
-    const skipParam = queryParams ? '&skipDeeplink=true' : 'skipDeeplink=true';
+    // const skipParam = queryParams ? '&skipDeeplink=true' : 'skipDeeplink=true';
+    const iosExternalParam = queryParams ? '&iosExternalAffiliate=true' : 'iosExternalAffiliate=true';
 
     if (isAndroid()) {
         if (isAppBrowser()) {
@@ -437,7 +434,7 @@ document.addEventListener("DOMContentLoaded", async function() {
             const now = Date.now();
 
             window.location.href = deeplink_android;
-            showFallbackButton(deeplink_android, targetLink);
+            showChromiumAndroidButton(deeplink_android, targetLink);
 
             setTimeout(() => {
                 const elapsed = Date.now() - now;
@@ -462,7 +459,8 @@ document.addEventListener("DOMContentLoaded", async function() {
             }, 2400);
             return;
         } else {
-            window.location.href = baseRedirect;
+            const iosExternalRedirect = baseRedirect + iosExternalParam;
+            window.location.href = iosExternalRedirect;
             return;
         }
     } else {
