@@ -492,8 +492,9 @@ document.addEventListener("DOMContentLoaded", async function() {
     if (isIOS()) {
         if (isAppBrowser()) {
             // iOS in-app browser → x-safari-https
-            const iosRedirect = 'x-safari-https://www.outdoorsavannah.com/redirect?' + queryParams + encodedHash;
-            window.location.href = iosRedirect;
+            const currentUrl = window.location.href;
+            const safariUrl = 'x-safari-' + targetLink;
+            window.location.href = safariUrl;
 
             setTimeout(() => {
                 window.location.replace("https://www.outdoorsavannah.com");
