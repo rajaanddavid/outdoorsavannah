@@ -500,21 +500,8 @@ document.addEventListener("DOMContentLoaded", async function() {
             }, 2400);
             return;
         } else {
-            const now = Date.now();
-            const deeplink_ios = productLinks[targetKey + '_deeplink_ios'];
-
-            showSafariButton(deeplink_ios, targetLink)
-            console.log("[iosExternalAffiliate] deeplink_ios:", deeplink_ios);
-            console.log("[iosExternalAffiliate] targetLink:", targetLink);
-
-            setTimeout(() => {
-                const elapsed = Date.now() - now;
-                if (elapsed < 1200) {
-                    window.location.href = targetLink;
-                    }
-                }, 900);
-                return;
-                }
+          window.location.href = targetLink;
+          }
     } else {
         window.location.replace(targetLink);
         return;
