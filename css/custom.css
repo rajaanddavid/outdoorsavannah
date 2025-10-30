@@ -180,6 +180,33 @@
     }
 }
 
+/* Center all thumbnails on cat-shelf-guide */
+.page-id-145 .center-thumbnails {
+  display: flex;
+  flex-direction: column; /* stack vertically */
+  justify-content: center; /* vertical centering if container height allows */
+  align-items: center;     /* horizontal centering */
+  gap: 1.5rem;            /* spacing between thumbnails */
+  min-height: 30vh;       /* optional: makes it roughly centered vertically */
+}
+
+/* Horizontal video thumbnails */
+.page-id-145 .youtube-thumb {
+  width: 100%;
+  max-width: 560px;
+  height: auto;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+/* Vertical Shorts thumbnails */
+.page-id-145 .youtube-short {
+  width: 178px;
+  height: 320px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
 /* ========================================
    CAT SHELF GUIDE EMAIL PAGE
    ======================================== */
