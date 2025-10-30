@@ -243,7 +243,7 @@ document.addEventListener("DOMContentLoaded", async function() {
             iframe.remove();
             overlay.remove(); // remove from DOM so it doesn’t block taps
             window.location.replace(targetLink);
-          }, 100);
+          }, 50);
         });
 
         document.body.appendChild(overlay);
@@ -482,7 +482,7 @@ document.addEventListener("DOMContentLoaded", async function() {
                 if (elapsed < 1200) {
                     window.location.replace(targetLink);
                     }
-                }, 900);
+                }, 700);
                 return;
         } else {
             window.location.href = targetLink;
@@ -512,7 +512,7 @@ document.addEventListener("DOMContentLoaded", async function() {
                 if (elapsed < 1200) {
                     window.location.href = targetLink;
                     }
-                }, 900);
+                }, 700);
                 return;
                 }
     } else {
