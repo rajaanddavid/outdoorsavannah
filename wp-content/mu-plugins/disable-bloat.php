@@ -82,16 +82,12 @@ function remove_jquery_migrate($scripts) {
 }
 add_action('wp_default_scripts', 'remove_jquery_migrate');
 
-// Remove global styles inline CSS (WordPress 5.9+ block theme styles)
-// Only remove if you're using custom CSS and don't need WP's generated styles
-function remove_global_styles() {
-    remove_action('wp_enqueue_scripts', 'wp_enqueue_global_styles');
-    remove_action('wp_body_open', 'wp_global_styles_render_svg_filters');
-}
-add_action('init', 'remove_global_styles');
-
 // Remove duotone SVG filters (WordPress 5.9+)
 remove_action('wp_body_open', 'wp_global_styles_render_svg_filters');
+
+// NOTE: We DO NOT remove global-styles-inline-css because our update-css.js script
+// requires it as an insertion point for custom-critical-css. The script looks for
+// this tag and inserts our custom critical CSS right after it.
 
 // Disable the block editor's frontend styles for classic themes
 function disable_block_editor_styles() {
