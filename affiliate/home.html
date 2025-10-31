@@ -318,8 +318,6 @@ document.addEventListener("DOMContentLoaded", async function() {
         }
     }
 
-    variant = variant || "";
-
     const skipRedirect = url.searchParams.get('skipredirect') === 'true';
     const hash = url.hash || "";
 
@@ -327,21 +325,7 @@ document.addEventListener("DOMContentLoaded", async function() {
         return;
     }
 
-    if (!variant) {
-        let productPageUrl;
-        if (productKey === "home") {
-            productPageUrl = "/";
-        } else if (productKey === "amzn") {
-            return;
-        } else if (productKey.startsWith("product/")) {
-            productPageUrl = "/" + productKey + "/";
-        } else {
-            productPageUrl = "/" + productKey + "/";
-        }
-        window.location.replace(productPageUrl);
-        return;
-    }
-
+    // Load amazonLinks early so we can default to first variant if needed
     let amazonLinks = {};
     try {
         const res = await fetch('/amazonLinks.json');
@@ -351,6 +335,42 @@ document.addEventListener("DOMContentLoaded", async function() {
         window.location.replace('/');
         return;
     }
+
+    // If no variant specified, default to first variant for product pages
+    if (!variant) {
+        if (productKey === "amzn") {
+            return; // amzn pages without variant do nothing
+        }
+
+        // For product pages, default to first variant
+        if (productKey.startsWith("product/") || productKey === "home" || productKey === "cat-shelf-guide") {
+            const productLinks = amazonLinks[productKey];
+            if (productLinks) {
+                const validKeys = Object.keys(productLinks).filter(
+                    k => !k.endsWith("_deeplink_ios") && !k.endsWith("_deeplink_android")
+                );
+                if (validKeys.length > 0) {
+                    variant = validKeys[0]; // Default to first variant
+                }
+            }
+        }
+
+        // If still no variant after defaulting, redirect to product page
+        if (!variant) {
+            let productPageUrl;
+            if (productKey === "home") {
+                productPageUrl = "/";
+            } else if (productKey.startsWith("product/")) {
+                productPageUrl = "/" + productKey + "/";
+            } else {
+                productPageUrl = "/" + productKey + "/";
+            }
+            window.location.replace(productPageUrl);
+            return;
+        }
+    }
+
+    variant = variant || "";
 
     const productLinks = amazonLinks[productKey];
     if (!productLinks) {
