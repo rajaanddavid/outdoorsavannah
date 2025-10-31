@@ -70,15 +70,6 @@
 <meta name="robots" content="noindex, nofollow">
 
 <script>
-// Detect back button navigation (bfcache restore) and set flag
-window.addEventListener('pageshow', function(event) {
-    if (event.persisted) {
-        // Page was restored from bfcache (user hit back button)
-        const productKey = "product/wall-crawler-gecko";
-        sessionStorage.setItem('affiliate_back_' + productKey, '1');
-    }
-});
-
 document.addEventListener("DOMContentLoaded", async function() {
     const ua = navigator.userAgent;
     const _isIOS = /iPhone|iPad|iPod/i.test(ua);
@@ -490,26 +481,12 @@ document.addEventListener("DOMContentLoaded", async function() {
             }, 2400);
             return;
         } else {
-            // iOS external browser (Safari)
             const fallbackUrl = "https://www.outdoorsavannah.com/affiliate-links/#" + productKey;
 
-            // Replace history state BEFORE navigating, so back button returns to affiliate-links
-            history.replaceState(null, '', fallbackUrl);
-
-            // Navigate to target link
             window.location.href = targetLink;
 
-            // Fallback: if user hasn't left yet, redirect to affiliate-links
-            // Mark that we've initiated the redirect to avoid re-triggering on back button
-            sessionStorage.setItem('affiliate_redirected_' + productKey, '1');
-
             setTimeout(() => {
-                // Only redirect if we're still on this page and haven't been restored from back
-                if (window.location.href.indexOf('/affiliate/') !== -1 &&
-                    document.visibilityState === 'visible' &&
-                    !sessionStorage.getItem('affiliate_back_' + productKey)) {
                     window.location.href = fallbackUrl;
-                }
             }, 1200);
             return;
         }
@@ -533,7 +510,45 @@ document.addEventListener("DOMContentLoaded", async function() {
 </head>
 <body>
     <div class="profile-circle">
-        <img alt="Profile" src="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.webp">
-    </div>
+        <figure class="wp-block-image aligncenter size-large">
+  <picture>
+    <!-- Mobile: up to 480px -->
+    <source
+      media="(max-width: 480px)"
+      srcset="
+        /wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-150x150.webp 150w,
+        /wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.webp 300w
+      "
+      type="image/webp">
+
+    <!-- Tablet: up to 1000px -->
+    <source
+      media="(max-width: 1000px)"
+      srcset="
+        /wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-150x150.webp 150w,
+        /wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.webp 300w
+      "
+      type="image/webp">
+
+    <!-- Desktop: larger screens -->
+    <source
+      media="(min-width: 1001px)"
+      srcset="
+        /wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-150x150.webp 150w,
+        /wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.webp 300w
+      "
+      type="image/webp">
+
+    <!-- Legacy browser fallback (JPEG) -->
+    <source
+      srcset="
+        /wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-150x150.jpeg 150w,
+        /wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.jpeg 300w
+      "
+      type="image/jpeg">
+
+    <img alt="Profile" src="/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.webp" srcset="/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-150x150.webp 150w, /wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.webp 300w" sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 800px">
+  </picture>
+</figure></div>
 </body>
 </html>
