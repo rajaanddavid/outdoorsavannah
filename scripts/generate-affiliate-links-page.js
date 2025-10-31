@@ -51,9 +51,7 @@ function getDisplayName(productKey) {
 
 // Helper: Get anchor-friendly ID from product key
 function getAnchorId(productKey) {
-    if (productKey.startsWith('product/')) {
-        return productKey.replace('product/', '');
-    }
+    // Return the full productKey as the anchor ID
     return productKey;
 }
 
@@ -243,12 +241,12 @@ for (const productKey of sortedKeys) {
     htmlOutput += `<!-- wp:media-text {"mediaPosition":"left","mediaId":0,"mediaType":"image","mediaWidth":15,"verticalAlignment":"top"} -->
 <div class="wp-block-media-text alignwide has-media-on-the-left is-stacked-on-mobile is-vertically-aligned-top" style="grid-template-columns:15% auto">
 <figure class="wp-block-media-text__media" style="text-align:center; position:relative;">
-<img src="${image}" alt="${displayName}" style="max-width:120px;"/>
+<img id="${anchorId}" src="${image}" alt="${displayName}" style="max-width:120px;"/>
 <span class="copy-btn-mobile" data-product="${anchorId}" data-variants="${variantDataJson}" style="position:absolute; top:0; right:0; cursor:pointer; font-size:1.5em; user-select:none; display:none;">📋</span>
 </figure>
 <div class="wp-block-media-text__content">
 <!-- wp:heading {"level":3} -->
-<h3 class="wp-block-heading" id="${anchorId}" style="margin-top:0; position:relative;">
+<h3 class="wp-block-heading" style="margin-top:0; position:relative;">
 <strong>${displayName}</strong>
 <span class="copy-btn-desktop" data-product="${anchorId}" data-variants="${variantDataJson}" style="cursor:pointer; font-size:0.8em; margin-left:0.5em; user-select:none;">📋</span>
 </h3>
