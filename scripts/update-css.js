@@ -25,6 +25,7 @@ const filesToUpdate = [
   'licensing/index.html',
   'privacy-policy/index.html',
   'product/index.html',
+  'affiliate-links/index.html',
   'cat-shelf-guide/index.html',
   'cat-shelf-guide/email/index.html',
   'product/wall-crawler-gecko/index.html',
