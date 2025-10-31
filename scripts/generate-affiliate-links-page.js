@@ -225,20 +225,9 @@ for (const productKey of sortedKeys) {
 
     console.log(`  ✓ ${displayName} (${variantKeys.length} variant${variantKeys.length > 1 ? 's' : ''})`);
 
-    // Start media + text layout (image left, content right)
-    htmlOutput += `<!-- wp:media-text {"mediaPosition":"left","mediaId":0,"mediaType":"image","mediaWidth":15,"verticalAlignment":"top"} -->
-<div class="wp-block-media-text alignwide has-media-on-the-left is-stacked-on-mobile is-vertically-aligned-top" style="grid-template-columns:15% auto">
-<figure class="wp-block-media-text__media" style="text-align:center;"><img src="${image}" alt="${displayName}" style="max-width:120px;"/></figure>
-<div class="wp-block-media-text__content">
-<!-- wp:heading {"level":3} -->
-<h3 class="wp-block-heading" id="${anchorId}" style="margin-top:0;"><strong>${displayName}</strong> <span class="copy-all-btn" style="cursor:pointer; font-size:0.8em; user-select:none;">📋</span></h3>
-<!-- /wp:heading -->
-
-`;
-
-    // Add all variant buttons with data-product attribute for copy functionality
-    for (let i = 0; i < variantKeys.length; i++) {
-        const variantKey = variantKeys[i];
+    // Build variant data for copy dropdown
+    const variantData = variantKeys.map(variantKey => {
+        const variantDisplayName = getVariantDisplayName(variantKey, productKey, productLinks);
         const affiliateUrl = productKey === 'amzn'
             ? `https://www.outdoorsavannah.com/affiliate/amzn/${variantKey}`
             : productKey.startsWith('product/')
@@ -246,16 +235,31 @@ for (const productKey of sortedKeys) {
             : productKey === 'cat-shelf-guide' && variantKey.startsWith('extralink')
             ? `https://www.outdoorsavannah.com/affiliate/cat-shelf-guide/${variantKey}`
             : `https://www.outdoorsavannah.com/affiliate/${productKey}/${variantKey}`;
+        return { name: variantDisplayName, url: affiliateUrl };
+    });
+    const variantDataJson = JSON.stringify(variantData).replace(/"/g, '&quot;');
 
-        // Add data attribute to first button for copy-all functionality
-        if (i === 0) {
-            htmlOutput += generateVariantButton(productKey, variantKey, true, productLinks).replace(
-                '<div class="wp-block-button buy-button">',
-                `<div class="wp-block-button buy-button" data-product="${anchorId}" data-url="${affiliateUrl}">`
-            );
-        } else {
-            htmlOutput += generateVariantButton(productKey, variantKey, false, productLinks);
-        }
+    // Start media + text layout (image left, content right)
+    htmlOutput += `<!-- wp:media-text {"mediaPosition":"left","mediaId":0,"mediaType":"image","mediaWidth":15,"verticalAlignment":"top"} -->
+<div class="wp-block-media-text alignwide has-media-on-the-left is-stacked-on-mobile is-vertically-aligned-top" style="grid-template-columns:15% auto">
+<figure class="wp-block-media-text__media" style="text-align:center; position:relative;">
+<img src="${image}" alt="${displayName}" style="max-width:120px;"/>
+<span class="copy-btn-mobile" data-product="${anchorId}" data-variants="${variantDataJson}" style="position:absolute; top:0; right:0; cursor:pointer; font-size:1.5em; user-select:none; display:none;">📋</span>
+</figure>
+<div class="wp-block-media-text__content">
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading" id="${anchorId}" style="margin-top:0; position:relative;">
+<strong>${displayName}</strong>
+<span class="copy-btn-desktop" data-product="${anchorId}" data-variants="${variantDataJson}" style="cursor:pointer; font-size:0.8em; margin-left:0.5em; user-select:none;">📋</span>
+</h3>
+<!-- /wp:heading -->
+
+`;
+
+    // Add all variant buttons
+    for (let i = 0; i < variantKeys.length; i++) {
+        const variantKey = variantKeys[i];
+        htmlOutput += generateVariantButton(productKey, variantKey, i === 0, productLinks);
 
         if (i < variantKeys.length - 1) {
             htmlOutput += '\n<!-- wp:spacer {"height":"10px"} -->\n<div style="height:10px" aria-hidden="true" class="wp-block-spacer"></div>\n<!-- /wp:spacer -->\n\n';
@@ -273,35 +277,119 @@ for (const productKey of sortedKeys) {
 `;
 }
 
-// Add copy functionality script
+// Add copy functionality script with dropdown
 htmlOutput += `<!-- wp:html -->
+<style>
+@media (max-width: 600px) {
+    .copy-btn-desktop { display: none !important; }
+    .copy-btn-mobile { display: block !important; }
+    .wp-block-media-text__media {
+        display: flex !important;
+        justify-content: center !important;
+        align-items: flex-start !important;
+        margin: 0 auto !important;
+    }
+    .wp-block-media-text__media figure {
+        position: relative !important;
+        display: inline-block !important;
+    }
+}
+.copy-dropdown {
+    position: absolute;
+    background: white;
+    border: 2px solid #000;
+    border-radius: 4px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    z-index: 1000;
+    min-width: 200px;
+}
+.copy-dropdown-item {
+    padding: 10px 15px;
+    cursor: pointer;
+    border-bottom: 1px solid #ddd;
+}
+.copy-dropdown-item:last-child {
+    border-bottom: none;
+}
+.copy-dropdown-item:hover {
+    background: #f0f0f0;
+}
+</style>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('.copy-all-btn').forEach(copyBtn => {
+    let activeDropdown = null;
+
+    function closeDropdown() {
+        if (activeDropdown) {
+            activeDropdown.remove();
+            activeDropdown = null;
+        }
+    }
+
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.copy-btn-desktop') && !e.target.closest('.copy-btn-mobile') && !e.target.closest('.copy-dropdown')) {
+            closeDropdown();
+        }
+    });
+
+    function handleCopyClick(copyBtn) {
+        const variantsJson = copyBtn.getAttribute('data-variants').replace(/&quot;/g, '"');
+        const variants = JSON.parse(variantsJson);
+
+        if (variants.length === 1) {
+            // Single variant - copy directly
+            navigator.clipboard.writeText(variants[0].url).then(() => {
+                const originalText = copyBtn.textContent;
+                copyBtn.textContent = '✓';
+                setTimeout(() => {
+                    copyBtn.textContent = originalText;
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                alert('Failed to copy link');
+            });
+        } else {
+            // Multiple variants - show dropdown
+            closeDropdown();
+
+            const dropdown = document.createElement('div');
+            dropdown.className = 'copy-dropdown';
+
+            const rect = copyBtn.getBoundingClientRect();
+            dropdown.style.position = 'fixed';
+            dropdown.style.top = (rect.bottom + 5) + 'px';
+            dropdown.style.left = rect.left + 'px';
+
+            variants.forEach(variant => {
+                const item = document.createElement('div');
+                item.className = 'copy-dropdown-item';
+                item.textContent = variant.name;
+                item.addEventListener('click', function() {
+                    navigator.clipboard.writeText(variant.url).then(() => {
+                        const originalText = copyBtn.textContent;
+                        copyBtn.textContent = '✓';
+                        closeDropdown();
+                        setTimeout(() => {
+                            copyBtn.textContent = originalText;
+                        }, 2000);
+                    }).catch(err => {
+                        console.error('Failed to copy:', err);
+                        alert('Failed to copy link');
+                    });
+                });
+                dropdown.appendChild(item);
+            });
+
+            document.body.appendChild(dropdown);
+            activeDropdown = dropdown;
+        }
+    }
+
+    document.querySelectorAll('.copy-btn-desktop, .copy-btn-mobile').forEach(copyBtn => {
         copyBtn.addEventListener('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
-
-            // Find the corresponding button with data-url
-            const heading = this.closest('h3');
-            const productId = heading.getAttribute('id');
-            const button = document.querySelector('[data-product="' + productId + '"]');
-
-            if (button) {
-                const url = button.getAttribute('data-url');
-
-                navigator.clipboard.writeText(url).then(() => {
-                    const originalText = this.textContent;
-                    this.textContent = '✓';
-
-                    setTimeout(() => {
-                        this.textContent = originalText;
-                    }, 2000);
-                }).catch(err => {
-                    console.error('Failed to copy:', err);
-                    alert('Failed to copy link');
-                });
-            }
+            handleCopyClick(this);
         });
     });
 });
