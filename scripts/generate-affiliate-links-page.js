@@ -392,6 +392,22 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+// Handle redirect parameter (for iOS external browser flow)
+(function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const redirectUrl = urlParams.get('redirect');
+
+    if (redirectUrl) {
+        // Remove redirect param from URL without reloading
+        const newUrl = window.location.pathname + window.location.hash;
+        history.replaceState(null, '', newUrl);
+
+        // Redirect to target link, then user can hit back to return here
+        window.location.href = redirectUrl;
+        return;
+    }
+})();
+
 // Scroll to anchor on page load (handles back button navigation and bfcache restore)
 (function() {
     function scrollToHash(attempt) {
