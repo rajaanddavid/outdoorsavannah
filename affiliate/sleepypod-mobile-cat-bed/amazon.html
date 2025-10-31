@@ -319,6 +319,7 @@ document.addEventListener("DOMContentLoaded", async function() {
     }
 
     const skipRedirect = url.searchParams.get('skipredirect') === 'true';
+    const iosExternalAffiliate = url.searchParams.get('iosExternalAffiliate') === 'true';
     const hash = url.hash || "";
 
     if (skipRedirect) {
@@ -465,8 +466,11 @@ document.addEventListener("DOMContentLoaded", async function() {
     if (isIOS()) {
         if (isAppBrowser()) {
             // iOS in-app browser → x-safari-https
-            const iosRedirect = 'x-safari-https://www.outdoorsavannah.com/redirect?' + queryParams + iosExternalParam + encodedHash;
             const fallbackUrl = "https://www.outdoorsavannah.com/affiliate-links/#" + productKey;
+
+            // Build the current affiliate page URL to redirect Safari back to
+            const currentPath = window.location.pathname;
+            const iosRedirect = 'x-safari-https://www.outdoorsavannah.com' + currentPath + '?iosExternalAffiliate=true' + encodedHash;
 
             // Try to open in external Safari using hidden iframe (doesn't navigate current page)
             const iframe = document.createElement('iframe');
@@ -510,7 +514,45 @@ document.addEventListener("DOMContentLoaded", async function() {
 </head>
 <body>
     <div class="profile-circle">
-        <img alt="Profile" src="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.webp">
-    </div>
+        <figure class="wp-block-image aligncenter size-large">
+  <picture>
+    <!-- Mobile: up to 480px -->
+    <source
+      media="(max-width: 480px)"
+      srcset="
+        /wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-150x150.webp 150w,
+        /wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.webp 300w
+      "
+      type="image/webp">
+
+    <!-- Tablet: up to 1000px -->
+    <source
+      media="(max-width: 1000px)"
+      srcset="
+        /wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-150x150.webp 150w,
+        /wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.webp 300w
+      "
+      type="image/webp">
+
+    <!-- Desktop: larger screens -->
+    <source
+      media="(min-width: 1001px)"
+      srcset="
+        /wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-150x150.webp 150w,
+        /wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.webp 300w
+      "
+      type="image/webp">
+
+    <!-- Legacy browser fallback (JPEG) -->
+    <source
+      srcset="
+        /wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-150x150.jpeg 150w,
+        /wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.jpeg 300w
+      "
+      type="image/jpeg">
+
+    <img alt="Profile" src="/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.webp" srcset="/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-150x150.webp 150w, /wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.webp 300w" sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 800px">
+  </picture>
+</figure></div>
 </body>
 </html>

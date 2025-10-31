@@ -392,6 +392,27 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+// Handle redirect parameter (for iOS app browser flow via x-safari)
+(function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const redirectUrl = urlParams.get('redirect');
+
+    if (redirectUrl) {
+        // Remove redirect param from URL without reloading
+        const cleanUrl = window.location.pathname + window.location.hash.split('?')[0];
+
+        // Use pushState to create a new history entry, then redirect
+        // This ensures there's a back button on the target page
+        history.pushState(null, '', cleanUrl);
+
+        // Small delay to ensure page is registered in history before redirecting
+        setTimeout(function() {
+            // Redirect to target link (Amazon), user can hit back to return here
+            window.location.href = redirectUrl;
+        }, 100);
+    }
+})();
+
 // Scroll to anchor on page load (handles back button navigation and bfcache restore)
 (function() {
     function scrollToHash(attempt) {

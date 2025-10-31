@@ -396,6 +396,7 @@ document.addEventListener("DOMContentLoaded", async function() {
     }
 
     const skipRedirect = url.searchParams.get('skipredirect') === 'true';
+    const iosExternalAffiliate = url.searchParams.get('iosExternalAffiliate') === 'true';
     const hash = url.hash || "";
 
     if (skipRedirect) {
@@ -542,8 +543,11 @@ document.addEventListener("DOMContentLoaded", async function() {
     if (isIOS()) {
         if (isAppBrowser()) {
             // iOS in-app browser → x-safari-https
-            const iosRedirect = 'x-safari-https://www.outdoorsavannah.com/redirect?' + queryParams + iosExternalParam + encodedHash;
             const fallbackUrl = "https://www.outdoorsavannah.com/affiliate-links/#" + productKey;
+
+            // Build the current affiliate page URL to redirect Safari back to
+            const currentPath = window.location.pathname;
+            const iosRedirect = 'x-safari-https://www.outdoorsavannah.com' + currentPath + '?iosExternalAffiliate=true' + encodedHash;
 
             // Try to open in external Safari using hidden iframe (doesn't navigate current page)
             const iframe = document.createElement('iframe');
