@@ -175,12 +175,8 @@ function generateVariantButton(productKey, variantKey, isFirstVariant, productLi
         buttonText = `${displayName} on ${variantDisplayName}`;
     }
 
-    return `<div class="wp-block-buttons is-layout-flex wp-block-buttons-is-layout-flex" style="flex-wrap:nowrap;">
+    return `<div class="wp-block-buttons is-layout-flex wp-block-buttons-is-layout-flex">
 <div class="wp-block-button buy-button"><a class="wp-block-button__link wp-element-button" href="${affiliateUrl}" target="_blank" rel="noreferrer noopener nofollow">${buttonText}</a></div>
-
-
-
-<div class="wp-block-button is-style-outline"><a class="wp-block-button__link wp-element-button copy-link-btn" data-url="${affiliateUrl}" style="font-size: 1.2em; padding: 0.5em 0.8em; min-width:auto;">📋</a></div>
 </div>`;
 }
 
@@ -235,15 +231,31 @@ for (const productKey of sortedKeys) {
 <figure class="wp-block-media-text__media" style="text-align:center;"><img src="${image}" alt="${displayName}" style="max-width:120px;"/></figure>
 <div class="wp-block-media-text__content">
 <!-- wp:heading {"level":3} -->
-<h3 class="wp-block-heading" id="${anchorId}" style="margin-top:0;"><strong>${displayName}</strong></h3>
+<h3 class="wp-block-heading" id="${anchorId}" style="margin-top:0;"><strong>${displayName}</strong> <span class="copy-all-btn" style="cursor:pointer; font-size:0.8em; user-select:none;">📋</span></h3>
 <!-- /wp:heading -->
 
 `;
 
-    // Add all variant buttons
+    // Add all variant buttons with data-product attribute for copy functionality
     for (let i = 0; i < variantKeys.length; i++) {
         const variantKey = variantKeys[i];
-        htmlOutput += generateVariantButton(productKey, variantKey, i === 0, productLinks);
+        const affiliateUrl = productKey === 'amzn'
+            ? `https://www.outdoorsavannah.com/affiliate/amzn/${variantKey}`
+            : productKey.startsWith('product/')
+            ? `https://www.outdoorsavannah.com/affiliate/${productKey.replace('product/', '')}/${variantKey}`
+            : productKey === 'cat-shelf-guide' && variantKey.startsWith('extralink')
+            ? `https://www.outdoorsavannah.com/affiliate/cat-shelf-guide/${variantKey}`
+            : `https://www.outdoorsavannah.com/affiliate/${productKey}/${variantKey}`;
+
+        // Add data attribute to first button for copy-all functionality
+        if (i === 0) {
+            htmlOutput += generateVariantButton(productKey, variantKey, true, productLinks).replace(
+                '<div class="wp-block-button buy-button">',
+                `<div class="wp-block-button buy-button" data-product="${anchorId}" data-url="${affiliateUrl}">`
+            );
+        } else {
+            htmlOutput += generateVariantButton(productKey, variantKey, false, productLinks);
+        }
 
         if (i < variantKeys.length - 1) {
             htmlOutput += '\n<!-- wp:spacer {"height":"10px"} -->\n<div style="height:10px" aria-hidden="true" class="wp-block-spacer"></div>\n<!-- /wp:spacer -->\n\n';
@@ -265,24 +277,31 @@ for (const productKey of sortedKeys) {
 htmlOutput += `<!-- wp:html -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('.copy-link-btn').forEach(btn => {
-        btn.addEventListener('click', function(e) {
+    document.querySelectorAll('.copy-all-btn').forEach(copyBtn => {
+        copyBtn.addEventListener('click', function(e) {
             e.preventDefault();
-            const url = this.getAttribute('data-url');
+            e.stopPropagation();
 
-            navigator.clipboard.writeText(url).then(() => {
-                const originalText = this.textContent;
-                this.textContent = 'Copied!';
-                this.style.backgroundColor = '#28a745';
+            // Find the corresponding button with data-url
+            const heading = this.closest('h3');
+            const productId = heading.getAttribute('id');
+            const button = document.querySelector('[data-product="' + productId + '"]');
 
-                setTimeout(() => {
-                    this.textContent = originalText;
-                    this.style.backgroundColor = '';
-                }, 2000);
-            }).catch(err => {
-                console.error('Failed to copy:', err);
-                alert('Failed to copy link');
-            });
+            if (button) {
+                const url = button.getAttribute('data-url');
+
+                navigator.clipboard.writeText(url).then(() => {
+                    const originalText = this.textContent;
+                    this.textContent = '✓';
+
+                    setTimeout(() => {
+                        this.textContent = originalText;
+                    }, 2000);
+                }).catch(err => {
+                    console.error('Failed to copy:', err);
+                    alert('Failed to copy link');
+                });
+            }
         });
     });
 });
