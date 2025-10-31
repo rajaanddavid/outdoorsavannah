@@ -128,6 +128,7 @@ function getUniqueVariants(productKey, productLinks) {
 
 // Helper: Get og:image from product page
 function getProductImage(productKey) {
+    const defaultImage = 'https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.webp';
     let indexPath;
 
     if (productKey === 'home') {
@@ -138,17 +139,17 @@ function getProductImage(productKey) {
         const slug = productKey.replace('product/', '');
         indexPath = path.join(rootDir, 'product', slug, 'index.html');
     } else {
-        return 'https://www.outdoorsavannah.com/default-og-image.webp';
+        return defaultImage;
     }
 
     if (!fs.existsSync(indexPath)) {
-        return 'https://www.outdoorsavannah.com/default-og-image.webp';
+        return defaultImage;
     }
 
     const html = fs.readFileSync(indexPath, 'utf-8');
     const imageMatch = html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i);
 
-    return imageMatch ? imageMatch[1] : 'https://www.outdoorsavannah.com/default-og-image.webp';
+    return imageMatch ? imageMatch[1] : defaultImage;
 }
 
 // Helper: Generate button HTML for a single variant
