@@ -17,6 +17,13 @@ async function getHtmlFiles(dir) {
   const entries = await fs.readdir(dir, { withFileTypes: true });
   for (const entry of entries) {
     const fullPath = path.join(dir, entry.name);
+
+    // Skip affiliate-links directory entirely
+    if (entry.isDirectory() && entry.name === 'affiliate-links') {
+      console.log(`Skipping: ${fullPath} (excluded directory)`);
+      continue;
+    }
+
     if (entry.isDirectory()) {
       results = results.concat(await getHtmlFiles(fullPath));
     } else if (entry.isFile() && ['index.html', '404.html', 'redirect.html'].includes(entry.name)) {
