@@ -379,7 +379,8 @@ document.addEventListener("DOMContentLoaded", async function() {
 
     // If there are existing query params, append &skipDeeplink=true
     // const skipParam = queryParams ? '&skipDeeplink=true' : 'skipDeeplink=true';
-    // const iosExternalParam = queryParams ? '&iosExternalAffiliate=true' : 'iosExternalAffiliate=true';
+    const iosExternalParam = queryParams ? '?iosExternalAffiliate=true' : 'iosExternalAffiliate=true';
+//    const iosParam = '?iosAppbrowserRedirect=true';
 
     if (isAndroid()) {
         if (isAppBrowser()) {
@@ -390,7 +391,7 @@ document.addEventListener("DOMContentLoaded", async function() {
             window.location.href = normalizedDeeplink;
 
             setTimeout(() => {
-                window.location.replace("https://www.outdoorsavannah.com");
+                window.location.replace("https://www.outdoorsavannah.com/");
             }, 2400);
             return;
         } else if (isChromiumAndroid()) {
@@ -415,11 +416,11 @@ document.addEventListener("DOMContentLoaded", async function() {
     if (isIOS()) {
         if (isAppBrowser()) {
             // iOS in-app browser → x-safari-https
-            const iosRedirect = 'x-safari-https://www.outdoorsavannah.com/redirect?' + queryParams + encodedHash;
+            const iosRedirect = 'x-safari-https://www.outdoorsavannah.com/redirect?' + queryParams + iosExternalParam + encodedHash;
             window.location.href = iosRedirect;
 
             setTimeout(() => {
-                window.location.replace("https://www.outdoorsavannah.com");
+                window.location.replace("https://www.outdoorsavannah.com/");
             }, 2400);
             return;
         } else {
