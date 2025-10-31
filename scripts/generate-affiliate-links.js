@@ -494,16 +494,14 @@ document.addEventListener("DOMContentLoaded", async function() {
             const normalizedDeeplink = normalizeIntentLink(deeplink_android, targetLink);
             const fallbackUrl = "https://www.outdoorsavannah.com/affiliate-links/#" + productKey;
 
-            // Try to fire intent link using hidden iframe (doesn't navigate current page)
-            const iframe = document.createElement('iframe');
-            iframe.style.display = 'none';
-            iframe.src = normalizedDeeplink;
-            document.body.appendChild(iframe);
+            // Replace current page in history so back button goes to affiliate-links
+            history.replaceState(null, '', fallbackUrl);
+            window.location.href = normalizedDeeplink;
 
-            // Redirect this app browser page to affiliate-links after delay
             setTimeout(() => {
-                iframe.remove();
-                window.location.href = fallbackUrl;
+                if (document.visibilityState === 'visible') {
+                    window.location.href = fallbackUrl;
+                }
             }, 2400);
             return;
         } else if (isChromiumAndroid()) {
