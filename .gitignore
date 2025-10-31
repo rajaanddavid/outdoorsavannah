@@ -40,3 +40,4 @@ package-lock.json
 wrangler.toml
 !criticalcss
 !/scripts/README.md
+affiliate-links-page.html

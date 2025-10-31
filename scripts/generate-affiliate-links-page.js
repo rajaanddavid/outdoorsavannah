@@ -216,13 +216,13 @@ document.addEventListener('DOMContentLoaded', function() {
 `;
 
 // Write output
-const outputPath = path.join(rootDir, 'affiliate-links.html');
+const outputPath = path.join(rootDir, 'affiliate-links-page.html');
 fs.writeFileSync(outputPath, htmlOutput, 'utf-8');
 
 console.log(`\n✅ Generated affiliate links page!`);
 console.log(`📄 Output: ${outputPath}`);
 console.log('\n📋 Instructions:');
-console.log('  1. Copy the contents of affiliate-links.html');
+console.log('  1. Copy the contents of affiliate-links-page.html');
 console.log('  2. In WordPress, create a new page');
 console.log('  3. Switch to "Code editor" mode (not visual editor)');
 console.log('  4. Paste the HTML code');
