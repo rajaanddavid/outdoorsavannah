@@ -494,14 +494,12 @@ document.addEventListener("DOMContentLoaded", async function() {
             const normalizedDeeplink = normalizeIntentLink(deeplink_android, targetLink);
             const fallbackUrl = "https://www.outdoorsavannah.com/affiliate-links/#" + productKey;
 
-            // Replace current page in history so back button goes to affiliate-links
-            history.replaceState(null, '', fallbackUrl);
+            // Android requires window.location.href for intent links to work properly
             window.location.href = normalizedDeeplink;
 
+            // Fallback for users who return to app browser
             setTimeout(() => {
-                if (document.visibilityState === 'visible') {
-                    window.location.href = fallbackUrl;
-                }
+                window.location.href = fallbackUrl;
             }, 2400);
             return;
         } else if (isChromiumAndroid()) {
