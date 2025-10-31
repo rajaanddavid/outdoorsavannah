@@ -175,12 +175,12 @@ function generateVariantButton(productKey, variantKey, isFirstVariant, productLi
         buttonText = `${displayName} on ${variantDisplayName}`;
     }
 
-    return `<div class="wp-block-buttons is-layout-flex wp-block-buttons-is-layout-flex">
+    return `<div class="wp-block-buttons is-layout-flex wp-block-buttons-is-layout-flex" style="flex-wrap:nowrap;">
 <div class="wp-block-button buy-button"><a class="wp-block-button__link wp-element-button" href="${affiliateUrl}" target="_blank" rel="noreferrer noopener nofollow">${buttonText}</a></div>
 
 
 
-<div class="wp-block-button is-style-outline"><a class="wp-block-button__link wp-element-button copy-link-btn" data-url="${affiliateUrl}" style="font-size: 0.9em; padding: 0.5em 1em;">Copy</a></div>
+<div class="wp-block-button is-style-outline"><a class="wp-block-button__link wp-element-button copy-link-btn" data-url="${affiliateUrl}" style="font-size: 1.2em; padding: 0.5em 0.8em; min-width:auto;">📋</a></div>
 </div>`;
 }
 
@@ -230,12 +230,12 @@ for (const productKey of sortedKeys) {
     console.log(`  ✓ ${displayName} (${variantKeys.length} variant${variantKeys.length > 1 ? 's' : ''})`);
 
     // Start media + text layout (image left, content right)
-    htmlOutput += `<!-- wp:media-text {"align":"center","mediaPosition":"left","mediaId":0,"mediaType":"image","mediaWidth":15,"verticalAlignment":"top"} -->
-<div class="wp-block-media-text aligncenter has-media-on-the-left is-stacked-on-mobile is-vertically-aligned-top" style="grid-template-columns:15% auto">
-<figure class="wp-block-media-text__media"><img src="${image}" alt="${displayName}" style="max-width:120px;"/></figure>
+    htmlOutput += `<!-- wp:media-text {"mediaPosition":"left","mediaId":0,"mediaType":"image","mediaWidth":15,"verticalAlignment":"top"} -->
+<div class="wp-block-media-text alignwide has-media-on-the-left is-stacked-on-mobile is-vertically-aligned-top" style="grid-template-columns:15% auto">
+<figure class="wp-block-media-text__media" style="text-align:center;"><img src="${image}" alt="${displayName}" style="max-width:120px;"/></figure>
 <div class="wp-block-media-text__content">
-<!-- wp:heading {"level":3,"textAlign":"left"} -->
-<h3 class="wp-block-heading has-text-align-left" id="${anchorId}" style="margin-top:0;"><strong>${displayName}</strong></h3>
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading" id="${anchorId}" style="margin-top:0;"><strong>${displayName}</strong></h3>
 <!-- /wp:heading -->
 
 `;
