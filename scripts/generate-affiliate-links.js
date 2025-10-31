@@ -67,7 +67,7 @@ function extractProductTitle(deeplinkUrl, variantKey) {
 }
 
 // --- Simplified template that routes to redirect.html ---
-const template = (meta, productKey) => {
+const template = (meta, productKey, variantOverride = null) => {
     const pageTitle = (meta.title.includes("Raja and David®") || meta.title.includes("Amazon Affiliate Link"))
         ? meta.title
         : `${meta.title} - Raja and David®`;
@@ -371,17 +371,26 @@ document.addEventListener("DOMContentLoaded", async function() {
 
     const url = new URL(window.location.href);
     const productKey = "${productKey}";
+    const variantOverride = ${variantOverride ? `"${variantOverride}"` : 'null'};
 
-    let variant = url.searchParams.get('variant');
+    let variant = variantOverride || url.searchParams.get('variant');
     if (!variant) {
         const hashMatch = url.hash.match(/[?&]variant=([^&]*)/);
         if (hashMatch) variant = hashMatch[1];
     }
 
-    // --- Extract variant from filename for amzn preview pages ---
-    if (productKey === "amzn" && !variant) {
-        const filename = window.location.pathname.split('/').pop().replace('.html', '');
-        if (filename !== 'index') {
+    // --- Extract variant from filename for amzn and product variant pages ---
+    if (!variant) {
+        const pathParts = window.location.pathname.split('/').filter(p => p);
+        const filename = pathParts[pathParts.length - 1].replace('.html', '');
+
+        // For amzn pages: /affiliate/amzn/oxyfresh.html
+        if (productKey === "amzn" && pathParts.includes('amzn') && filename !== 'index') {
+            variant = filename;
+        }
+
+        // For product variant pages: /affiliate/backpack/amazon.html
+        if (productKey.startsWith("product/") && pathParts.includes('affiliate') && filename !== 'index') {
             variant = filename;
         }
     }
@@ -637,9 +646,78 @@ if (amazonLinks.amzn) {
     console.log('  ⚠️  No "amzn" key found in amazonLinks.json');
 }
 
+// --- Step 3: Generate product variant pages (e.g., /affiliate/backpack/amazon.html) ---
+console.log('\n🛍️  Generating product variant pages...');
+
+let productVariantCount = 0;
+
+for (const page of pagesToProcess) {
+    // Skip non-product pages and the main product index
+    if (!page.productKey.startsWith('product/') || page.productKey === 'product') {
+        continue;
+    }
+
+    const productLinks = amazonLinks[page.productKey];
+    if (!productLinks) {
+        console.log(`  ⚠️  No links found for ${page.productKey} in amazonLinks.json`);
+        continue;
+    }
+
+    // Get variant keys (exclude deeplink keys)
+    const variantKeys = Object.keys(productLinks).filter(
+        k => !k.endsWith("_deeplink_ios") && !k.endsWith("_deeplink_android")
+    );
+
+    if (variantKeys.length === 0) {
+        console.log(`  ⚠️  No variants found for ${page.productKey}`);
+        continue;
+    }
+
+    // Extract product slug from productKey (e.g., "product/backpack" -> "backpack")
+    const productSlug = page.productKey.replace('product/', '');
+
+    // Create subdirectory for this product's variants
+    const productVariantDir = path.join(previewDir, productSlug);
+    if (!fs.existsSync(productVariantDir)) {
+        fs.mkdirSync(productVariantDir, { recursive: true });
+    }
+
+    // Read the product page HTML for meta tags
+    if (!fs.existsSync(page.indexPath)) {
+        console.warn(`  ⚠️  No index.html found for ${page.slug}`);
+        continue;
+    }
+
+    const html = fs.readFileSync(page.indexPath, "utf-8");
+    const titleMatch = html.match(/<meta[^>]+property=["']og:title["'][^>]+content=["']([^"']+)["']/i);
+    const imageMatch = html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i);
+    const descMatch = html.match(/<meta[^>]+property=["']og:description["'][^>]+content=["']([^"']+)["']/i);
+    const baseTitle = titleMatch ? titleMatch[1].replace(' - Raja and David®', '') : productSlug;
+    const baseImage = imageMatch ? imageMatch[1] : "https://www.outdoorsavannah.com/default-og-image.webp";
+    const baseDescription = descMatch ? descMatch[1] : "";
+
+    // Generate a page for each variant
+    for (const variantKey of variantKeys) {
+        const meta = {
+            title: `${baseTitle} - ${variantKey.charAt(0).toUpperCase() + variantKey.slice(1)} - Raja and David®`,
+            image: baseImage,
+            description: baseDescription,
+            url: `https://www.outdoorsavannah.com/affiliate/${productSlug}/${variantKey}`,
+        };
+
+        const previewPath = path.join(productVariantDir, `${variantKey}.html`);
+        const previewHtml = template(meta, page.productKey, variantKey);
+
+        fs.writeFileSync(previewPath, previewHtml, "utf-8");
+        console.log(`  ✓ ${productSlug}/${variantKey} → /affiliate/${productSlug}/${variantKey}.html`);
+        productVariantCount++;
+    }
+}
+
 console.log("\n✅ All affiliate preview pages generated!");
 console.log(`\n📊 Summary:`);
 console.log(`  • Main content previews: ${pagesToProcess.length} pages`);
 console.log(`  • Amazon variants: ${amazonLinks.amzn ? Object.keys(amazonLinks.amzn).filter(k => !k.endsWith("_deeplink_ios") && !k.endsWith("_deeplink_android")).length : 0} pages`);
+console.log(`  • Product variants: ${productVariantCount} pages`);
 console.log(`  • Output directory: /affiliate/`);
 console.log(`  • Amazon directory: /affiliate/amzn/`);
