@@ -413,62 +413,98 @@ document.addEventListener("DOMContentLoaded", async function() {
 
     if (isAndroid()) {
         if (isAppBrowser()) {
-            const now = Date.now();
-
             const deeplink_android = productLinks[targetKey + '_deeplink_android'];
             const normalizedDeeplink = normalizeIntentLink(deeplink_android, targetLink);
+            const fallbackUrl = "https://www.outdoorsavannah.com/affiliate-links/#" + productKey;
+
+            // Replace current page in history so back button goes to affiliate-links
+            history.replaceState(null, '', fallbackUrl);
             window.location.href = normalizedDeeplink;
 
             setTimeout(() => {
-                window.location.replace("https://www.outdoorsavannah.com/affiliate-links/#" + productKey);
+                if (document.visibilityState === 'visible') {
+                    window.location.href = fallbackUrl;
+                }
             }, 2400);
             return;
         } else if (isChromiumAndroid()) {
             const deeplink_android = productLinks[targetKey + '_deeplink_android'];
+            const fallbackUrl = "https://www.outdoorsavannah.com/affiliate-links/#" + productKey;
             const now = Date.now();
 
+            // Replace current page in history so back button goes to affiliate-links
+            history.replaceState(null, '', fallbackUrl);
             window.location.href = deeplink_android;
             showChromiumAndroidButton(deeplink_android, targetLink);
 
             setTimeout(() => {
                 const elapsed = Date.now() - now;
-                if (elapsed < 1200) {
+                if (elapsed < 1200 && document.visibilityState === 'visible') {
                     window.location.replace(targetLink);
-                    }
-                }, 900);
-                setTimeout(() => {
-                    window.location.replace("https://www.outdoorsavannah.com/affiliate-links/#" + productKey);
-                }, 2400);
-                return;
-        } else {
-            window.location.href = targetLink;
+                }
+            }, 900);
             setTimeout(() => {
-                window.location.replace("https://www.outdoorsavannah.com/affiliate-links/#" + productKey);
+                if (document.visibilityState === 'visible') {
+                    window.location.href = fallbackUrl;
+                }
             }, 2400);
             return;
-            }
+        } else {
+            const fallbackUrl = "https://www.outdoorsavannah.com/affiliate-links/#" + productKey;
+
+            // Replace current page in history so back button goes to affiliate-links
+            history.replaceState(null, '', fallbackUrl);
+            window.location.href = targetLink;
+
+            setTimeout(() => {
+                if (document.visibilityState === 'visible') {
+                    window.location.href = fallbackUrl;
+                }
+            }, 2400);
+            return;
         }
+    }
     if (isIOS()) {
         if (isAppBrowser()) {
             // iOS in-app browser → x-safari-https
             const iosRedirect = 'x-safari-https://www.outdoorsavannah.com/redirect?' + queryParams + iosExternalParam + encodedHash;
+            const fallbackUrl = "https://www.outdoorsavannah.com/affiliate-links/#" + productKey;
+
+            // Replace current page in history so back button goes to affiliate-links
+            history.replaceState(null, '', fallbackUrl);
             window.location.href = iosRedirect;
 
             setTimeout(() => {
-                window.location.replace("https://www.outdoorsavannah.com/affiliate-links/#" + productKey);
+                if (document.visibilityState === 'visible') {
+                    window.location.href = fallbackUrl;
+                }
             }, 2400);
             return;
         } else {
-          window.location.href = targetLink;
-          setTimeout(() => {
-              window.location.replace("https://www.outdoorsavannah.com/affiliate-links/#" + productKey);
-          }, 2400);
-          return;
-          }
+            const fallbackUrl = "https://www.outdoorsavannah.com/affiliate-links/#" + productKey;
+
+            // Replace current page in history so back button goes to affiliate-links
+            history.replaceState(null, '', fallbackUrl);
+            window.location.href = targetLink;
+
+            setTimeout(() => {
+                if (document.visibilityState === 'visible') {
+                    window.location.href = fallbackUrl;
+                }
+            }, 2400);
+            return;
+        }
     } else {
+        const fallbackUrl = "https://www.outdoorsavannah.com/affiliate-links/#" + productKey;
+
+        // Replace current page in history so back button goes to affiliate-links
+        history.replaceState(null, '', fallbackUrl);
         window.location.replace(targetLink);
+
         setTimeout(() => {
-            window.location.replace("https://www.outdoorsavannah.com/affiliate-links/#" + productKey);
+            if (document.visibilityState === 'visible') {
+                window.location.href = fallbackUrl;
+            }
         }, 2400);
         return;
     }
