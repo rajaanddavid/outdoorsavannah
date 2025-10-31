@@ -230,38 +230,15 @@ for (const productKey of sortedKeys) {
 <figure class="wp-block-media-text__media"><img src="${image}" alt="${displayName}" style="max-width:120px;"/></figure>
 <div class="wp-block-media-text__content">
 <!-- wp:heading {"level":3} -->
-<h3 class="wp-block-heading" id="${anchorId}"><strong>${displayName}</strong></h3>
+<h3 class="wp-block-heading" id="${anchorId}" style="margin-top:0;"><strong>${displayName}</strong></h3>
 <!-- /wp:heading -->
 
 `;
 
-    // Add first variant button on same row as name
-    htmlOutput += `<!-- wp:columns -->
-<div class="wp-block-columns is-layout-flex wp-block-columns-is-layout-flex">
-<!-- wp:column {"width":"40%"} -->
-<div class="wp-block-column is-layout-flow wp-block-column-is-layout-flow" style="flex-basis:40%">
-</div>
-<!-- /wp:column -->
-
-<!-- wp:column {"width":"60%"} -->
-<div class="wp-block-column is-layout-flow wp-block-column-is-layout-flow" style="flex-basis:60%">
-`;
-
-    if (variantKeys.length > 0) {
-        htmlOutput += generateVariantButton(productKey, variantKeys[0], true, productLinks);
-    }
-
-    htmlOutput += `</div>
-<!-- /wp:column -->
-</div>
-<!-- /wp:columns -->
-
-`;
-
-    // Add remaining variant buttons below
-    for (let i = 1; i < variantKeys.length; i++) {
+    // Add all variant buttons
+    for (let i = 0; i < variantKeys.length; i++) {
         const variantKey = variantKeys[i];
-        htmlOutput += generateVariantButton(productKey, variantKey, false, productLinks);
+        htmlOutput += generateVariantButton(productKey, variantKey, i === 0, productLinks);
 
         if (i < variantKeys.length - 1) {
             htmlOutput += '\n<!-- wp:spacer {"height":"10px"} -->\n<div style="height:10px" aria-hidden="true" class="wp-block-spacer"></div>\n<!-- /wp:spacer -->\n\n';
