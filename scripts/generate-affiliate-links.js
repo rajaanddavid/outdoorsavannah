@@ -565,9 +565,7 @@ document.addEventListener("DOMContentLoaded", async function() {
             window.location.href = targetLink;
 
             setTimeout(() => {
-                if (document.visibilityState === 'visible') {
                     window.location.href = fallbackUrl;
-                }
             }, 2400);
             return;
         }
