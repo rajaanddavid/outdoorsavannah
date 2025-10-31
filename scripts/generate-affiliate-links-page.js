@@ -226,12 +226,12 @@ for (const productKey of sortedKeys) {
     console.log(`  ✓ ${displayName} (${variantKeys.length} variant${variantKeys.length > 1 ? 's' : ''})`);
 
     // Start media + text layout (image left, content right)
-    htmlOutput += `<!-- wp:media-text {"mediaPosition":"left","mediaId":0,"mediaType":"image","mediaWidth":15,"verticalAlignment":"top"} -->
-<div class="wp-block-media-text alignwide has-media-on-the-left is-stacked-on-mobile is-vertically-aligned-top" style="grid-template-columns:15% auto">
+    htmlOutput += `<!-- wp:media-text {"align":"center","mediaPosition":"left","mediaId":0,"mediaType":"image","mediaWidth":15,"verticalAlignment":"top"} -->
+<div class="wp-block-media-text aligncenter has-media-on-the-left is-stacked-on-mobile is-vertically-aligned-top" style="grid-template-columns:15% auto">
 <figure class="wp-block-media-text__media"><img src="${image}" alt="${displayName}" style="max-width:120px;"/></figure>
 <div class="wp-block-media-text__content">
-<!-- wp:heading {"level":3} -->
-<h3 class="wp-block-heading" id="${anchorId}" style="margin-top:0;"><strong>${displayName}</strong></h3>
+<!-- wp:heading {"level":3,"textAlign":"left"} -->
+<h3 class="wp-block-heading has-text-align-left" id="${anchorId}" style="margin-top:0;"><strong>${displayName}</strong></h3>
 <!-- /wp:heading -->
 
 `;
