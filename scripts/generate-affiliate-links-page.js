@@ -394,13 +394,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Scroll to anchor on page load (handles back button navigation and bfcache restore)
 (function() {
-    function scrollToHash() {
+    function scrollToHash(attempt) {
+        attempt = attempt || 0;
         const hash = window.location.hash;
-        if (hash) {
-            const anchorId = decodeURIComponent(hash.substring(1));
-            const targetElement = document.getElementById(anchorId);
 
-            if (targetElement) {
+        if (!hash) return;
+
+        const anchorId = decodeURIComponent(hash.substring(1));
+        const targetElement = document.getElementById(anchorId);
+
+        if (targetElement) {
+            // Use requestAnimationFrame to ensure render is complete
+            requestAnimationFrame(function() {
                 const offset = 80;
                 const elementPosition = targetElement.getBoundingClientRect().top;
                 const offsetPosition = elementPosition + window.scrollY - offset;
@@ -409,24 +414,28 @@ document.addEventListener('DOMContentLoaded', function() {
                     top: offsetPosition,
                     behavior: 'smooth'
                 });
-            }
+            });
+        } else if (attempt < 10) {
+            // Element not found yet, retry after short delay (up to 10 attempts = 1 second)
+            setTimeout(function() {
+                scrollToHash(attempt + 1);
+            }, 100);
         }
     }
 
     // Handle normal page load
-    window.addEventListener('load', scrollToHash);
+    window.addEventListener('load', function() { scrollToHash(); });
 
     // Handle back/forward cache restore (Safari)
     window.addEventListener('pageshow', function(event) {
         if (event.persisted) {
-            // Page was restored from bfcache
             scrollToHash();
         }
     });
 
     // Handle DOMContentLoaded as backup
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', scrollToHash);
+        document.addEventListener('DOMContentLoaded', function() { scrollToHash(); });
     } else {
         // DOM already loaded, scroll immediately
         scrollToHash();
