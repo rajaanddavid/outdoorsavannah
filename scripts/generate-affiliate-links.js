@@ -147,6 +147,15 @@ const template = (meta, productKey, variantOverride = null) => {
 <meta name="robots" content="noindex, nofollow">
 
 <script>
+// Detect back button navigation (bfcache restore) and set flag
+window.addEventListener('pageshow', function(event) {
+    if (event.persisted) {
+        // Page was restored from bfcache (user hit back button)
+        const productKey = "${productKey}";
+        sessionStorage.setItem('affiliate_back_' + productKey, '1');
+    }
+});
+
 document.addEventListener("DOMContentLoaded", async function() {
     const ua = navigator.userAgent;
     const _isIOS = /iPhone|iPad|iPod/i.test(ua);
@@ -558,12 +567,26 @@ document.addEventListener("DOMContentLoaded", async function() {
             }, 2400);
             return;
         } else {
+            // iOS external browser (Safari)
             const fallbackUrl = "https://www.outdoorsavannah.com/affiliate-links/#" + productKey;
 
+            // Replace history state BEFORE navigating, so back button returns to affiliate-links
+            history.replaceState(null, '', fallbackUrl);
+
+            // Navigate to target link
             window.location.href = targetLink;
 
+            // Fallback: if user hasn't left yet, redirect to affiliate-links
+            // Mark that we've initiated the redirect to avoid re-triggering on back button
+            sessionStorage.setItem('affiliate_redirected_' + productKey, '1');
+
             setTimeout(() => {
+                // Only redirect if we're still on this page and haven't been restored from back
+                if (window.location.href.indexOf('/affiliate/') !== -1 &&
+                    document.visibilityState === 'visible' &&
+                    !sessionStorage.getItem('affiliate_back_' + productKey)) {
                     window.location.href = fallbackUrl;
+                }
             }, 1200);
             return;
         }
