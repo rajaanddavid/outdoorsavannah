@@ -391,6 +391,29 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+// Scroll to anchor on page load (handles back button navigation)
+(function() {
+    const hash = window.location.hash;
+    if (hash) {
+        // Wait for page to fully load
+        window.addEventListener('load', function() {
+            const anchorId = decodeURIComponent(hash.substring(1));
+            const targetElement = document.getElementById(anchorId);
+
+            if (targetElement) {
+                const offset = 80;
+                const elementPosition = targetElement.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.scrollY - offset;
+
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    }
+})();
 </script>
 <!-- /wp:html -->
 `;
