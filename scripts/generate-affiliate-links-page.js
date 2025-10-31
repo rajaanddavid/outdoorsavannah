@@ -392,12 +392,11 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Scroll to anchor on page load (handles back button navigation)
+// Scroll to anchor on page load (handles back button navigation and bfcache restore)
 (function() {
-    const hash = window.location.hash;
-    if (hash) {
-        // Wait for page to fully load
-        window.addEventListener('load', function() {
+    function scrollToHash() {
+        const hash = window.location.hash;
+        if (hash) {
             const anchorId = decodeURIComponent(hash.substring(1));
             const targetElement = document.getElementById(anchorId);
 
@@ -411,7 +410,26 @@ document.addEventListener('DOMContentLoaded', function() {
                     behavior: 'smooth'
                 });
             }
-        });
+        }
+    }
+
+    // Handle normal page load
+    window.addEventListener('load', scrollToHash);
+
+    // Handle back/forward cache restore (Safari)
+    window.addEventListener('pageshow', function(event) {
+        if (event.persisted) {
+            // Page was restored from bfcache
+            scrollToHash();
+        }
+    });
+
+    // Handle DOMContentLoaded as backup
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', scrollToHash);
+    } else {
+        // DOM already loaded, scroll immediately
+        scrollToHash();
     }
 })();
 </script>
