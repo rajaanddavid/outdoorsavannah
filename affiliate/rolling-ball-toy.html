@@ -417,15 +417,11 @@ document.addEventListener("DOMContentLoaded", async function() {
             const normalizedDeeplink = normalizeIntentLink(deeplink_android, targetLink);
             const fallbackUrl = "https://www.outdoorsavannah.com/affiliate-links/#" + productKey;
 
-            // Try to fire intent link using hidden iframe (doesn't navigate current page)
-            const iframe = document.createElement('iframe');
-            iframe.style.display = 'none';
-            iframe.src = normalizedDeeplink;
-            document.body.appendChild(iframe);
+            // Android requires window.location.href for intent links to work properly
+            window.location.href = normalizedDeeplink;
 
-            // Redirect this app browser page to affiliate-links after delay
+            // Fallback for users who return to app browser
             setTimeout(() => {
-                iframe.remove();
                 window.location.href = fallbackUrl;
             }, 2400);
             return;
