@@ -558,11 +558,17 @@ document.addEventListener("DOMContentLoaded", async function() {
             }, 2400);
             return;
         } else {
-            // iOS external browser (Safari)
             const fallbackUrl = "https://www.outdoorsavannah.com/affiliate-links/#" + productKey;
 
-            // Immediately navigate to affiliate-links page, then redirect from there
-            window.location.replace(fallbackUrl + '&redirect=' + encodeURIComponent(targetLink));
+            // Replace current page in history so back button goes to affiliate-links
+            history.replaceState(null, '', fallbackUrl);
+            window.location.href = targetLink;
+
+            setTimeout(() => {
+                if (document.visibilityState === 'visible') {
+                    window.location.href = fallbackUrl;
+                }
+            }, 2400);
             return;
         }
     } else {
