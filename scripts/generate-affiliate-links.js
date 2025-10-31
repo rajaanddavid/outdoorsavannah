@@ -563,8 +563,8 @@ document.addEventListener("DOMContentLoaded", async function() {
             window.location.href = targetLink;
 
             setTimeout(() => {
-                    window.location.href = fallbackUrl;
-            }, 1200);
+                    window.location.replace(fallbackUrl);
+            }, 1800);
             return;
         }
     } else {
