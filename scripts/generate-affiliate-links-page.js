@@ -14,9 +14,11 @@ process.chdir(rootDir);
 // Mapping for shortened slugs to display names
 const slugDisplayNames = {
     'amzn': 'Amazon',
-    'home': 'Home',
     'cat-shelf-guide': 'Cat Shelf Guide'
 };
+
+// Products to exclude
+const excludedProducts = ['home', 'about'];
 
 // Load amazonLinks.json
 const amazonLinksPath = path.join(rootDir, 'amazonLinks.json');
@@ -34,19 +36,90 @@ function getDisplayName(productKey) {
     }
 
     if (productKey.startsWith('product/')) {
-        return productKey.replace('product/', '');
+        const slug = productKey.replace('product/', '');
+        // Remove hyphens and capitalize first letter of each word
+        return slug.split('-').map(word =>
+            word.charAt(0).toUpperCase() + word.slice(1)
+        ).join(' ');
     }
 
+    // Remove hyphens and capitalize for other keys
+    return productKey.split('-').map(word =>
+        word.charAt(0).toUpperCase() + word.slice(1)
+    ).join(' ');
+}
+
+// Helper: Get anchor-friendly ID from product key
+function getAnchorId(productKey) {
+    if (productKey.startsWith('product/')) {
+        return productKey.replace('product/', '');
+    }
     return productKey;
 }
 
+// Helper: Extract product name from Amazon deeplink
+function extractProductNameFromDeeplink(deeplinkUrl) {
+    if (!deeplinkUrl) return null;
+
+    const startIdx = deeplinkUrl.indexOf('amazon.com/') + 11;
+    const endIdx = deeplinkUrl.indexOf('/dp/', startIdx);
+
+    if (startIdx > 10 && endIdx > startIdx) {
+        const productName = deeplinkUrl.substring(startIdx, endIdx);
+        if (productName) {
+            // Convert URL slug to readable name
+            return productName
+                .split('-')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                .join(' ');
+        }
+    }
+
+    return null;
+}
+
 // Helper: Get display name for variant
-function getVariantDisplayName(variantKey) {
+function getVariantDisplayName(variantKey, productKey = null, productLinks = null) {
+    // For cat-shelf-guide extralinks, infer name from deeplink
+    if (productKey === 'cat-shelf-guide' && variantKey.startsWith('extralink') && productLinks) {
+        const deeplinkKey = variantKey + '_deeplink_ios';
+        const deeplinkUrl = productLinks[deeplinkKey];
+        const inferredName = extractProductNameFromDeeplink(deeplinkUrl);
+        if (inferredName) return inferredName;
+    }
+
     // Capitalize first letter of each word
     return variantKey
         .split('-')
         .map(word => word.charAt(0).toUpperCase() + word.slice(1))
         .join(' ');
+}
+
+// Helper: Get unique variants for cat-shelf-guide (deduplicate based on deeplink URL)
+function getUniqueVariants(productKey, productLinks) {
+    const allVariantKeys = Object.keys(productLinks).filter(
+        k => !k.endsWith('_deeplink_ios') && !k.endsWith('_deeplink_android')
+    );
+
+    // For cat-shelf-guide, only include extralinks and deduplicate by deeplink URL
+    if (productKey === 'cat-shelf-guide') {
+        const extralinks = allVariantKeys.filter(k => k.startsWith('extralink'));
+        const seenUrls = new Set();
+        const uniqueVariants = [];
+
+        for (const variantKey of extralinks) {
+            const url = productLinks[variantKey];
+            if (url && !seenUrls.has(url)) {
+                seenUrls.add(url);
+                uniqueVariants.push(variantKey);
+            }
+        }
+
+        return uniqueVariants;
+    }
+
+    // For other products, filter out extralinks
+    return allVariantKeys.filter(k => !k.startsWith('extralink'));
 }
 
 // Helper: Get og:image from product page
@@ -75,23 +148,26 @@ function getProductImage(productKey) {
 }
 
 // Helper: Generate button HTML for a single variant
-function generateVariantButton(productKey, variantKey, isFirstVariant) {
+function generateVariantButton(productKey, variantKey, isFirstVariant, productLinks) {
     const displayName = getDisplayName(productKey);
-    const variantDisplayName = getVariantDisplayName(variantKey);
+    const variantDisplayName = getVariantDisplayName(variantKey, productKey, productLinks);
 
     let affiliateUrl;
     let buttonText;
 
     if (productKey === 'amzn') {
         affiliateUrl = `https://www.outdoorsavannah.com/affiliate/amzn/${variantKey}`;
-        buttonText = `Buy ${variantDisplayName} on Amazon`;
+        buttonText = `${variantDisplayName} on Amazon`;
     } else if (productKey.startsWith('product/')) {
         const slug = productKey.replace('product/', '');
         affiliateUrl = `https://www.outdoorsavannah.com/affiliate/${slug}/${variantKey}`;
-        buttonText = `Buy ${displayName} on ${variantDisplayName}`;
+        buttonText = `${displayName} on ${variantDisplayName}`;
+    } else if (productKey === 'cat-shelf-guide' && variantKey.startsWith('extralink')) {
+        affiliateUrl = `https://www.outdoorsavannah.com/affiliate/cat-shelf-guide/${variantKey}`;
+        buttonText = variantDisplayName; // Just the product name for extralinks
     } else {
         affiliateUrl = `https://www.outdoorsavannah.com/affiliate/${productKey}/${variantKey}`;
-        buttonText = `Buy ${displayName} on ${variantDisplayName}`;
+        buttonText = `${displayName} on ${variantDisplayName}`;
     }
 
     return `<div class="wp-block-buttons is-layout-flex wp-block-buttons-is-layout-flex">
@@ -127,16 +203,20 @@ const sortedKeys = Object.keys(amazonLinks).sort((a, b) => {
 });
 
 for (const productKey of sortedKeys) {
+    // Skip excluded products
+    if (excludedProducts.includes(productKey)) {
+        console.log(`  ⊘ Skipping ${productKey} (excluded)`);
+        continue;
+    }
+
     const productLinks = amazonLinks[productKey];
-    const variantKeys = Object.keys(productLinks).filter(
-        k => !k.endsWith('_deeplink_ios') && !k.endsWith('_deeplink_android')
-    );
+    const variantKeys = getUniqueVariants(productKey, productLinks);
 
     if (variantKeys.length === 0) continue;
 
     const displayName = getDisplayName(productKey);
     const image = getProductImage(productKey);
-    const rowspan = variantKeys.length;
+    const anchorId = getAnchorId(productKey);
 
     console.log(`  ✓ ${displayName} (${variantKeys.length} variant${variantKeys.length > 1 ? 's' : ''})`);
 
@@ -145,11 +225,11 @@ for (const productKey of sortedKeys) {
 <div class="wp-block-columns is-layout-flex wp-container-core-columns-is-layout-1 wp-block-columns-is-layout-flex">
 `;
 
-    // Left column: Name + Image
+    // Left column: Name + Image with anchor link
     htmlOutput += `<!-- wp:column {"width":"33.33%"} -->
 <div class="wp-block-column is-layout-flow wp-block-column-is-layout-flow" style="flex-basis:33.33%">
 <!-- wp:heading {"level":3} -->
-<h3 class="wp-block-heading"><strong>${displayName}</strong></h3>
+<h3 class="wp-block-heading" id="${anchorId}"><strong>${displayName}</strong></h3>
 <!-- /wp:heading -->
 
 <!-- wp:image -->
@@ -167,7 +247,7 @@ for (const productKey of sortedKeys) {
 
     for (let i = 0; i < variantKeys.length; i++) {
         const variantKey = variantKeys[i];
-        htmlOutput += generateVariantButton(productKey, variantKey, i === 0);
+        htmlOutput += generateVariantButton(productKey, variantKey, i === 0, productLinks);
 
         if (i < variantKeys.length - 1) {
             htmlOutput += '\n<!-- wp:spacer {"height":"10px"} -->\n<div style="height:10px" aria-hidden="true" class="wp-block-spacer"></div>\n<!-- /wp:spacer -->\n\n';
