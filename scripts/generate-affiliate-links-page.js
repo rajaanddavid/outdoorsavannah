@@ -101,7 +101,7 @@ function getUniqueVariants(productKey, productLinks) {
         k => !k.endsWith('_deeplink_ios') && !k.endsWith('_deeplink_android')
     );
 
-    // For cat-shelf-guide, only include extralinks and deduplicate by deeplink URL
+    // For cat-shelf-guide, only include extralinks and deduplicate by deeplink URL, exclude YouTube
     if (productKey === 'cat-shelf-guide') {
         const extralinks = allVariantKeys.filter(k => k.startsWith('extralink'));
         const seenUrls = new Set();
@@ -109,6 +109,10 @@ function getUniqueVariants(productKey, productLinks) {
 
         for (const variantKey of extralinks) {
             const url = productLinks[variantKey];
+            // Skip YouTube links
+            if (url && url.includes('youtube.com')) {
+                continue;
+            }
             if (url && !seenUrls.has(url)) {
                 seenUrls.add(url);
                 uniqueVariants.push(variantKey);
@@ -175,7 +179,7 @@ function generateVariantButton(productKey, variantKey, isFirstVariant, productLi
 
 
 
-<div class="wp-block-button"><a class="wp-block-button__link wp-element-button copy-link-btn" data-url="${affiliateUrl}">Copy</a></div>
+<div class="wp-block-button is-style-outline"><a class="wp-block-button__link wp-element-button copy-link-btn" data-url="${affiliateUrl}" style="font-size: 0.9em; padding: 0.5em 1em;">Copy</a></div>
 </div>`;
 }
 
@@ -220,31 +224,18 @@ for (const productKey of sortedKeys) {
 
     console.log(`  ✓ ${displayName} (${variantKeys.length} variant${variantKeys.length > 1 ? 's' : ''})`);
 
-    // Start columns wrapper
-    htmlOutput += `<!-- wp:columns -->
-<div class="wp-block-columns is-layout-flex wp-container-core-columns-is-layout-1 wp-block-columns-is-layout-flex">
-`;
-
-    // Left column: Name + Image with anchor link
-    htmlOutput += `<!-- wp:column {"width":"33.33%"} -->
-<div class="wp-block-column is-layout-flow wp-block-column-is-layout-flow" style="flex-basis:33.33%">
+    // Start media + text layout (image left, content right)
+    htmlOutput += `<!-- wp:media-text {"mediaPosition":"left","mediaId":0,"mediaType":"image","mediaWidth":15,"verticalAlignment":"top"} -->
+<div class="wp-block-media-text alignwide has-media-on-the-left is-stacked-on-mobile is-vertically-aligned-top" style="grid-template-columns:15% auto">
+<figure class="wp-block-media-text__media"><img src="${image}" alt="${displayName}" style="max-width:120px;"/></figure>
+<div class="wp-block-media-text__content">
 <!-- wp:heading {"level":3} -->
 <h3 class="wp-block-heading" id="${anchorId}"><strong>${displayName}</strong></h3>
 <!-- /wp:heading -->
 
-<!-- wp:image -->
-<figure class="wp-block-image"><img src="${image}" alt="${displayName}"/></figure>
-<!-- /wp:image -->
-</div>
-<!-- /wp:column -->
-
 `;
 
-    // Right column: Buttons for all variants
-    htmlOutput += `<!-- wp:column {"width":"66.66%"} -->
-<div class="wp-block-column is-layout-flow wp-block-column-is-layout-flow" style="flex-basis:66.66%">
-`;
-
+    // Add all variant buttons
     for (let i = 0; i < variantKeys.length; i++) {
         const variantKey = variantKeys[i];
         htmlOutput += generateVariantButton(productKey, variantKey, i === 0, productLinks);
@@ -255,9 +246,8 @@ for (const productKey of sortedKeys) {
     }
 
     htmlOutput += `</div>
-<!-- /wp:column -->
 </div>
-<!-- /wp:columns -->
+<!-- /wp:media-text -->
 
 <!-- wp:spacer {"height":"30px"} -->
 <div style="height:30px" aria-hidden="true" class="wp-block-spacer"></div>
