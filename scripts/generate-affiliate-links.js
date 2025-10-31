@@ -560,13 +560,11 @@ document.addEventListener("DOMContentLoaded", async function() {
         } else {
             const fallbackUrl = "https://www.outdoorsavannah.com/affiliate-links/#" + productKey;
 
-            // Replace current page in history so back button goes to affiliate-links
-            history.replaceState(null, '', fallbackUrl);
             window.location.href = targetLink;
 
             setTimeout(() => {
                     window.location.href = fallbackUrl;
-            }, 2400);
+            }, 1200);
             return;
         }
     } else {
