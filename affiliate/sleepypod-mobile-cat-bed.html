@@ -294,17 +294,26 @@ document.addEventListener("DOMContentLoaded", async function() {
 
     const url = new URL(window.location.href);
     const productKey = "product/sleepypod-mobile-cat-bed";
+    const variantOverride = null;
 
-    let variant = url.searchParams.get('variant');
+    let variant = variantOverride || url.searchParams.get('variant');
     if (!variant) {
         const hashMatch = url.hash.match(/[?&]variant=([^&]*)/);
         if (hashMatch) variant = hashMatch[1];
     }
 
-    // --- Extract variant from filename for amzn preview pages ---
-    if (productKey === "amzn" && !variant) {
-        const filename = window.location.pathname.split('/').pop().replace('.html', '');
-        if (filename !== 'index') {
+    // --- Extract variant from filename for amzn and product variant pages ---
+    if (!variant) {
+        const pathParts = window.location.pathname.split('/').filter(p => p);
+        const filename = pathParts[pathParts.length - 1].replace('.html', '');
+
+        // For amzn pages: /affiliate/amzn/oxyfresh.html
+        if (productKey === "amzn" && pathParts.includes('amzn') && filename !== 'index') {
+            variant = filename;
+        }
+
+        // For product variant pages: /affiliate/backpack/amazon.html
+        if (productKey.startsWith("product/") && pathParts.includes('affiliate') && filename !== 'index') {
             variant = filename;
         }
     }
@@ -440,45 +449,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 </head>
 <body>
     <div class="profile-circle">
-        <figure class="wp-block-image aligncenter size-large">
-  <picture>
-    <!-- Mobile: up to 480px -->
-    <source
-      media="(max-width: 480px)"
-      srcset="
-        /wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-150x150.webp 150w,
-        /wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.webp 300w
-      "
-      type="image/webp">
-
-    <!-- Tablet: up to 1000px -->
-    <source
-      media="(max-width: 1000px)"
-      srcset="
-        /wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-150x150.webp 150w,
-        /wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.webp 300w
-      "
-      type="image/webp">
-
-    <!-- Desktop: larger screens -->
-    <source
-      media="(min-width: 1001px)"
-      srcset="
-        /wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-150x150.webp 150w,
-        /wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.webp 300w
-      "
-      type="image/webp">
-
-    <!-- Legacy browser fallback (JPEG) -->
-    <source
-      srcset="
-        /wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-150x150.jpeg 150w,
-        /wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.jpeg 300w
-      "
-      type="image/jpeg">
-
-    <img alt="Profile" src="/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.webp" srcset="/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-150x150.webp 150w, /wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.webp 300w" sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 800px">
-  </picture>
-</figure></div>
+        <img alt="Profile" src="https://www.outdoorsavannah.com/wp-content/uploads/2025/04/cropped-profile-pic-yt_1.1.2-scaled-2-300x300.webp">
+    </div>
 </body>
 </html>
