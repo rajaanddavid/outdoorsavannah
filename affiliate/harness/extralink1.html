@@ -406,9 +406,9 @@ document.addEventListener("DOMContentLoaded", async function() {
     // Mobile redirects
 
 
-    // If there are existing query params, append &skipDeeplink=true
+    // If there are existing query params, append &iosExternalAffiliate=true
     // const skipParam = queryParams ? '&skipDeeplink=true' : 'skipDeeplink=true';
-    const iosExternalParam = queryParams ? '?iosExternalAffiliate=true' : 'iosExternalAffiliate=true';
+    const iosExternalParam = queryParams ? '&iosExternalAffiliate=true' : '?iosExternalAffiliate=true';
 //    const iosParam = '?iosAppbrowserRedirect=true';
 
     if (isAndroid()) {
@@ -417,14 +417,16 @@ document.addEventListener("DOMContentLoaded", async function() {
             const normalizedDeeplink = normalizeIntentLink(deeplink_android, targetLink);
             const fallbackUrl = "https://www.outdoorsavannah.com/affiliate-links/#" + productKey;
 
-            // Replace current page in history so back button goes to affiliate-links
-            history.replaceState(null, '', fallbackUrl);
-            window.location.href = normalizedDeeplink;
+            // Try to fire intent link using hidden iframe (doesn't navigate current page)
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = normalizedDeeplink;
+            document.body.appendChild(iframe);
 
+            // Redirect this app browser page to affiliate-links after delay
             setTimeout(() => {
-                if (document.visibilityState === 'visible') {
-                    window.location.href = fallbackUrl;
-                }
+                iframe.remove();
+                window.location.href = fallbackUrl;
             }, 2400);
             return;
         } else if (isChromiumAndroid()) {
@@ -470,14 +472,16 @@ document.addEventListener("DOMContentLoaded", async function() {
             const iosRedirect = 'x-safari-https://www.outdoorsavannah.com/redirect?' + queryParams + iosExternalParam + encodedHash;
             const fallbackUrl = "https://www.outdoorsavannah.com/affiliate-links/#" + productKey;
 
-            // Replace current page in history so back button goes to affiliate-links
-            history.replaceState(null, '', fallbackUrl);
-            window.location.href = iosRedirect;
+            // Try to open in external Safari using hidden iframe (doesn't navigate current page)
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = iosRedirect;
+            document.body.appendChild(iframe);
 
+            // Redirect this app browser page to affiliate-links after delay
             setTimeout(() => {
-                if (document.visibilityState === 'visible') {
-                    window.location.href = fallbackUrl;
-                }
+                iframe.remove();
+                window.location.href = fallbackUrl;
             }, 2400);
             return;
         } else {
