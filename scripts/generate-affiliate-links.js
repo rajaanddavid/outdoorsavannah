@@ -549,15 +549,10 @@ document.addEventListener("DOMContentLoaded", async function() {
             const currentPath = window.location.pathname;
             const iosRedirect = 'x-safari-https://www.outdoorsavannah.com' + currentPath + '?iosExternalAffiliate=true' + encodedHash;
 
-            // Try to open in external Safari using hidden iframe (doesn't navigate current page)
-            const iframe = document.createElement('iframe');
-            iframe.style.display = 'none';
-            iframe.src = iosRedirect;
-            document.body.appendChild(iframe);
+            window.location.href = iosRedirect;
 
             // Redirect this app browser page to affiliate-links after delay
             setTimeout(() => {
-                iframe.remove();
                 window.location.href = fallbackUrl;
             }, 2400);
             return;
