@@ -425,6 +425,10 @@ document.addEventListener("DOMContentLoaded", async function() {
             return;
         } else {
           window.location.href = targetLink;
+          setTimeout(() => {
+              window.location.replace("https://www.outdoorsavannah.com/");
+          }, 2400);
+          return;
           }
     } else {
         window.location.replace(targetLink);
