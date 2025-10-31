@@ -185,7 +185,11 @@ function generateVariantButton(productKey, variantKey, isFirstVariant, productLi
 }
 
 // Generate HTML blocks
-let htmlOutput = `<!-- wp:heading -->
+let htmlOutput = `<!-- wp:html -->
+<script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "bb4c39b3f83c48b8bb675aca3076fcfa"}'></script>
+<!-- /wp:html -->
+
+<!-- wp:heading -->
 <h2 class="wp-block-heading">All Affiliate Links</h2>
 <!-- /wp:heading -->
 
