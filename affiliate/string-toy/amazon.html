@@ -465,19 +465,28 @@ document.addEventListener("DOMContentLoaded", async function() {
     }
     if (isIOS()) {
         if (isAppBrowser()) {
-            // iOS in-app browser → x-safari-https
-            const fallbackUrl = "https://www.outdoorsavannah.com/affiliate-links/#" + productKey;
 
-            // Build the current affiliate page URL to redirect Safari back to
-            const currentPath = window.location.pathname;
-            const iosRedirect = 'x-safari-https://www.outdoorsavannah.com' + currentPath + '?iosExternalAffiliate=true' + encodedHash;
+            const deeplink_ios = productLinks[targetKey + '_deeplink_ios'];
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = deeplink_ios;
+            document.body.appendChild(iframe);
 
-            window.location.href = iosRedirect;
-
-            // Redirect this app browser page to affiliate-links after delay
             setTimeout(() => {
-                window.location.href = fallbackUrl;
-            }, 2400);
+                // iOS in-app browser → x-safari-https
+                const fallbackUrl = "https://www.outdoorsavannah.com/affiliate-links/#" + productKey;
+
+                // Build the current affiliate page URL to redirect Safari back to
+                const currentPath = window.location.pathname;
+                const iosRedirect = 'x-safari-https://www.outdoorsavannah.com' + currentPath + '?iosExternalAffiliate=true' + encodedHash;
+
+                window.location.href = iosRedirect;
+
+                // Redirect this app browser page to affiliate-links after delay
+                setTimeout(() => {
+                    window.location.href = fallbackUrl;
+                }, 2400);
+            }, 800);
             return;
         } else {
             const fallbackUrl = "https://www.outdoorsavannah.com/affiliate-links/#" + productKey;
