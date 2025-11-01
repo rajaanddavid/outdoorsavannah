@@ -501,7 +501,7 @@ document.addEventListener("DOMContentLoaded", async function() {
             // Fallback for users who return to app browser
             setTimeout(() => {
                 window.location.href = fallbackUrl;
-            }, 2400);
+            }, 1800);
             return;
         } else if (isChromiumAndroid()) {
             const deeplink_android = productLinks[targetKey + '_deeplink_android'];
@@ -523,7 +523,7 @@ document.addEventListener("DOMContentLoaded", async function() {
                 if (document.visibilityState === 'visible') {
                     window.location.href = fallbackUrl;
                 }
-            }, 2400);
+            }, 1800);
             return;
         } else {
             const fallbackUrl = "https://www.outdoorsavannah.com/affiliate-links/#" + productKey;
@@ -536,7 +536,7 @@ document.addEventListener("DOMContentLoaded", async function() {
                 if (document.visibilityState === 'visible') {
                     window.location.href = fallbackUrl;
                 }
-            }, 2400);
+            }, 1800);
             return;
         }
     }
@@ -562,7 +562,7 @@ document.addEventListener("DOMContentLoaded", async function() {
                 // Redirect this app browser page to affiliate-links after delay
                 setTimeout(() => {
                     window.location.href = fallbackUrl;
-                }, 2400);
+                }, 1800);
             }, 800);
             return;
         } else {
@@ -586,7 +586,7 @@ document.addEventListener("DOMContentLoaded", async function() {
             if (document.visibilityState === 'visible') {
                 window.location.href = fallbackUrl;
             }
-        }, 2400);
+        }, 1800);
         return;
     }
 });
